@@ -27,7 +27,7 @@ See [this article](https://scp-079.org/pm/).
         - `etc.py` : Miscellaneous
         - `telegram.py` : Some telegram functions
     - handlers
-        - `callbacks.py` : Handle callback
+        - `callbacks.py` : Handle callbacks
         - `commands.py` : Handle commands
         - `messages.py` : Handle messages
     - `glovar.py` : Global variables
