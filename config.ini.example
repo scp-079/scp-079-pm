@@ -1,0 +1,23 @@
+[pyrogram]
+api_id = [DATA EXPUNGED]
+api_hash = [DATA EXPUNGED]
+app_version = 0.1.0
+device_model = VPS
+system_version = Linux
+
+[proxy]
+enabled = False
+hostname = 127.0.0.1
+port = 1080
+
+[plugins]
+root = plugins
+include =
+    handlers.commands
+    handlers.callbacks
+    handlers.messages
+
+[custom]
+token = [DATA EXPUNGED]
+creator_id = [DATA EXPUNGED]
+prefix = /!！

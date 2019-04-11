@@ -1,0 +1,4 @@
+pyaes==1.6.1
+Pyrogram==0.11.0
+PySocks==1.6.8
+TgCrypto==1.1.1
