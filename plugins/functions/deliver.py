@@ -96,7 +96,7 @@ def deliver_message_to(client, message):
         text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                 f"状态：{code('已发送')}")
         forward_mid = m.message_id
-        data = bytes_data("recall", forward_mid)
+        data = bytes_data("recall", "single", forward_mid)
         markup = InlineKeyboardMarkup(
             [
                 [

@@ -44,9 +44,10 @@ def thread(target: Callable, args: tuple):
     t.start()
 
 
-def bytes_data(action: str, data) -> bytes:
+def bytes_data(action: str, call_type: str, data) -> bytes:
     text = ('{'
             f'"action":"{action}",'
+            f'"type":"{call_type}",'
             f'"data":"{data}"'
             '}')
 
