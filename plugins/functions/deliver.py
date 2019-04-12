@@ -20,7 +20,7 @@ import logging
 from time import sleep
 
 from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.api.errors import FloodWait
+from pyrogram.api.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
 from .etc import bytes_data, code, thread
@@ -50,6 +50,9 @@ def deliver_message_from(client, message):
                 message_ids=mid,
                 disable_notification=True
             )
+        except UserIsBlocked:
+            deliver_fail(client, cid, mid)
+            return False
         except Exception as e:
             logger.warning(f"Forward message error: {e}")
             return False
@@ -83,6 +86,9 @@ def deliver_message_to(client, message):
                 message_ids=mid,
                 disable_notification=True
             )
+        except UserIsBlocked:
+            deliver_fail(client, aid, mid)
+            return False
         except Exception as e:
             logger.warning(f"Forward message error: {e}")
             return False
@@ -104,3 +110,11 @@ def deliver_message_to(client, message):
         thread(send_message, (client, aid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Deliver message To error: {e}", exc_info=True)
+
+
+def deliver_fail(client, cid: int, mid: int):
+    try:
+        text = "发送失败，对方已停用机器人"
+        thread(send_message, (client, cid, text, mid))
+    except Exception as e:
+        logger.warning(f"Deliver fail error: {e}", exc_info=True)

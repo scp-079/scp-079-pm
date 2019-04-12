@@ -12,6 +12,7 @@ See [this article](https://scp-079.org/pm/).
 
 - [x] Complete basic functions
 - [x] Recall single message
+- [x] Error report
 - [ ] Recall all messages
 - [ ] Add blacklist feature
 - [ ] Anti-flood

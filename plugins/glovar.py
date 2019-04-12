@@ -46,6 +46,6 @@ if token == "" or me_id == 0 or creator_id == 0 or prefix == []:
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
-copyright_text = ("SCP-079-PM v0.1.0, Copyright (C) 2019 SCP-079-PM <https://scp-079.org/pm/>\n"
+copyright_text = ("SCP-079-PM v0.1.1, Copyright (C) 2019 SCP-079-PM <https://scp-079.org/pm/>\n"
                   "Licensed under the terms of the GNU General Public License v3 or later (GPLv3+)\n")
 print(copyright_text)
