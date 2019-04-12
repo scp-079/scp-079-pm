@@ -11,6 +11,8 @@ See [this article](https://scp-079.org/pm/).
 ## To Do List
 
 - [x] Complete basic functions
+- [x] Recall single message
+- [ ] Recall all messages
 - [ ] Add blacklist feature
 - [ ] Anti-flood
 
