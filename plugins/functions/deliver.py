@@ -20,7 +20,7 @@ import logging
 from time import sleep
 
 from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.api.errors import FloodWait, UserIsBlocked
+from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
 from .etc import bytes_data, code, thread
@@ -40,7 +40,8 @@ def deliver_message_from(client, message):
                 chat_id=aid,
                 from_chat_id=cid,
                 message_ids=mid,
-                disable_notification=True
+                disable_notification=True,
+                as_copy=True
             )
         except FloodWait as e:
             sleep(e.x + 1)
@@ -48,7 +49,8 @@ def deliver_message_from(client, message):
                 chat_id=aid,
                 from_chat_id=cid,
                 message_ids=mid,
-                disable_notification=True
+                disable_notification=True,
+                as_copy=True
             )
         except UserIsBlocked:
             deliver_fail(client, cid, mid)
@@ -76,7 +78,8 @@ def deliver_message_to(client, message):
                 chat_id=cid,
                 from_chat_id=aid,
                 message_ids=mid,
-                disable_notification=True
+                disable_notification=True,
+                as_copy=True
             )
         except FloodWait as e:
             sleep(e.x + 1)
@@ -84,7 +87,8 @@ def deliver_message_to(client, message):
                 chat_id=cid,
                 from_chat_id=aid,
                 message_ids=mid,
-                disable_notification=True
+                disable_notification=True,
+                as_copy=True
             )
         except UserIsBlocked:
             deliver_fail(client, aid, mid)
@@ -96,7 +100,7 @@ def deliver_message_to(client, message):
         text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                 f"状态：{code('已发送')}")
         forward_mid = m.message_id
-        data = bytes_data("recall", "single", forward_mid)
+        data = bytes_data("recall", "single", str(forward_mid))
         markup = InlineKeyboardMarkup(
             [
                 [

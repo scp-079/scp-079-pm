@@ -28,7 +28,7 @@ from ..functions.deliver import deliver_message_from, deliver_message_to, send_m
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(command=["start", "ping"],
+@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(commands=["start", "ping"],
                                                                          prefix=glovar.prefix), group=-1)
 def deliver_from(client, message):
     try:
@@ -41,7 +41,7 @@ def deliver_from(client, message):
     if client:
         pass
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(command=["start", "ping"],
+@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(commands=["start", "ping"],
                                                                          prefix=glovar.prefix), group=0)
 def deliver_to(client, message):
     try:

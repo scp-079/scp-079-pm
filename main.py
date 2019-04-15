@@ -35,6 +35,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Start
-app = Client(glovar.token)
+app = Client(
+    session_name="bot",
+    bot_token=glovar.token
+)
 app.start()
 app.idle()

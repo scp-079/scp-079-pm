@@ -18,7 +18,7 @@
 
 import logging
 from threading import Thread
-from typing import Callable
+from typing import Callable, Union
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ def thread(target: Callable, args: tuple):
     t.start()
 
 
-def bytes_data(action: str, call_type: str, data) -> bytes:
+def bytes_data(action: str, call_type: str = None, data: Union[int, str] = None) -> bytes:
     text = ('{'
             f'"action":"{action}",'
             f'"type":"{call_type}",'

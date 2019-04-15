@@ -20,7 +20,7 @@ import logging
 from time import sleep
 
 from pyrogram import ParseMode
-from pyrogram.api.errors import FloodWait
+from pyrogram.errors import FloodWait
 
 from .. import glovar
 

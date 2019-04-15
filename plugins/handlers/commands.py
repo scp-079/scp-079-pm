@@ -28,7 +28,7 @@ from ..functions.telegram import get_user, send_message
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(command=["start"],
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["start"],
                                                                         prefix=glovar.prefix))
 def start(client, message):
     try:
@@ -48,7 +48,7 @@ def start(client, message):
         logger.warning(f"Start error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(command=["ping"],
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["ping"],
                                                                         prefix=glovar.prefix))
 def ping(client, message):
     try:
