@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from ..functions.etc import bytes_data, code, thread
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import get_user, send_message
+from ..functions.telegram import delete_all_message, get_user, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -43,9 +43,15 @@ def block(client, message):
                     cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                     if cid not in glovar.blacklist_ids:
                         add_id(cid, 0, "blacklist")
+                        if glovar.message_ids[cid]["to"]:
+                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+
+                        if glovar.message_ids[cid]["from"]:
+                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["from"]))
+
+                        remove_id(cid, mid, "chat_all")
                         text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('已拉黑')}")
-
                     else:
                         text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('已在黑名单中，无需操作')}")
