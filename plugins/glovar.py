@@ -51,7 +51,6 @@ if not exists("data"):
     mkdir("data")
 
 file_list = ["blacklist_ids", "message_ids"]
-
 for file in file_list:
     try:
         try:
