@@ -42,7 +42,6 @@ def send_message(client, cid: int, text: str, mid: int = None, markup=None):
                         reply_to_message_id=mid,
                         reply_markup=markup
                     )
-                    return result
                 except FloodWait as e:
                     sleep(e.x + 1)
     except Exception as e:
@@ -63,7 +62,6 @@ def edit_message(client, cid: int, mid: int, text: str, markup=None):
                         disable_web_page_preview=True,
                         reply_markup=markup
                     )
-                    return result
                 except FloodWait as e:
                     sleep(e.x + 1)
     except Exception as e:
@@ -99,9 +97,7 @@ def get_user(client, uid: int):
     try:
         while not result:
             try:
-                result = client.get_users(
-                    user_ids=glovar.creator_id
-                )
+                result = client.get_users(user_ids=glovar.creator_id)
             except FloodWait as e:
                 sleep(e.x + 1)
     except Exception as e:
@@ -120,7 +116,6 @@ def answer_callback(client, query_id: int, text: str):
                     text=text,
                     show_alert=True
                 )
-                return result
             except FloodWait as e:
                 sleep(e.x + 1)
     except Exception as e:
