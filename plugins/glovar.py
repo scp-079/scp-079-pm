@@ -47,9 +47,8 @@ flood_ids: Dict[str, Union[Dict[int, int], set]] = {
 }
 message_ids: Dict[int, Dict[str, Set[int]]] = {}
 
-for path in ["data", "tmp"]:
-    if not exists(path):
-        mkdir(path)
+if not exists("data"):
+    mkdir("data")
 
 file_list = ["blacklist_ids", "message_ids"]
 
