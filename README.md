@@ -13,9 +13,10 @@ See [this article](https://scp-079.org/pm/).
 - [x] Complete basic functions
 - [x] Recall single message
 - [x] Error report
-- [ ] Recall all messages
-- [ ] Add blacklist feature
-- [ ] Anti-flood
+- [x] Recall all messages
+- [x] Add blacklist feature
+- [x] Anti-flood
+- [ ] Add reply-to feature
 
 ## Requirements
 
@@ -28,6 +29,8 @@ See [this article](https://scp-079.org/pm/).
     - functions
         - `deliver.py` : I am a postman
         - `etc.py` : Miscellaneous
+        - `files.py` : Save files
+        - `ids.py` : Modify id lists
         - `telegram.py` : Some telegram functions
     - handlers
         - `callbacks.py` : Handle callbacks

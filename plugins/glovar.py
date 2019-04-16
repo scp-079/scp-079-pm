@@ -17,11 +17,59 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import List
+import pickle
+from os import mkdir
+from os.path import exists
+from typing import List, Dict, Set, Union
 from configparser import ConfigParser
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from .functions.ids import clear_counts, clear_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+# Init
+available_commands = [
+    "block",
+    "ping",
+    "recall",
+    "start",
+    "unblock"
+]
+
+# Load data
+blacklist_ids: Set[int] = set()
+flood_ids: Dict[str, Union[Dict[int, int], set]] = {
+    "users": set(),
+    "counts": {}
+}
+message_ids: Dict[int, Dict[str, Set[int]]] = {}
+
+for path in ["data", "tmp"]:
+    if not exists(path):
+        mkdir(path)
+
+file_list = ["blacklist_ids", "message_ids"]
+
+
+for file in file_list:
+    try:
+        try:
+            if exists(f"data/{file}") or exists(f"data/.{file}"):
+                with open(f"data/{file}", 'rb') as f:
+                    locals()[f"{file}"] = pickle.load(f)
+            else:
+                with open(f"data/{file}", 'wb') as f:
+                    pickle.dump(eval(f"{file}"), f)
+        except Exception as e:
+            logger.error(f"Load data {file} error: {e}")
+            with open(f"data/.{file}", 'rb') as f:
+                locals()[f"{file}"] = pickle.load(f)
+    except Exception as e:
+        logger.critical(f"Load data {file}_words backup error: {e}")
+        raise SystemExit("[DATA CORRUPTION]")
 
 # Read data from config.ini
 token: str = ""
@@ -46,6 +94,11 @@ if token == "" or me_id == 0 or creator_id == 0 or prefix == []:
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
-copyright_text = ("SCP-079-PM v0.1.1, Copyright (C) 2019 SCP-079-PM <https://scp-079.org/pm/>\n"
+copyright_text = ("SCP-079-PM v0.2.0, Copyright (C) 2019 SCP-079-PM <https://scp-079.org/pm/>\n"
                   "Licensed under the terms of the GNU General Public License v3 or later (GPLv3+)\n")
 print(copyright_text)
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(clear_counts, 'interval', seconds=5)
+scheduler.add_job(clear_flood, "interval", minutes=15)
+scheduler.start()

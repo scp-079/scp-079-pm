@@ -24,6 +24,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
 from .etc import bytes_data, code, thread
+from .ids import add_id
 from .telegram import send_message
 
 # Enable logging
@@ -35,33 +36,34 @@ def deliver_message_from(client, message):
         aid = glovar.creator_id
         cid = message.chat.id
         mid = message.message_id
-        try:
-            m = client.forward_messages(
-                chat_id=aid,
-                from_chat_id=cid,
-                message_ids=mid,
-                disable_notification=True,
-                as_copy=True
-            )
-        except FloodWait as e:
-            sleep(e.x + 1)
-            m = client.forward_messages(
-                chat_id=aid,
-                from_chat_id=cid,
-                message_ids=mid,
-                disable_notification=True,
-                as_copy=True
-            )
-        except UserIsBlocked:
-            deliver_fail(client, cid, mid)
-            return False
-        except Exception as e:
-            logger.warning(f"Forward message error: {e}")
-            return False
+        add_id(cid, mid, "from")
+        if message.forward_from or message.forward_from_chat or message.forward_from_name:
+            as_copy = False
+        else:
+            as_copy = True
+
+        result = None
+        while not result:
+            try:
+                result = client.forward_messages(
+                    chat_id=aid,
+                    from_chat_id=cid,
+                    message_ids=mid,
+                    disable_notification=True,
+                    as_copy=as_copy
+                )
+            except FloodWait as e:
+                sleep(e.x + 1)
+            except UserIsBlocked:
+                deliver_fail(client, cid, mid)
+                return False
+            except Exception as e:
+                logger.warning(f"Forward message error: {e}")
+                return False
 
         text = (f"用户 ID：{code(cid)}\n"
                 f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
-        mid = m.message_id
+        mid = result.message_id
         thread(send_message, (client, aid, text, mid))
     except Exception as e:
         logger.warning(f"Deliver message From error: {e}", exc_info=True)
@@ -73,45 +75,51 @@ def deliver_message_to(client, message):
         cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
         aid = glovar.creator_id
         mid = message.message_id
-        try:
-            m = client.forward_messages(
-                chat_id=cid,
-                from_chat_id=aid,
-                message_ids=mid,
-                disable_notification=True,
-                as_copy=True
-            )
-        except FloodWait as e:
-            sleep(e.x + 1)
-            m = client.forward_messages(
-                chat_id=cid,
-                from_chat_id=aid,
-                message_ids=mid,
-                disable_notification=True,
-                as_copy=True
-            )
-        except UserIsBlocked:
-            deliver_fail(client, aid, mid)
-            return False
-        except Exception as e:
-            logger.warning(f"Forward message error: {e}")
-            return False
+        if cid not in glovar.blacklist_ids:
+            if message.forward_from or message.forward_from_chat or message.forward_from_name:
+                as_copy = False
+            else:
+                as_copy = True
 
-        text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
-                f"状态：{code('已发送')}")
-        forward_mid = m.message_id
-        data = bytes_data("recall", "single", str(forward_mid))
-        markup = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        "撤回",
-                        callback_data=data
+            result = None
+            while not result:
+                try:
+                    result = client.forward_messages(
+                        chat_id=cid,
+                        from_chat_id=aid,
+                        message_ids=mid,
+                        disable_notification=True,
+                        as_copy=as_copy
                     )
+                except FloodWait as e:
+                    sleep(e.x + 1)
+                except UserIsBlocked:
+                    deliver_fail(client, aid, mid)
+                    return False
+                except Exception as e:
+                    logger.warning(f"Forward message error: {e}")
+                    return False
+
+            text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
+                    f"状态：{code('已发送')}")
+            forward_mid = result.message_id
+            data = bytes_data("recall", "single", str(forward_mid))
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "撤回",
+                            callback_data=data
+                        )
+                    ]
                 ]
-            ]
-        )
-        thread(send_message, (client, aid, text, mid, markup))
+            )
+            thread(send_message, (client, aid, text, mid, markup))
+            add_id(cid, forward_mid, "to")
+        else:
+            text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
+                    f"状态：{code('发送失败，该用户在黑名单中')}")
+            thread(send_message, (client, aid, text, mid))
     except Exception as e:
         logger.warning(f"Deliver message To error: {e}", exc_info=True)
 

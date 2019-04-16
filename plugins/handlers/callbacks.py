@@ -23,7 +23,8 @@ from pyrogram import Client
 
 from .. import glovar
 from ..functions.etc import code, thread
-from ..functions.telegram import answer_callback, delete_single_message, edit_message
+from ..functions.ids import init_id, remove_id
+from ..functions.telegram import answer_callback, delete_single_message, delete_all_message, edit_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -38,14 +39,39 @@ def answer(client, callback_query):
             mid = callback_query.message.message_id
             callback_data = json.loads(callback_query.data)
             if callback_data["action"] == "recall":
-                recall_mid = int(callback_data["data"])
-                thread(delete_single_message, (client, cid, recall_mid))
-                text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
-                        f"状态：{code('已撤回')}")
+                init_id(cid)
+                if callback_data["type"] == "single":
+                    recall_mid = int(callback_data["data"])
+                    thread(delete_single_message, (client, cid, recall_mid))
+                    text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('已撤回')}")
+                    remove_id(cid, mid, "to")
+                elif callback_data["type"] == "to":
+                    if glovar.message_ids[cid]["to"]:
+                        thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                                f"状态：{code('已撤回由您发送的全部消息')}")
+                        remove_id(cid, mid, "chat_to")
+                    else:
+                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                                f"状态：{code('没有可撤回的消息')}")
+                else:
+                    if glovar.message_ids[cid]["to"] or glovar.message_ids[cid]["from"]:
+                        if glovar.message_ids[cid]["to"]:
+                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+
+                        if glovar.message_ids[cid]["from"]:
+                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["from"]))
+
+                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                                f"状态：{code('已撤回全部消息')}")
+                        remove_id(cid, mid, "chat_all")
+                    else:
+                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                                f"状态：{code('没有可撤回的消息')}")
+
                 markup = None
                 thread(edit_message, (client, cid, mid, text, markup))
-            else:
-                answer_callback(client, callback_query.id, "")
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
