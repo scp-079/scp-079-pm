@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.etc import bytes_data, code, thread
+from ..functions.etc import bytes_data, code, code_block, thread
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_all_message, get_user, send_message
 
@@ -126,12 +126,12 @@ def start(client, message):
     try:
         aid = message.from_user.id
         if aid == glovar.creator_id:
-            text = ("您的传送信使已准备就绪！\n"
+            text = ("您的传送信使已准备就绪\n"
                     "请勿停用机器人，否则无法收到他人的消息\n"
                     "关注[此页面](https://scp-079.org/pm/)可及时获取更新信息")
         elif aid not in glovar.blacklist_ids and aid not in glovar.flood_ids["users"]:
             master = get_user(client, glovar.creator_id)
-            text = ("欢迎使用！\n"
+            text = ("欢迎使用\n"
                     f"如您需要私聊 {code(master.first_name)}，您可以直接在此发送消息并等待回复\n"
                     "若您也想拥有自己的私聊机器人，请参照[说明](https://scp-079.org/pm/)建立")
         else:
@@ -166,6 +166,19 @@ def unblock(client, message):
                 else:
                     text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
                     thread(send_message, (client, aid, text, mid))
+            elif len(message.command) == 2:
+                try:
+                    cid = int(message.command[1])
+                except Exception as e:
+                    text = ("格式有误\n"
+                            f"{code_block(e)}")
+                    thread(send_message, (client, aid, text, mid))
+                    return
+
+                remove_id(cid, 0, "blacklist")
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('已解禁')}")
+                thread(send_message, (client, aid, text, mid))
             else:
                 text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
                 thread(send_message, (client, aid, text, mid))
