@@ -23,6 +23,7 @@ from pyrogram import Client
 
 from .. import glovar
 from ..functions.etc import code, thread
+from ..functions.files import save
 from ..functions.ids import init_id, remove_id
 from ..functions.telegram import answer_callback, delete_single_message, delete_all_message, edit_message
 
@@ -70,6 +71,17 @@ def answer(client, callback_query):
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('没有可撤回的消息')}")
 
+                markup = None
+                thread(edit_message, (client, cid, mid, text, markup))
+            elif callback_data["action"] == "clear":
+                if callback_data["type"] == "message":
+                    glovar.message_ids = {}
+                    save("message_ids")
+                else:
+                    glovar.blacklist_ids = set()
+                    save("blacklist_ids")
+
+                text = "已清空"
                 markup = None
                 thread(edit_message, (client, cid, mid, text, markup))
 

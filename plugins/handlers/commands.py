@@ -67,6 +67,35 @@ def block(client, message):
         logger.warning(f"Block error: {e}", exc_info=True)
 
 
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["clear"],
+                                                                        prefix=glovar.prefix))
+def clear(client, message):
+    try:
+        aid = message.from_user.id
+        if aid == glovar.creator_id:
+            mid = message.message_id
+            text = "请选择要清空的数据"
+            data_to = bytes_data("clear", "message", 0)
+            data_all = bytes_data("recall", "blacklist", 0)
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "消息 ID",
+                            callback_data=data_to
+                        ),
+                        InlineKeyboardButton(
+                            "黑名单",
+                            callback_data=data_all
+                        )
+                    ]
+                ]
+            )
+            thread(send_message, (client, aid, text, mid, markup))
+    except Exception as e:
+        logger.warning(f"Ping error: {e}", exc_info=True)
+
+
 @Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["ping"],
                                                                         prefix=glovar.prefix))
 def ping(client, message):
