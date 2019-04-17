@@ -24,7 +24,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
 from .etc import bytes_data, code, thread
-from .ids import add_id
+from .ids import add_id, reply_id
 from .telegram import send_message
 
 # Enable logging
@@ -36,7 +36,6 @@ def deliver_message_from(client, message):
         aid = glovar.creator_id
         cid = message.chat.id
         mid = message.message_id
-        add_id(cid, mid, "from")
         if message.forward_from or message.forward_from_chat or message.forward_from_name:
             as_copy = False
         else:
@@ -63,8 +62,10 @@ def deliver_message_from(client, message):
 
         text = (f"用户 ID：{code(cid)}\n"
                 f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
-        mid = result.message_id
-        thread(send_message, (client, aid, text, mid))
+        forward_mid = result.message_id
+        thread(send_message, (client, aid, text, forward_mid))
+        add_id(cid, mid, "from")
+        reply_id(mid, forward_mid, cid, "from")
     except Exception as e:
         logger.warning(f"Deliver message From error: {e}", exc_info=True)
 
@@ -116,6 +117,7 @@ def deliver_message_to(client, message):
             )
             thread(send_message, (client, aid, text, mid, markup))
             add_id(cid, forward_mid, "to")
+            reply_id(mid, forward_mid, cid, "to")
         else:
             text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                     f"状态：{code('发送失败，该用户在黑名单中')}")

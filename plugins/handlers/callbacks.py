@@ -77,6 +77,11 @@ def answer(client, callback_query):
                 if callback_data["type"] == "message":
                     glovar.message_ids = {}
                     save("message_ids")
+                    glovar.reply_ids = {
+                        "from_to": {},
+                        "to_from": {}
+                    }
+                    save("reply_ids")
                 else:
                     glovar.blacklist_ids = set()
                     save("blacklist_ids")

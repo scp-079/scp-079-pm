@@ -88,14 +88,40 @@ def remove_id(cid, mid, ctx):
                 glovar.blacklist_ids.remove(cid)
                 save("blacklist_ids")
         elif ctx == "cat_to":
+            for mid in glovar.message_ids[cid]["to"]:
+                glovar.reply_ids["to_from"].pop(mid, None)
+
+            save("reply_ids")
             glovar.message_ids[cid]["to"] = set()
             save("message_ids")
         elif ctx == "chat_all":
+            for mid in glovar.message_ids[cid]["to"]:
+                glovar.reply_ids["to_from"].pop(mid, None)
+
+            for mid in glovar.message_ids[cid]["from"]:
+                glovar.reply_ids["from_to"].pop(mid, None)
+
+            save("reply_ids")
             glovar.message_ids.pop(cid)
             save("message_ids")
         elif ctx == "to":
             if mid in glovar.message_ids[cid]["to"]:
                 glovar.message_ids[cid]["to"].remove(mid)
                 save("message_ids")
+
+            if glovar.reply_ids["to_from"].pop(mid, None):
+                save("reply_ids")
     except Exception as e:
         logger.warning(f"Remove {ctx} id error: {e}", exc_info=True)
+
+
+def reply_id(a: int, b: int, cid: int, ctx: str):
+    try:
+        if ctx == "from":
+            glovar.reply_ids["from_to"][a] = (b, cid)
+        else:
+            glovar.reply_ids["to_from"][a] = (b, cid)
+
+        save("reply_ids")
+    except Exception as e:
+        logger.warning(f"Reply {ctx} id error: {e}", exc_info=True)

@@ -20,7 +20,7 @@ import logging
 import pickle
 from os import mkdir
 from os.path import exists
-from typing import List, Dict, Set, Union
+from typing import List, Dict, Set, Tuple, Union
 from configparser import ConfigParser
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -31,7 +31,7 @@ from .functions.ids import clear_counts, clear_flood
 logger = logging.getLogger(__name__)
 
 # Init
-available_commands = [
+available_commands: List[str] = [
     "block",
     "ping",
     "recall",
@@ -46,11 +46,15 @@ flood_ids: Dict[str, Union[Dict[int, int], set]] = {
     "counts": {}
 }
 message_ids: Dict[int, Dict[str, Set[int]]] = {}
+reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
+    "from_to": {},
+    "to_from": {}
+}
 
 if not exists("data"):
     mkdir("data")
 
-file_list = ["blacklist_ids", "message_ids"]
+file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids"]
 for file in file_list:
     try:
         try:
