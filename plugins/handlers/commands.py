@@ -103,7 +103,7 @@ def recall(client, message):
                                     callback_data=data_to
                                 ),
                                 InlineKeyboardButton(
-                                    "全部消息",
+                                    "全部对话消息",
                                     callback_data=data_all
                                 )
                             ]
