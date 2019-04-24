@@ -35,7 +35,7 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
         elif id_type == "flood":
             if cid not in glovar.flood_ids["users"]:
                 glovar.flood_ids["users"].add(cid)
-        elif id_type in {"guest", "master"}:
+        elif id_type in {"guest", "host"}:
             if mid not in glovar.message_ids[cid][id_type]:
                 glovar.message_ids[cid][id_type].add(mid)
                 save("message_ids")
@@ -66,7 +66,7 @@ def init_id(cid: int) -> bool:
         if glovar.message_ids.get(cid) is None:
             glovar.message_ids[cid] = {
                 "guest": set(),
-                "master": set()
+                "host": set()
             }
 
         return True
@@ -83,29 +83,29 @@ def remove_id(cid, mid, ctx):
             if cid in glovar.blacklist_ids:
                 glovar.blacklist_ids.remove(cid)
                 save("blacklist_ids")
-        elif ctx == "chat_master":
-            for mid in glovar.message_ids[cid]["master"]:
-                glovar.reply_ids["m2g"].pop(mid, None)
+        elif ctx == "chat_host":
+            for mid in glovar.message_ids[cid]["host"]:
+                glovar.reply_ids["h2g"].pop(mid, None)
 
             save("reply_ids")
-            glovar.message_ids[cid]["master"] = set()
+            glovar.message_ids[cid]["host"] = set()
             save("message_ids")
         elif ctx == "chat_all":
-            for mid in glovar.message_ids[cid]["master"]:
-                glovar.reply_ids["m2g"].pop(mid, None)
+            for mid in glovar.message_ids[cid]["host"]:
+                glovar.reply_ids["h2g"].pop(mid, None)
 
             for mid in glovar.message_ids[cid]["guest"]:
-                glovar.reply_ids["g2m"].pop(mid, None)
+                glovar.reply_ids["g2h"].pop(mid, None)
 
             save("reply_ids")
             glovar.message_ids.pop(cid)
             save("message_ids")
-        elif ctx == "master":
-            if mid in glovar.message_ids[cid]["master"]:
+        elif ctx == "host":
+            if mid in glovar.message_ids[cid]["host"]:
                 glovar.message_ids[cid]["guest"].remove(mid)
                 save("message_ids")
 
-            if glovar.reply_ids["m2g"].pop(mid, None):
+            if glovar.reply_ids["h2g"].pop(mid, None):
                 save("reply_ids")
 
         return True

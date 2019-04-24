@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from json import dumps
 from threading import Thread
 from typing import Callable, Union
 
@@ -29,6 +30,15 @@ def bold(text) -> str:
         return f"**{text}**"
 
     return ""
+
+
+def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> bytes:
+    button = {
+        "a": action,
+        "t": action_type,
+        "d": data
+    }
+    return dumps(button).replace(" ", "").encode("utf-8")
 
 
 def code(text) -> str:
@@ -53,11 +63,5 @@ def thread(target: Callable, args: tuple) -> bool:
     return True
 
 
-def bytes_data(action: str, call_type: str = None, data: Union[int, str] = None) -> bytes:
-    text = ('{'
-            f'"a":"{action}",'
-            f'"t":"{call_type}",'
-            f'"d":"{data}"'
-            '}')
-
-    return text.encode("utf-8")
+def user_mention(uid: int) -> str:
+    return f"[{uid}](tg://user?id={uid})"

@@ -23,7 +23,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import bytes_data, code, thread
+from .etc import button_data, code, thread, user_mention
 from .ids import add_id, reply_id
 from .telegram import send_message
 
@@ -109,7 +109,7 @@ def deliver_host_message(client: Client, message: Message) -> bool:
             text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                     f"状态：{code('已发送')}")
             forward_mid = result.message_id
-            data = bytes_data("recall", "single", str(forward_mid))
+            data = button_data("recall", "single", str(forward_mid))
             markup = InlineKeyboardMarkup(
                 [
                     [
@@ -124,8 +124,9 @@ def deliver_host_message(client: Client, message: Message) -> bool:
             add_id(cid, forward_mid, "host")
             reply_id(mid, forward_mid, cid, "host")
         else:
-            text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
-                    f"状态：{code('发送失败，该用户在黑名单中')}")
+            text = (f"发送至 ID：{user_mention(cid)}\n"
+                    f"状态：{code('发送失败')}\n"
+                    f"原因：{code('该用户在黑名单中')}")
             thread(send_message, (client, hid, text, mid))
 
         return False
@@ -137,7 +138,8 @@ def deliver_host_message(client: Client, message: Message) -> bool:
 
 def deliver_fail(client: Client, cid: int, mid: int) -> bool:
     try:
-        text = "发送失败，对方已停用机器人"
+        text = (f"状态：{code('发送失败')}\n"
+                f"原因：{code('对方已停用机器人')}")
         thread(send_message, (client, cid, text, mid))
         return True
     except Exception as e:
