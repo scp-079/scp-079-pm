@@ -25,36 +25,26 @@ from ..functions.files import save
 logger = logging.getLogger(__name__)
 
 
-def add_id(cid, mid, ctx):
+def add_id(cid: int, mid: int, id_type: str) -> bool:
     try:
         init_id(cid)
-        if ctx == "blacklist":
+        if id_type == "blacklist":
             if cid not in glovar.blacklist_ids:
                 glovar.blacklist_ids.add(cid)
                 save("blacklist_ids")
-        elif ctx == "flood":
+        elif id_type == "flood":
             if cid not in glovar.flood_ids["users"]:
                 glovar.flood_ids["users"].add(cid)
-        elif ctx in {"from", "to"}:
-            if mid not in glovar.message_ids[cid][ctx]:
-                glovar.message_ids[cid][ctx].add(mid)
+        elif id_type in {"guest", "master"}:
+            if mid not in glovar.message_ids[cid][id_type]:
+                glovar.message_ids[cid][id_type].add(mid)
                 save("message_ids")
+
+        return True
     except Exception as e:
-        logger.warning(f"Add {ctx} id error: {e}", exc_info=True)
+        logger.warning(f"Add {id_type} id error: {e}", exc_info=True)
 
-
-def clear_counts():
-    try:
-        glovar.flood_ids["counts"] = {}
-    except Exception as e:
-        logger.warning(f"Clear counts error: {e}", exc_info=True)
-
-
-def clear_flood():
-    try:
-        glovar.flood_ids["users"] = set()
-    except Exception as e:
-        logger.warning(f"Clear flood users error: {e}", exc_info=True)
+    return False
 
 
 def count_id(cid: int) -> int:
@@ -65,19 +55,25 @@ def count_id(cid: int) -> int:
     except Exception as e:
         logger.warning(f"Count id error: {e}", exc_info=True)
 
+    return 0
 
-def init_id(cid):
+
+def init_id(cid: int) -> bool:
     try:
         if glovar.flood_ids["counts"].get(cid) is None:
             glovar.flood_ids["counts"][cid] = 0
 
         if glovar.message_ids.get(cid) is None:
             glovar.message_ids[cid] = {
-                "from": set(),
-                "to": set()
+                "guest": set(),
+                "master": set()
             }
+
+        return True
     except Exception as e:
         logger.warning(f"Init id error: {e}", exc_info=True)
+
+    return False
 
 
 def remove_id(cid, mid, ctx):
@@ -87,41 +83,48 @@ def remove_id(cid, mid, ctx):
             if cid in glovar.blacklist_ids:
                 glovar.blacklist_ids.remove(cid)
                 save("blacklist_ids")
-        elif ctx == "cat_to":
-            for mid in glovar.message_ids[cid]["to"]:
-                glovar.reply_ids["to_from"].pop(mid, None)
+        elif ctx == "chat_master":
+            for mid in glovar.message_ids[cid]["master"]:
+                glovar.reply_ids["m2g"].pop(mid, None)
 
             save("reply_ids")
-            glovar.message_ids[cid]["to"] = set()
+            glovar.message_ids[cid]["master"] = set()
             save("message_ids")
         elif ctx == "chat_all":
-            for mid in glovar.message_ids[cid]["to"]:
-                glovar.reply_ids["to_from"].pop(mid, None)
+            for mid in glovar.message_ids[cid]["master"]:
+                glovar.reply_ids["m2g"].pop(mid, None)
 
-            for mid in glovar.message_ids[cid]["from"]:
-                glovar.reply_ids["from_to"].pop(mid, None)
+            for mid in glovar.message_ids[cid]["guest"]:
+                glovar.reply_ids["g2m"].pop(mid, None)
 
             save("reply_ids")
             glovar.message_ids.pop(cid)
             save("message_ids")
-        elif ctx == "to":
-            if mid in glovar.message_ids[cid]["to"]:
-                glovar.message_ids[cid]["to"].remove(mid)
+        elif ctx == "master":
+            if mid in glovar.message_ids[cid]["master"]:
+                glovar.message_ids[cid]["guest"].remove(mid)
                 save("message_ids")
 
-            if glovar.reply_ids["to_from"].pop(mid, None):
+            if glovar.reply_ids["m2g"].pop(mid, None):
                 save("reply_ids")
+
+        return True
     except Exception as e:
         logger.warning(f"Remove {ctx} id error: {e}", exc_info=True)
+
+    return False
 
 
 def reply_id(a: int, b: int, cid: int, ctx: str):
     try:
-        if ctx == "from":
-            glovar.reply_ids["from_to"][a] = (b, cid)
+        if ctx == "guest":
+            glovar.reply_ids["g2h"][a] = (b, cid)
         else:
-            glovar.reply_ids["to_from"][a] = (b, cid)
+            glovar.reply_ids["h2g"][a] = (b, cid)
 
         save("reply_ids")
+        return True
     except Exception as e:
         logger.warning(f"Reply {ctx} id error: {e}", exc_info=True)
+
+    return False

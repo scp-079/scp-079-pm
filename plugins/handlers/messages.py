@@ -22,55 +22,54 @@ from pyrogram import Client, Filters
 
 from .. import glovar
 from ..functions.etc import thread
-from ..functions.deliver import deliver_message_from, deliver_message_to, send_message
+from ..functions.deliver import deliver_guest_message, deliver_host_message, send_message
+from ..functions.filters import host_chat, limited_user
 from ..functions.ids import add_id, count_id
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(commands=glovar.available_commands,
-                                                                         prefix=glovar.prefix), group=-2)
-def deliver_from(client, message):
+@Client.on_message(Filters.private & Filters.incoming & host_chat
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def deliver_to_guest(client, message):
     try:
-        cid = message.chat.id
-        if cid != glovar.creator_id and cid not in glovar.blacklist_ids and cid not in glovar.flood_ids["users"]:
-            thread(deliver_message_from, (client, message))
-    except Exception as e:
-        logger.warning(f"Deliver from error: {e}", exc_info=True)
-
-
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(commands=glovar.available_commands,
-                                                                         prefix=glovar.prefix), group=1)
-def deliver_to(client, message):
-    try:
-        aid = message.chat.id
-        if aid == glovar.creator_id:
-            mid = message.message_id
-            if message.reply_to_message:
-                rid = message.reply_to_message.from_user.id
-                if rid == glovar.me_id and "ID" in message.reply_to_message.text:
-                    thread(deliver_message_to, (client, message))
-                else:
-                    text = "如需回复某人，请回复某条包含该用户 id 的汇报消息"
-                    thread(send_message, (client, aid, text, mid))
+        hid = message.chat.id
+        mid = message.message_id
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in message.reply_to_message.text
+                    and len(message.reply_to_message.text.split("\n"))):
+                thread(deliver_host_message, (client, message))
             else:
-                text = "如需回复某人，请回复某条包含该用户 id 的汇报消息"
-                thread(send_message, (client, aid, text, mid))
+                text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+                thread(send_message, (client, hid, text, mid))
+        else:
+            text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+            thread(send_message, (client, hid, text, mid))
     except Exception as e:
-        logger.warning(f"Deliver from error: {e}", exc_info=True)
+        logger.warning(f"Deliver to guest error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(commands=glovar.available_commands,
-                                                                         prefix=glovar.prefix), group=0)
+@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
+def deliver_to_host(client, message):
+    try:
+        thread(deliver_guest_message, (client, message))
+    except Exception as e:
+        logger.warning(f"Deliver to host error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
 def count(client, message):
     try:
         cid = message.from_user.id
-        if cid != glovar.creator_id and cid not in glovar.blacklist_ids and cid not in glovar.flood_ids["users"]:
-            counts = count_id(cid)
-            if counts == 30:
-                add_id(cid, 0, "flood")
-                text = "您发送的消息过于频繁，请 15 分钟后重试\n期间机器人将对您的消息不做任何转发和应答"
-                thread(send_message, (client, cid, text))
+        counts = count_id(cid)
+        if counts == 30:
+            add_id(cid, 0, "flood")
+            text = "您发送的消息过于频繁，请 15 分钟后重试\n期间机器人将对您的消息不做任何转发和应答"
+            thread(send_message, (client, cid, text))
     except Exception as e:
         logger.warning(f"Deliver from error: {e}", exc_info=True)

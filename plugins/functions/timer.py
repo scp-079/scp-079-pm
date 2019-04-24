@@ -17,47 +17,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from threading import Thread
-from typing import Callable, Union
+
+from .. import glovar
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def bold(text) -> str:
-    if text != "":
-        return f"**{text}**"
+def clear_counts() -> bool:
+    try:
+        glovar.flood_ids["counts"] = {}
+        return True
+    except Exception as e:
+        logger.warning(f"Clear counts error: {e}", exc_info=True)
 
-    return ""
-
-
-def code(text) -> str:
-    if text != "":
-        return f"`{text}`"
-
-    return ""
+    return False
 
 
-def code_block(text) -> str:
-    if text != "":
-        return f"```{text}```"
+def clear_flood() -> bool:
+    try:
+        glovar.flood_ids["users"] = set()
+        return True
+    except Exception as e:
+        logger.warning(f"Clear flood users error: {e}", exc_info=True)
 
-    return ""
-
-
-def thread(target: Callable, args: tuple) -> bool:
-    t = Thread(target=target, args=args)
-    t.daemon = True
-    t.start()
-
-    return True
-
-
-def bytes_data(action: str, call_type: str = None, data: Union[int, str] = None) -> bytes:
-    text = ('{'
-            f'"a":"{action}",'
-            f'"t":"{call_type}",'
-            f'"d":"{data}"'
-            '}')
-
-    return text.encode("utf-8")
+    return False

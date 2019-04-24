@@ -20,26 +20,37 @@ import logging
 import pickle
 from os import mkdir
 from os.path import exists
+from shutil import rmtree
 from typing import List, Dict, Set, Tuple, Union
-from configparser import ConfigParser
-
-from apscheduler.schedulers.background import BackgroundScheduler
-
-from .functions.ids import clear_counts, clear_flood
+from configparser import RawConfigParser
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 # Init
-available_commands: List[str] = [
+all_commands: List[str] = [
     "block",
     "ping",
     "recall",
     "start",
-    "unblock"
+    "unblock",
+    "version"
 ]
+version = "0.2.1"
 
-# Load data
+# Load data from pickle
+
+# Init dir
+try:
+    rmtree("tmp")
+except Exception as e:
+    logger.info(f"Remove tmp error: {e}")
+
+for path in ["data", "tmp"]:
+    if not exists(path):
+        mkdir(path)
+
+# Init ids variables
 blacklist_ids: Set[int] = set()
 flood_ids: Dict[str, Union[Dict[int, int], set]] = {
     "users": set(),
@@ -47,13 +58,11 @@ flood_ids: Dict[str, Union[Dict[int, int], set]] = {
 }
 message_ids: Dict[int, Dict[str, Set[int]]] = {}
 reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
-    "from_to": {},
-    "to_from": {}
+    "g2h": {},
+    "h2g": {}
 }
 
-if not exists("data"):
-    mkdir("data")
-
+# Load ids data
 file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids"]
 for file in file_list:
     try:
@@ -73,33 +82,40 @@ for file in file_list:
         raise SystemExit("[DATA CORRUPTION]")
 
 # Read data from config.ini
-token: str = ""
-me_id: int = 0
-creator_id: int = 0
+
+# [basic]
+bot_token: str = ""
 prefix: List[str] = []
 prefix_str: str = "/!！"
 
-try:
-    config = ConfigParser()
-    config.read("config.ini")
+# [channels]
+test_group_id: int = 0
 
-    if "custom" in config:
-        token = config["custom"].get("token", token)
-        me_id = int(token.partition(":")[0])
-        creator_id = int(config["custom"].get("creator_id", creator_id))
-        prefix = list(config["custom"].get("prefix", prefix_str))
+# [custom]
+host_id: int = 0
+
+try:
+    config = RawConfigParser()
+    config.read("config.ini")
+    # [basic]
+    bot_token = config["basic"].get("bot_token", bot_token)
+    prefix = list(config["basic"].get("prefix", prefix_str))
+    # [channels]
+    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    # [custom]
+    host_id = int(config["custom"].get("host_id"), host_id)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
 
-if token == "" or me_id == 0 or creator_id == 0 or prefix == []:
+# Check
+if (bot_token in {"", "[DATA EXPUNGED"}
+        or prefix == []
+        or test_group_id == 0
+        or host_id == 0):
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
-copyright_text = ("SCP-079-PM v0.2.1, Copyright (C) 2019 SCP-079-PM <https://scp-079.org/pm/>\n"
+# Start program
+copyright_text = (f"SCP-079-PM v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
                   "Licensed under the terms of the GNU General Public License v3 or later (GPLv3+)\n")
 print(copyright_text)
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(clear_counts, 'interval', seconds=5)
-scheduler.add_job(clear_flood, "interval", minutes=15)
-scheduler.start()

@@ -19,7 +19,7 @@
 import logging
 from time import sleep
 
-from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
@@ -31,11 +31,12 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
-def deliver_message_from(client, message):
+def deliver_guest_message(client: Client, message: Message) -> bool:
     try:
-        aid = glovar.creator_id
+        hid = glovar.host_id
         cid = message.chat.id
         mid = message.message_id
+        mids = [mid]
         if message.forward_from or message.forward_from_chat or message.forward_from_name:
             as_copy = False
         else:
@@ -45,9 +46,9 @@ def deliver_message_from(client, message):
         while not result:
             try:
                 result = client.forward_messages(
-                    chat_id=aid,
+                    chat_id=hid,
                     from_chat_id=cid,
-                    message_ids=mid,
+                    message_ids=mids,
                     disable_notification=True,
                     as_copy=as_copy
                 )
@@ -63,19 +64,23 @@ def deliver_message_from(client, message):
         text = (f"用户 ID：{code(cid)}\n"
                 f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
         forward_mid = result.message_id
-        thread(send_message, (client, aid, text, forward_mid))
-        add_id(cid, mid, "from")
-        reply_id(mid, forward_mid, cid, "from")
+        thread(send_message, (client, hid, text, forward_mid))
+        add_id(cid, mid, "guest")
+        reply_id(mid, forward_mid, cid, "guest")
+        return True
     except Exception as e:
-        logger.warning(f"Deliver message From error: {e}", exc_info=True)
+        logger.warning(f"Deliver guest message error: {e}", exc_info=True)
+
+    return False
 
 
-def deliver_message_to(client, message):
+def deliver_host_message(client: Client, message: Message) -> bool:
     try:
         r_message = message.reply_to_message
         cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-        aid = glovar.creator_id
+        hid = glovar.host_id
         mid = message.message_id
+        mids = [mid]
         if cid not in glovar.blacklist_ids:
             if message.forward_from or message.forward_from_chat or message.forward_from_name:
                 as_copy = False
@@ -87,15 +92,15 @@ def deliver_message_to(client, message):
                 try:
                     result = client.forward_messages(
                         chat_id=cid,
-                        from_chat_id=aid,
-                        message_ids=mid,
+                        from_chat_id=hid,
+                        message_ids=mids,
                         disable_notification=True,
                         as_copy=as_copy
                     )
                 except FloodWait as e:
                     sleep(e.x + 1)
                 except UserIsBlocked:
-                    deliver_fail(client, aid, mid)
+                    deliver_fail(client, hid, mid)
                     return False
                 except Exception as e:
                     logger.warning(f"Forward message error: {e}")
@@ -115,20 +120,27 @@ def deliver_message_to(client, message):
                     ]
                 ]
             )
-            thread(send_message, (client, aid, text, mid, markup))
-            add_id(cid, forward_mid, "to")
-            reply_id(mid, forward_mid, cid, "to")
+            thread(send_message, (client, hid, text, mid, markup))
+            add_id(cid, forward_mid, "host")
+            reply_id(mid, forward_mid, cid, "host")
         else:
             text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                     f"状态：{code('发送失败，该用户在黑名单中')}")
-            thread(send_message, (client, aid, text, mid))
+            thread(send_message, (client, hid, text, mid))
+
+        return False
     except Exception as e:
-        logger.warning(f"Deliver message To error: {e}", exc_info=True)
+        logger.warning(f"Deliver host message error: {e}", exc_info=True)
+
+    return False
 
 
-def deliver_fail(client, cid: int, mid: int):
+def deliver_fail(client: Client, cid: int, mid: int) -> bool:
     try:
         text = "发送失败，对方已停用机器人"
         thread(send_message, (client, cid, text, mid))
+        return True
     except Exception as e:
         logger.warning(f"Deliver fail error: {e}", exc_info=True)
+
+    return False

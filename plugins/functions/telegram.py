@@ -18,20 +18,88 @@
 
 import logging
 from time import sleep
-from typing import List, Set, Union
+from typing import Iterable, List, Optional
 
-from pyrogram import ParseMode
+from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode, User
 from pyrogram.errors import FloodWait
-
-from .. import glovar
 
 logger = logging.getLogger(__name__)
 
 
-def send_message(client, cid: int, text: str, mid: int = None, markup=None):
+def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
+    result = None
+    try:
+        while not result:
+            try:
+                result = client.answer_callback_query(
+                    callback_query_id=query_id,
+                    text=text,
+                    show_alert=True
+                )
+            except FloodWait as e:
+                sleep(e.x + 1)
+    except Exception as e:
+        logger.warning(f"Answer query to {query_id} error: {e}", exc_info=True)
+
+    return result
+
+
+def edit_message_text(client: Client, cid: int, mid: int, text: str,
+                      markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+    result = None
     try:
         if text.strip() != "":
-            result = None
+            while not result:
+                try:
+                    result = client.edit_message_text(
+                        chat_id=cid,
+                        message_id=mid,
+                        text=text,
+                        parse_mode=ParseMode.MARKDOWN,
+                        disable_web_page_preview=True,
+                        reply_markup=markup
+                    )
+                except FloodWait as e:
+                    sleep(e.x + 1)
+    except Exception as e:
+        logger.warning(f"Edit message in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[bool]:
+    result = None
+    try:
+        while not result:
+            try:
+                result = client.delete_messages(cid, mids)
+            except FloodWait as e:
+                sleep(e.x + 1)
+    except Exception as e:
+        logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:
+    result = None
+    try:
+        while not result:
+            try:
+                result = client.get_users(user_ids=uids)
+            except FloodWait as e:
+                sleep(e.x + 1)
+    except Exception as e:
+        logger.warning(f"Get users {uids} error: {e}", exc_info=True)
+
+    return result
+
+
+def send_message(client: Client, cid: int, text: str, mid: int = None,
+                 markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+    result = None
+    try:
+        if text.strip() != "":
             while not result:
                 try:
                     result = client.send_message(
@@ -47,76 +115,4 @@ def send_message(client, cid: int, text: str, mid: int = None, markup=None):
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
-
-def edit_message(client, cid: int, mid: int, text: str, markup=None):
-    try:
-        if text.strip() != "":
-            result = None
-            while not result:
-                try:
-                    result = client.edit_message_text(
-                        chat_id=cid,
-                        message_id=mid,
-                        text=text,
-                        parse_mode=ParseMode.MARKDOWN,
-                        disable_web_page_preview=True,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Edit message at {cid} error: {e}", exc_info=True)
-
-
-def delete_single_message(client, cid: int, mid: int):
-    try:
-        result = None
-        while not result:
-            try:
-                result = client.delete_messages(cid, mid)
-            except FloodWait as e:
-                sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Delete single message at {cid} error: {e}", exc_info=True)
-
-
-def delete_all_message(client, cid: int, mid: Union[List[int], Set[int], int]):
-    try:
-        result = None
-        while not result:
-            try:
-                result = client.delete_messages(cid, mid)
-            except FloodWait as e:
-                sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Delete all message at {cid} error: {e}", exc_info=True)
-
-
-def get_user(client, uid: int):
-    result = None
-    try:
-        while not result:
-            try:
-                result = client.get_users(user_ids=glovar.creator_id)
-            except FloodWait as e:
-                sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Get user {uid} error: {e}", exc_info=True)
-
     return result
-
-
-def answer_callback(client, query_id: int, text: str):
-    try:
-        result = None
-        while not result:
-            try:
-                result = client.answer_callback_query(
-                    callback_query_id=query_id,
-                    text=text,
-                    show_alert=True
-                )
-            except FloodWait as e:
-                sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Answer query to {query_id} error: {e}", exc_info=True)

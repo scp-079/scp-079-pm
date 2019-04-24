@@ -27,17 +27,23 @@ from .. import glovar
 logger = logging.getLogger(__name__)
 
 
-def save(ctx):
-    t = Thread(target=save_thread, args=(ctx,))
+def save(file: str) -> bool:
+    t = Thread(target=save_thread, args=(file,))
     t.start()
 
+    return True
 
-def save_thread(ctx):
+
+def save_thread(file: str) -> bool:
     try:
         if glovar:
-            with open(f"data/.{ctx}", "wb") as f:
-                dump(eval(f"glovar.{ctx}"), f)
+            with open(f"data/.{file}", "wb") as f:
+                dump(eval(f"glovar.{file}"), f)
 
-            copyfile(f"data/.{ctx}", f"data/{ctx}")
+            copyfile(f"data/.{file}", f"data/{file}")
+
+        return True
     except Exception as e:
         logger.error(f"Save data error: {e}", exc_info=True)
+
+    return False

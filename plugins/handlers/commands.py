@@ -21,195 +21,201 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.etc import bytes_data, code, code_block, thread
+from ..functions.etc import bold, bytes_data, code, code_block, thread
+from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_all_message, get_user, send_message
+from ..functions.telegram import delete_messages, get_users, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["block"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["block"], glovar.prefix))
 def block(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
-            mid = message.message_id
-            if message.reply_to_message:
-                rid = message.reply_to_message.from_user.id
-                if rid == glovar.me_id and "ID" in message.reply_to_message.text:
-                    r_message = message.reply_to_message
-                    cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                    if cid not in glovar.blacklist_ids:
-                        add_id(cid, 0, "blacklist")
-                        if glovar.message_ids[cid]["to"]:
-                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+        hid = message.from_user.id
+        mid = message.message_id
+        if message.reply_to_message:
+            r_message = message.reply_to_message
+            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                if cid not in glovar.blacklist_ids:
+                    add_id(cid, 0, "blacklist")
+                    if glovar.message_ids[cid]["host"]:
+                        thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
 
-                        if glovar.message_ids[cid]["from"]:
-                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["from"]))
+                    if glovar.message_ids[cid]["guest"]:
+                        thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
 
-                        remove_id(cid, mid, "chat_all")
-                        text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('已拉黑')}")
-                    else:
-                        text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('已在黑名单中，无需操作')}")
-
-                    thread(send_message, (client, aid, text, mid))
+                    remove_id(cid, mid, "chat_all")
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('已拉黑')}")
                 else:
-                    text = "如需拉黑某人，请回复某条包含该用户 id 的汇报消息"
-                    thread(send_message, (client, aid, text, mid))
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('已在黑名单中，无需操作')}")
+
+                thread(send_message, (client, hid, text, mid))
             else:
                 text = "如需拉黑某人，请回复某条包含该用户 id 的汇报消息"
-                thread(send_message, (client, aid, text, mid))
+                thread(send_message, (client, hid, text, mid))
+        else:
+            text = "如需拉黑某人，请回复某条包含该用户 id 的汇报消息"
+            thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Block error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["clear"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["clear"], glovar.prefix))
 def clear(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
-            mid = message.message_id
-            text = "请选择要清空的数据"
-            data_to = bytes_data("clear", "message", 0)
-            data_all = bytes_data("recall", "blacklist", 0)
-            markup = InlineKeyboardMarkup(
+        hid = message.from_user.id
+        mid = message.message_id
+        text = "请选择要清空的数据"
+        data_to = bytes_data("clear", "message", 0)
+        data_all = bytes_data("recall", "blacklist", 0)
+        markup = InlineKeyboardMarkup(
+            [
                 [
-                    [
-                        InlineKeyboardButton(
-                            "消息 ID",
-                            callback_data=data_to
-                        ),
-                        InlineKeyboardButton(
-                            "黑名单",
-                            callback_data=data_all
-                        )
-                    ]
+                    InlineKeyboardButton(
+                        "消息 ID",
+                        callback_data=data_to
+                    ),
+                    InlineKeyboardButton(
+                        "黑名单",
+                        callback_data=data_all
+                    )
                 ]
-            )
-            thread(send_message, (client, aid, text, mid, markup))
+            ]
+        )
+        thread(send_message, (client, hid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Ping error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["ping"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["ping"], glovar.prefix))
 def ping(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
-            text = code("Pong!")
-            thread(send_message, (client, aid, text))
+        hid = message.from_user.id
+        text = code("Pong!")
+        thread(send_message, (client, hid, text))
     except Exception as e:
         logger.warning(f"Ping error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["recall"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["recall"], glovar.prefix))
 def recall(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
-            mid = message.message_id
-            if message.reply_to_message:
-                rid = message.reply_to_message.from_user.id
-                if rid == glovar.me_id and "ID" in message.reply_to_message.text:
-                    r_message = message.reply_to_message
-                    cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                    text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                            f"请选择要撤回全部消息的类别：")
-                    data_to = bytes_data("recall", "to", str(cid))
-                    data_all = bytes_data("recall", "all", str(cid))
-                    markup = InlineKeyboardMarkup(
+        hid = message.from_user.id
+        mid = message.message_id
+        if message.reply_to_message:
+            r_message = message.reply_to_message
+            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+                r_message = message.reply_to_message
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                        f"请选择要撤回全部消息的类别：")
+                data_to = bytes_data("recall", "host", str(cid))
+                data_all = bytes_data("recall", "all", str(cid))
+                markup = InlineKeyboardMarkup(
+                    [
                         [
-                            [
-                                InlineKeyboardButton(
-                                    "由您发送的消息",
-                                    callback_data=data_to
-                                ),
-                                InlineKeyboardButton(
-                                    "全部对话消息",
-                                    callback_data=data_all
-                                )
-                            ]
+                            InlineKeyboardButton(
+                                "由您发送的消息",
+                                callback_data=data_to
+                            ),
+                            InlineKeyboardButton(
+                                "全部对话消息",
+                                callback_data=data_all
+                            )
                         ]
-                    )
-                    thread(send_message, (client, aid, text, mid, markup))
-                else:
-                    text = "如需撤回某对话的全部消息，请回复某条包含该用户 id 的汇报消息"
-                    thread(send_message, (client, aid, text, mid))
+                    ]
+                )
+                thread(send_message, (client, hid, text, mid, markup))
             else:
                 text = "如需撤回某对话的全部消息，请回复某条包含该用户 id 的汇报消息"
-                thread(send_message, (client, aid, text, mid))
+                thread(send_message, (client, hid, text, mid))
+        else:
+            text = "如需撤回某对话的全部消息，请回复某条包含该用户 id 的汇报消息"
+            thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Recall error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["start"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private
+                   & Filters.command(["start"], glovar.prefix))
 def start(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
+        uid = message.from_user.id
+        if uid == glovar.host_id:
             text = ("您的传送信使已准备就绪\n"
                     "请勿停用机器人，否则无法收到他人的消息\n"
                     "关注[此页面](https://scp-079.org/pm/)可及时获取更新信息")
-        elif aid not in glovar.blacklist_ids and aid not in glovar.flood_ids["users"]:
-            master = get_user(client, glovar.creator_id)
+        elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
+            host = get_users(client, [glovar.host_id])[0]
             text = ("欢迎使用\n"
-                    f"如您需要私聊 {code(master.first_name)}，您可以直接在此发送消息并等待回复\n"
+                    f"如您需要私聊 {code(host.first_name)}，您可以直接在此发送消息并等待回复\n"
                     "若您也想拥有自己的私聊机器人，请参照[说明](https://scp-079.org/pm/)建立")
         else:
             text = ""
 
-        thread(send_message, (client, aid, text))
+        thread(send_message, (client, uid, text))
     except Exception as e:
         logger.warning(f"Start error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(commands=["unblock"],
-                                                                        prefix=glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["unblock"], glovar.prefix))
 def unblock(client, message):
     try:
-        aid = message.from_user.id
-        if aid == glovar.creator_id:
-            mid = message.message_id
-            if message.reply_to_message:
-                rid = message.reply_to_message.from_user.id
-                if rid == glovar.me_id and "ID" in message.reply_to_message.text:
-                    r_message = message.reply_to_message
-                    cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                    if cid in glovar.blacklist_ids:
-                        remove_id(cid, 0, "blacklist")
-                        text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('已解禁')}")
-                    else:
-                        text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('操作失败，该用户不在黑名单中')}")
-
-                    thread(send_message, (client, aid, text, mid))
+        hid = message.from_user.id
+        mid = message.message_id
+        if message.reply_to_message:
+            r_message = message.reply_to_message
+            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                if cid in glovar.blacklist_ids:
+                    remove_id(cid, 0, "blacklist")
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('已解禁')}")
                 else:
-                    text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
-                    thread(send_message, (client, aid, text, mid))
-            elif len(message.command) == 2:
-                try:
-                    cid = int(message.command[1])
-                except Exception as e:
-                    text = ("格式有误\n"
-                            f"{code_block(e)}")
-                    thread(send_message, (client, aid, text, mid))
-                    return
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('操作失败，该用户不在黑名单中')}")
 
-                remove_id(cid, 0, "blacklist")
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                        f"状态：{code('已解禁')}")
-                thread(send_message, (client, aid, text, mid))
+                thread(send_message, (client, hid, text, mid))
             else:
                 text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
-                thread(send_message, (client, aid, text, mid))
+                thread(send_message, (client, hid, text, mid))
+        elif len(message.command) == 2:
+            try:
+                cid = int(message.command[1])
+            except Exception as e:
+                text = ("格式有误\n"
+                        f"{code_block(e)}")
+                thread(send_message, (client, hid, text, mid))
+                return
+
+            remove_id(cid, 0, "blacklist")
+            text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                    f"状态：{code('已解禁')}")
+            thread(send_message, (client, hid, text, mid))
+        else:
+            text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
+            thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Unblock error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.group & test_group
+                   & Filters.command(["version"], glovar.prefix))
+def version(client, message):
+    try:
+        cid = message.chat.id
+        mid = message.message_id
+        text = code(f"{bold(glovar.version)}")
+        thread(send_message, (client, cid, text, mid))
+    except Exception as e:
+        logger.warning(f"Ping error: {e}", exc_info=True)

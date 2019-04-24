@@ -21,8 +21,11 @@
 
 import logging
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
+
 from plugins import glovar
+from plugins.functions.timer import clear_counts, clear_flood
 
 # Enable logging
 logging.basicConfig(
@@ -37,7 +40,15 @@ logger = logging.getLogger(__name__)
 # Start
 app = Client(
     session_name="bot",
-    bot_token=glovar.token
+    bot_token=glovar.bot_token
 )
 app.start()
+
+# Timer
+scheduler = BackgroundScheduler()
+scheduler.add_job(clear_counts, 'interval', seconds=5)
+scheduler.add_job(clear_flood, "interval", minutes=15)
+scheduler.start()
+
+# Hold
 app.idle()

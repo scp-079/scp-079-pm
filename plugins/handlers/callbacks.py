@@ -25,7 +25,7 @@ from .. import glovar
 from ..functions.etc import code, thread
 from ..functions.files import save
 from ..functions.ids import init_id, remove_id
-from ..functions.telegram import answer_callback, delete_single_message, delete_all_message, edit_message
+from ..functions.telegram import answer_callback, delete_messages, edit_message_text
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -34,35 +34,36 @@ logger = logging.getLogger(__name__)
 @Client.on_callback_query()
 def answer(client, callback_query):
     try:
-        aid = callback_query.from_user.id
-        if aid == glovar.creator_id:
+        uid = callback_query.from_user.id
+        hid = glovar.host_id
+        if uid == hid:
             cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
             mid = callback_query.message.message_id
             callback_data = json.loads(callback_query.data)
-            if callback_data["action"] == "recall":
+            if callback_data["a"] == "recall":
                 init_id(cid)
-                if callback_data["type"] == "single":
-                    recall_mid = int(callback_data["data"])
-                    thread(delete_single_message, (client, cid, recall_mid))
+                if callback_data["t"] == "single":
+                    recall_mid = int(callback_data["d"])
+                    thread(delete_messages, (client, cid, [recall_mid]))
                     text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                             f"状态：{code('已撤回')}")
-                    remove_id(cid, mid, "to")
-                elif callback_data["type"] == "to":
-                    if glovar.message_ids[cid]["to"]:
-                        thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+                    remove_id(cid, mid, "host")
+                elif callback_data["t"] == "host":
+                    if glovar.message_ids[cid]["host"]:
+                        thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('已撤回由您发送的全部消息')}")
-                        remove_id(cid, mid, "chat_to")
+                        remove_id(cid, mid, "chat_host")
                     else:
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('没有可撤回的消息')}")
                 else:
-                    if glovar.message_ids[cid]["to"] or glovar.message_ids[cid]["from"]:
-                        if glovar.message_ids[cid]["to"]:
-                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["to"]))
+                    if glovar.message_ids[cid]["host"] or glovar.message_ids[cid]["guest"]:
+                        if glovar.message_ids[cid]["host"]:
+                            thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
 
-                        if glovar.message_ids[cid]["from"]:
-                            thread(delete_all_message, (client, cid, glovar.message_ids[cid]["from"]))
+                        if glovar.message_ids[cid]["guest"]:
+                            thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('已撤回全部消息')}")
@@ -72,14 +73,14 @@ def answer(client, callback_query):
                                 f"状态：{code('没有可撤回的消息')}")
 
                 markup = None
-                thread(edit_message, (client, cid, mid, text, markup))
+                thread(edit_message_text, (client, hid, mid, text, markup))
             elif callback_data["action"] == "clear":
                 if callback_data["type"] == "message":
                     glovar.message_ids = {}
                     save("message_ids")
                     glovar.reply_ids = {
-                        "from_to": {},
-                        "to_from": {}
+                        "g2h": {},
+                        "h2g": {}
                     }
                     save("reply_ids")
                 else:
@@ -88,7 +89,7 @@ def answer(client, callback_query):
 
                 text = "已清空"
                 markup = None
-                thread(edit_message, (client, cid, mid, text, markup))
+                thread(edit_message_text, (client, hid, mid, text, markup))
 
             thread(answer_callback, (client, callback_query.id, ""))
     except Exception as e:
