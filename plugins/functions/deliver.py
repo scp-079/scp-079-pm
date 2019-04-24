@@ -63,7 +63,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 
         text = (f"用户 ID：{code(cid)}\n"
                 f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
-        forward_mid = result.message_id
+        forward_mid = result.messages[0].message_id
         thread(send_message, (client, hid, text, forward_mid))
         add_id(cid, mid, "guest")
         reply_id(mid, forward_mid, cid, "guest")
@@ -108,7 +108,7 @@ def deliver_host_message(client: Client, message: Message) -> bool:
 
             text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                     f"状态：{code('已发送')}")
-            forward_mid = result.message_id
+            forward_mid = result.messages[0].message_id
             data = button_data("recall", "single", str(forward_mid))
             markup = InlineKeyboardMarkup(
                 [
