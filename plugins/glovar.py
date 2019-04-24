@@ -101,7 +101,9 @@ try:
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [channels]
-    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    if config.get("channels"):
+        test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+
     # [custom]
     host_id = int(config["custom"].get("host_id"), host_id)
 except Exception as e:
@@ -110,7 +112,6 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED"}
         or prefix == []
-        or test_group_id == 0
         or host_id == 0):
     logger.critical("No proper settings")
     raise SystemExit('No proper settings')
