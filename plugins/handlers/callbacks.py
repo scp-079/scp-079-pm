@@ -74,8 +74,8 @@ def answer(client, callback_query):
 
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))
-            elif callback_data["action"] == "clear":
-                if callback_data["type"] == "message":
+            elif callback_data["a"] == "clear":
+                if callback_data["t"] == "messages":
                     glovar.message_ids = {}
                     save("message_ids")
                     glovar.reply_ids = {
