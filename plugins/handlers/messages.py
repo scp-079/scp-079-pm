@@ -72,4 +72,4 @@ def count(client, message):
             text = "您发送的消息过于频繁，请 15 分钟后重试\n期间机器人将对您的消息不做任何转发和应答"
             thread(send_message, (client, cid, text))
     except Exception as e:
-        logger.warning(f"Deliver from error: {e}", exc_info=True)
+        logger.warning(f"Count error: {e}", exc_info=True)

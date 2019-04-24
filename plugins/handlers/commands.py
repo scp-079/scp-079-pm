@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from ..functions.etc import bold, bytes_data, code, code_block, thread
+from ..functions.etc import bold, button_data, code, code_block, thread
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, get_users, send_message
@@ -75,8 +75,8 @@ def clear(client, message):
         hid = message.from_user.id
         mid = message.message_id
         text = "请选择要清空的数据"
-        data_to = bytes_data("clear", "message", 0)
-        data_all = bytes_data("recall", "blacklist", 0)
+        data_to = button_data("clear", "message", 0)
+        data_all = button_data("recall", "blacklist", 0)
         markup = InlineKeyboardMarkup(
             [
                 [
@@ -122,8 +122,8 @@ def recall(client, message):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                         f"请选择要撤回全部消息的类别：")
-                data_to = bytes_data("recall", "host", str(cid))
-                data_all = bytes_data("recall", "all", str(cid))
+                data_to = button_data("recall", "host", str(cid))
+                data_all = button_data("recall", "all", str(cid))
                 markup = InlineKeyboardMarkup(
                     [
                         [
