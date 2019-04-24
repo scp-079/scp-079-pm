@@ -40,7 +40,7 @@ def block(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n") > 1)):
+                    and len(r_message.text.split("\n")) > 1):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid not in glovar.blacklist_ids:
                     add_id(cid, 0, "blacklist")
@@ -59,10 +59,10 @@ def block(client, message):
 
                 thread(send_message, (client, hid, text, mid))
             else:
-                text = "如需拉黑某人，请回复某条包含该用户 id 的汇报消息"
+                text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息"
                 thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需拉黑某人，请回复某条包含该用户 id 的汇报消息"
+            text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Block error: {e}", exc_info=True)
@@ -117,7 +117,7 @@ def recall(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n") > 1)):
+                    and len(r_message.text.split("\n")) > 1):
                 r_message = message.reply_to_message
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
@@ -140,10 +140,10 @@ def recall(client, message):
                 )
                 thread(send_message, (client, hid, text, mid, markup))
             else:
-                text = "如需撤回某对话的全部消息，请回复某条包含该用户 id 的汇报消息"
+                text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
                 thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需撤回某对话的全部消息，请回复某条包含该用户 id 的汇报消息"
+            text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Recall error: {e}", exc_info=True)
@@ -181,7 +181,7 @@ def unblock(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n") > 1)):
+                    and len(r_message.text.split("\n")) > 1):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid in glovar.blacklist_ids:
                     remove_id(cid, 0, "blacklist")
