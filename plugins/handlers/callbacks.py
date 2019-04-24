@@ -37,10 +37,10 @@ def answer(client, callback_query):
         uid = callback_query.from_user.id
         hid = glovar.host_id
         if uid == hid:
-            cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
             mid = callback_query.message.message_id
             callback_data = json.loads(callback_query.data)
             if callback_data["a"] == "recall":
+                cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
                 init_id(cid)
                 if callback_data["t"] == "single":
                     recall_mid = int(callback_data["d"])
