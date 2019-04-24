@@ -36,9 +36,11 @@ def block(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        if message.reply_to_message:
-            r_message = message.reply_to_message
-            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n"))):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid not in glovar.blacklist_ids:
                     add_id(cid, 0, "blacklist")
@@ -111,9 +113,11 @@ def recall(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        if message.reply_to_message:
-            r_message = message.reply_to_message
-            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n"))):
                 r_message = message.reply_to_message
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
@@ -173,9 +177,11 @@ def unblock(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        if message.reply_to_message:
-            r_message = message.reply_to_message
-            if r_message.from_user.is_self and "ID" in message.reply_to_message.text:
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n"))):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid in glovar.blacklist_ids:
                     remove_id(cid, 0, "blacklist")
@@ -187,7 +193,7 @@ def unblock(client, message):
 
                 thread(send_message, (client, hid, text, mid))
             else:
-                text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
+                text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息"
                 thread(send_message, (client, hid, text, mid))
         elif len(message.command) == 2:
             try:
@@ -203,7 +209,7 @@ def unblock(client, message):
                     f"状态：{code('已解禁')}")
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需解禁某人，请回复某条包含该用户 id 的汇报消息"
+            text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Unblock error: {e}", exc_info=True)
@@ -218,4 +224,4 @@ def version(client, message):
         text = code(f"{bold(glovar.version)}")
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
-        logger.warning(f"Ping error: {e}", exc_info=True)
+        logger.warning(f"Version error: {e}", exc_info=True)
