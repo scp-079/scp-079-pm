@@ -101,7 +101,7 @@ try:
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [channels]
-    if config.get("channels"):
+    if config["channels"]:
         test_group_id = int(config["channels"].get("test_group_id", test_group_id))
 
     # [custom]
