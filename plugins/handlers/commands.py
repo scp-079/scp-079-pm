@@ -76,7 +76,7 @@ def clear(client, message):
         mid = message.message_id
         text = "请选择要清空的数据"
         data_to = button_data("clear", "messages", 0)
-        data_all = button_data("recall", "blacklist", 0)
+        data_all = button_data("clear", "blacklist", 0)
         markup = InlineKeyboardMarkup(
             [
                 [
