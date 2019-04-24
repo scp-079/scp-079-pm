@@ -39,8 +39,8 @@ def deliver_to_guest(client, message):
         r_message = message.reply_to_message
         if r_message:
             if (r_message.from_user.is_self
-                    and "ID" in message.reply_to_message.text
-                    and len(message.reply_to_message.text.split("\n"))):
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n"))):
                 thread(deliver_host_message, (client, message))
             else:
                 text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
