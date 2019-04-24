@@ -40,7 +40,7 @@ def block(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n"))):
+                    and len(r_message.text.split("\n") > 1)):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid not in glovar.blacklist_ids:
                     add_id(cid, 0, "blacklist")
@@ -117,7 +117,7 @@ def recall(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n"))):
+                    and len(r_message.text.split("\n") > 1)):
                 r_message = message.reply_to_message
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
@@ -181,7 +181,7 @@ def unblock(client, message):
         if r_message:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
-                    and len(r_message.text.split("\n"))):
+                    and len(r_message.text.split("\n") > 1)):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 if cid in glovar.blacklist_ids:
                     remove_id(cid, 0, "blacklist")
