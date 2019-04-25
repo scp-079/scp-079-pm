@@ -98,7 +98,7 @@ def remove_id(cid, mid, ctx):
                 glovar.reply_ids["g2h"].pop(mid, None)
 
             save("reply_ids")
-            glovar.message_ids.pop(cid)
+            glovar.message_ids.pop(cid, None)
             save("message_ids")
         elif ctx == "host":
             if mid in glovar.message_ids[cid]["host"]:
