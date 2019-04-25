@@ -106,7 +106,7 @@ for file in file_list:
             with open(f"data/.{file}", 'rb') as f:
                 locals()[f"{file}"] = pickle.load(f)
     except Exception as e:
-        logger.critical(f"Load data {file}_words backup error: {e}")
+        logger.critical(f"Load data {file} backup error: {e}")
         raise SystemExit("[DATA CORRUPTION]")
 
 # Read data from config.ini
@@ -114,7 +114,7 @@ for file in file_list:
 # [basic]
 bot_token: str = ""
 prefix: List[str] = []
-prefix_str: str = "/!！"
+prefix_str: str = "/!"
 
 # [channels]
 test_group_id: int = 0
