@@ -144,3 +144,18 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
         logger.warning(f"Deliver fail error: {e}", exc_info=True)
 
     return False
+
+
+def get_guest(message: Message) -> int:
+    try:
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n")) > 1):
+                gid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                return gid
+    except Exception as e:
+        logger.warning(f"Get guest error: {e}", exc_info=True)
+
+    return 0

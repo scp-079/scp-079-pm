@@ -21,6 +21,7 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
+from .. functions.deliver import get_guest
 from ..functions.etc import bold, button_data, code, code_block, thread
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
@@ -36,32 +37,25 @@ def block(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        r_message = message.reply_to_message
-        if r_message:
-            if (r_message.from_user.is_self
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                if cid not in glovar.blacklist_ids:
-                    add_id(cid, 0, "blacklist")
-                    if glovar.message_ids[cid]["host"]:
-                        thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
+        cid = get_guest(message)
+        if cid:
+            if cid not in glovar.blacklist_ids:
+                add_id(cid, 0, "blacklist")
+                if glovar.message_ids[cid]["host"]:
+                    thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
 
-                    if glovar.message_ids[cid]["guest"]:
-                        thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
+                if glovar.message_ids[cid]["guest"]:
+                    thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
 
-                    remove_id(cid, mid, "chat_all")
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('已拉黑')}")
-                else:
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('无需操作')}\n"
-                            f"原因：{code('该用户已在黑名单中')}")
-
-                thread(send_message, (client, hid, text, mid))
+                remove_id(cid, mid, "chat_all")
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('已拉黑')}")
             else:
-                text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息"
-                thread(send_message, (client, hid, text, mid))
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('无需操作')}\n"
+                        f"原因：{code('该用户已在黑名单中')}")
+
+            thread(send_message, (client, hid, text, mid))
         else:
             text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
@@ -103,25 +97,18 @@ def direct_chat(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        r_message = message.reply_to_message
-        if r_message:
-            if (r_message.from_user.is_self
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                if cid not in glovar.blacklist_ids:
-                    glovar.direct_chat = cid
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('已开始与该用户的直接对话')}")
-                else:
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('操作失败')}\n"
-                            f"原因：{code('该用户在黑名单中')}")
-
-                thread(send_message, (client, hid, text, mid))
+        cid = get_guest(message)
+        if cid:
+            if cid not in glovar.blacklist_ids:
+                glovar.direct_chat = cid
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('已开始与该用户的直接对话')}")
             else:
-                text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息"
-                thread(send_message, (client, hid, text, mid))
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('操作失败')}\n"
+                        f"原因：{code('该用户在黑名单中')}")
+
+            thread(send_message, (client, hid, text, mid))
         else:
             text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
@@ -182,35 +169,27 @@ def recall(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        r_message = message.reply_to_message
-        if r_message:
-            if (r_message.from_user.is_self
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                r_message = message.reply_to_message
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                        f"请选择要撤回全部消息的类别：")
-                data_to = button_data("recall", "host", str(cid))
-                data_all = button_data("recall", "all", str(cid))
-                markup = InlineKeyboardMarkup(
+        cid = get_guest(message)
+        if cid:
+            text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+                    f"请选择要撤回全部消息的类别：")
+            data_to = button_data("recall", "host", str(cid))
+            data_all = button_data("recall", "all", str(cid))
+            markup = InlineKeyboardMarkup(
+                [
                     [
-                        [
-                            InlineKeyboardButton(
-                                "由您发送的消息",
-                                callback_data=data_to
-                            ),
-                            InlineKeyboardButton(
-                                "全部对话消息",
-                                callback_data=data_all
-                            )
-                        ]
+                        InlineKeyboardButton(
+                            "由您发送的消息",
+                            callback_data=data_to
+                        ),
+                        InlineKeyboardButton(
+                            "全部对话消息",
+                            callback_data=data_all
+                        )
                     ]
-                )
-                thread(send_message, (client, hid, text, mid, markup))
-            else:
-                text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
-                thread(send_message, (client, hid, text, mid))
+                ]
+            )
+            thread(send_message, (client, hid, text, mid, markup))
         else:
             text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
@@ -246,25 +225,18 @@ def unblock(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        r_message = message.reply_to_message
-        if r_message:
-            if (r_message.from_user.is_self
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                if cid in glovar.blacklist_ids:
-                    remove_id(cid, 0, "blacklist")
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('已解禁')}")
-                else:
-                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('操作失败')}\n"
-                            f"原因：{code('该用户不在黑名单中')}")
-
-                thread(send_message, (client, hid, text, mid))
+        cid = get_guest(message)
+        if cid:
+            if cid in glovar.blacklist_ids:
+                remove_id(cid, 0, "blacklist")
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('已解禁')}")
             else:
-                text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息"
-                thread(send_message, (client, hid, text, mid))
+                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('操作失败')}\n"
+                        f"原因：{code('该用户不在黑名单中')}")
+
+            thread(send_message, (client, hid, text, mid))
         elif len(message.command) == 2:
             try:
                 cid = int(message.command[1])
