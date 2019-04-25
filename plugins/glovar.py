@@ -18,11 +18,11 @@
 
 import logging
 import pickle
+from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
 from typing import List, Dict, Set, Tuple, Union
-from configparser import RawConfigParser
 
 # Enable logging
 logger = logging.getLogger(__name__)
