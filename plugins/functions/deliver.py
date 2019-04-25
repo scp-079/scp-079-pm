@@ -153,8 +153,8 @@ def get_guest(message: Message) -> int:
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
                     and len(r_message.text.split("\n")) > 1):
-                gid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                return gid
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                return cid
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
