@@ -30,6 +30,10 @@ logger = logging.getLogger(__name__)
 # Init
 all_commands: List[str] = [
     "block",
+    "clear",
+    "direct",
+    "leave",
+    "now",
     "ping",
     "recall",
     "start",

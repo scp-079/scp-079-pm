@@ -41,13 +41,20 @@ def deliver_to_guest(client, message):
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
                     and len(r_message.text.split("\n")) > 1):
-                thread(deliver_host_message, (client, message))
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                thread(deliver_host_message, (client, message, cid))
             else:
-                text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+                if glovar.direct_chat:
+                    text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+                else:
+                    text = "如需在当前直接对话中另外回复某人，请回复某条包含该用户 ID 的汇报消息"
+
                 thread(send_message, (client, hid, text, mid))
-        else:
+        elif not glovar.direct_chat:
             text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
             thread(send_message, (client, hid, text, mid))
+        else:
+            thread(deliver_host_message, (client, message, glovar.direct_chat))
     except Exception as e:
         logger.warning(f"Deliver to guest error: {e}", exc_info=True)
 

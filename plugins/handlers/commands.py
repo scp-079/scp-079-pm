@@ -55,7 +55,8 @@ def block(client, message):
                             f"状态：{code('已拉黑')}")
                 else:
                     text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('已在黑名单中，无需操作')}")
+                            f"状态：{code('无需操作')}\n"
+                            f"原因：{code('该用户已在黑名单中')}")
 
                 thread(send_message, (client, hid, text, mid))
             else:
@@ -93,7 +94,75 @@ def clear(client, message):
         )
         thread(send_message, (client, hid, text, mid, markup))
     except Exception as e:
-        logger.warning(f"Ping error: {e}", exc_info=True)
+        logger.warning(f"Clear error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["direct"], glovar.prefix))
+def direct_chat(client, message):
+    try:
+        hid = message.from_user.id
+        mid = message.message_id
+        r_message = message.reply_to_message
+        if r_message:
+            if (r_message.from_user.is_self
+                    and "ID" in r_message.text
+                    and len(r_message.text.split("\n")) > 1):
+                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                if cid not in glovar.blacklist_ids:
+                    glovar.direct_chat = cid
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('已开始与该用户的直接对话')}")
+                else:
+                    text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                            f"状态：{code('操作失败')}\n"
+                            f"原因：{code('该用户在黑名单中')}")
+
+                thread(send_message, (client, hid, text, mid))
+            else:
+                text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息"
+                thread(send_message, (client, hid, text, mid))
+        else:
+            text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息"
+            thread(send_message, (client, hid, text, mid))
+    except Exception as e:
+        logger.warning(f"Direct chat error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["leave"], glovar.prefix))
+def leave_chat(client, message):
+    try:
+        hid = message.from_user.id
+        did = glovar.direct_chat
+        if did:
+            glovar.direct_chat = 0
+            text = (f"用户 ID：[{did}](tg://user?id={did})\n"
+                    f"状态：{code('已退出与该用户的直接对话')}")
+        else:
+            text = (f"状态：{code('操作失败')}\n"
+                    f"原因：{code('当前无直接对话')}")
+
+        thread(send_message, (client, hid, text))
+    except Exception as e:
+        logger.warning(f"Leave chat error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["now"], glovar.prefix))
+def now_chat(client, message):
+    try:
+        hid = message.from_user.id
+        did = glovar.direct_chat
+        if did:
+            text = (f"用户 ID：[{did}](tg://user?id={did})\n"
+                    f"状态：{code('正在与该用户直接对话')}")
+        else:
+            text = f"状态：{code('当前无直接对话')}"
+
+        thread(send_message, (client, hid, text))
+    except Exception as e:
+        logger.warning(f"Now chat error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
@@ -189,7 +258,8 @@ def unblock(client, message):
                             f"状态：{code('已解禁')}")
                 else:
                     text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('操作失败，该用户不在黑名单中')}")
+                            f"状态：{code('操作失败')}\n"
+                            f"原因：{code('该用户不在黑名单中')}")
 
                 thread(send_message, (client, hid, text, mid))
             else:

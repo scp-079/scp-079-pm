@@ -74,10 +74,8 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
     return False
 
 
-def deliver_host_message(client: Client, message: Message) -> bool:
+def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
     try:
-        r_message = message.reply_to_message
-        cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
         hid = glovar.host_id
         mid = message.message_id
         mids = [mid]
