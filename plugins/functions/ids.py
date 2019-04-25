@@ -85,27 +85,27 @@ def remove_id(cid, mid, ctx):
                 save("blacklist_ids")
         elif ctx == "chat_host":
             for mid in glovar.message_ids[cid]["host"]:
-                glovar.reply_ids["h2g"].pop(mid, None)
+                glovar.reply_ids["h2g"].pop(mid, ())
 
             save("reply_ids")
             glovar.message_ids[cid]["host"] = set()
             save("message_ids")
         elif ctx == "chat_all":
             for mid in glovar.message_ids[cid]["host"]:
-                glovar.reply_ids["h2g"].pop(mid, None)
+                glovar.reply_ids["h2g"].pop(mid, ())
 
             for mid in glovar.message_ids[cid]["guest"]:
-                glovar.reply_ids["g2h"].pop(mid, None)
+                glovar.reply_ids["g2h"].pop(mid, ())
 
             save("reply_ids")
-            glovar.message_ids.pop(cid, None)
+            glovar.message_ids.pop(cid, {})
             save("message_ids")
         elif ctx == "host":
             if mid in glovar.message_ids[cid]["host"]:
                 glovar.message_ids[cid]["guest"].remove(mid)
                 save("message_ids")
 
-            if glovar.reply_ids["h2g"].pop(mid, None):
+            if glovar.reply_ids["h2g"].pop(mid, ()):
                 save("reply_ids")
 
         return True
