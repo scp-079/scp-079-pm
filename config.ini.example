@@ -16,7 +16,7 @@ port = 1080
 
 [basic]
 bot_token = [DATA EXPUNGED]
-prefix = /!！
+prefix = /!
 
 [channels]
 test_group_id = 0
