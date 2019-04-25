@@ -72,7 +72,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
     try:
         while not result:
             try:
-                result = client.delete_messages(cid, mids)
+                result = client.delete_messages(chat_id=cid, message_ids=mids)
             except FloodWait as e:
                 sleep(e.x + 1)
     except Exception as e:
