@@ -17,6 +17,7 @@ See [this article](https://scp-079.org/pm/).
 - [x] Add blacklist feature
 - [x] Anti-flood
 - [ ] Add reply-to feature
+- [x] Chat directly with someone
 
 ## Requirements
 

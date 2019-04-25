@@ -36,7 +36,8 @@ all_commands: List[str] = [
     "unblock",
     "version"
 ]
-version = "0.2.1"
+version: str = "0.2.2"
+direct_chat: int = 0
 
 # Load data from pickle
 
@@ -51,16 +52,39 @@ for path in ["data", "tmp"]:
         mkdir(path)
 
 # Init ids variables
+
 blacklist_ids: Set[int] = set()
+# blacklist_ids = {12345678}
+
 flood_ids: Dict[str, Union[Dict[int, int], set]] = {
     "users": set(),
     "counts": {}
 }
+# flood_ids = {
+#     "users": {12345678},
+#     "counts": {12345678: 0}
+# }
+
 message_ids: Dict[int, Dict[str, Set[int]]] = {}
+# message_ids = {
+#     12345678: {
+#         "guest": {123},
+#         "host": {456}
+#     }
+# }
+
 reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
     "g2h": {},
     "h2g": {}
 }
+# reply_ids = {
+#     "g2h": {
+#         123: (124, 12345678)
+#     },
+#     "h2g": {
+#         456: (457, 12345678)
+#     }
+# }
 
 # Load ids data
 file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids"]
