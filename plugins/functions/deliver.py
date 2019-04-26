@@ -19,6 +19,7 @@
 import logging
 from functools import partial
 from time import sleep
+from typing import Optional
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, ParseMode
 from pyrogram.errors import FloodWait, UserIsBlocked
@@ -151,42 +152,16 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         hid = glovar.host_id
         cid = message.chat.id
         mid = message.message_id
-        if message.forward_from or message.forward_from_chat or message.forward_from_name:
-            as_copy = False
-        else:
-            as_copy = True
-
-        reply_mid = None
-        if message.reply_to_message:
-            reply_mid = message.reply_to_message.message_id
-            reply_mid = glovar.reply_ids["g2h"].get(reply_mid, (None, None))[0]
-
-        result = None
-        while not result:
-            try:
-                result = forward(
-                    self=message,
-                    chat_id=hid,
-                    as_copy=as_copy,
-                    reply_to_message_id=reply_mid
-                )
-            except FloodWait as e:
-                sleep(e.x + 1)
-            except UserIsBlocked:
-                deliver_fail(client, cid, mid)
-                return False
-            except Exception as e:
-                logger.warning(f"Forward message error: {e}")
-                return False
-
-        text = (f"用户 ID：{code(cid)}\n"
-                f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
-        forward_mid = result.message_id
-        thread(send_message, (client, hid, text, forward_mid))
-        add_id(cid, mid, "guest")
-        reply_id(mid, forward_mid, cid, "guest")
-        reply_id(forward_mid, mid, cid, "host")
-        return True
+        result = deliver_message(client, message, hid, mid, "g2h")
+        if result:
+            text = (f"用户 ID：{code(cid)}\n"
+                    f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
+            forward_mid = result.message_id
+            thread(send_message, (client, hid, text, forward_mid))
+            add_id(cid, mid, "guest")
+            reply_id(mid, forward_mid, cid, "guest")
+            reply_id(forward_mid, mid, cid, "host")
+            return True
     except Exception as e:
         logger.warning(f"Deliver guest message error: {e}", exc_info=True)
 
@@ -198,59 +173,32 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         hid = glovar.host_id
         mid = message.message_id
         if cid not in glovar.blacklist_ids:
-            if message.forward_from or message.forward_from_chat or message.forward_from_name:
-                as_copy = False
-            else:
-                as_copy = True
-
-            reply_mid = None
-            if message.reply_to_message:
-                reply_mid = message.reply_to_message.message_id
-                reply_mid = glovar.reply_ids["h2g"].get(reply_mid, (None, None))[0]
-
-            result = None
-            while not result:
-                try:
-                    result = forward(
-                        self=message,
-                        chat_id=cid,
-                        as_copy=as_copy,
-                        reply_to_message_id=reply_mid
-                    )
-                except FloodWait as e:
-                    sleep(e.x + 1)
-                except UserIsBlocked:
-                    deliver_fail(client, hid, mid)
-                    return False
-                except Exception as e:
-                    logger.warning(f"Forward message error: {e}")
-                    return False
-
-            text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
-                    f"状态：{code('已发送')}")
-            forward_mid = result.message_id
-            data = button_data("recall", "single", str(forward_mid))
-            markup = InlineKeyboardMarkup(
-                [
+            result = deliver_message(client, message, cid, mid, "h2g")
+            if result:
+                text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
+                        f"状态：{code('已发送')}")
+                forward_mid = result.message_id
+                data = button_data("recall", "single", str(forward_mid))
+                markup = InlineKeyboardMarkup(
                     [
-                        InlineKeyboardButton(
-                            "撤回",
-                            callback_data=data
-                        )
+                        [
+                            InlineKeyboardButton(
+                                "撤回",
+                                callback_data=data
+                            )
+                        ]
                     ]
-                ]
-            )
-            thread(send_message, (client, hid, text, mid, markup))
-            add_id(cid, forward_mid, "host")
-            reply_id(mid, forward_mid, cid, "host")
-            reply_id(forward_mid, mid, cid, "guest")
+                )
+                thread(send_message, (client, hid, text, mid, markup))
+                add_id(cid, forward_mid, "host")
+                reply_id(mid, forward_mid, cid, "host")
+                reply_id(forward_mid, mid, cid, "guest")
+                return True
         else:
             text = (f"发送至 ID：{user_mention(cid)}\n"
                     f"状态：{code('发送失败')}\n"
                     f"原因：{code('该用户在黑名单中')}")
             thread(send_message, (client, hid, text, mid))
-
-        return False
     except Exception as e:
         logger.warning(f"Deliver host message error: {e}", exc_info=True)
 
@@ -267,6 +215,57 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
         logger.warning(f"Deliver fail error: {e}", exc_info=True)
 
     return False
+
+
+def deliver_message(client: Client, message: Message,
+                    chat_id: int, message_id: int, reply_type: str) -> Optional[Message]:
+    result = None
+    try:
+        if message.forward_from or message.forward_from_chat or message.forward_from_name:
+            as_copy = False
+        else:
+            as_copy = True
+
+        reply_mid = None
+        if message.reply_to_message:
+            reply_mid = message.reply_to_message.message_id
+            reply_mid = glovar.reply_ids[reply_type].get(reply_mid, (None, None))[0]
+
+        while not result:
+            try:
+                if not message.edit_date:
+                    result = forward(
+                        self=message,
+                        chat_id=chat_id,
+                        as_copy=as_copy,
+                        reply_to_message_id=reply_mid
+                    )
+                else:
+                    origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
+                    if origin_mid and message.text:
+                        result = client.edit_message_text(
+                            chat_id=chat_id,
+                            message_id=origin_mid,
+                            text=message.text
+                        )
+                    elif origin_mid and message.caption:
+                        result = client.edit_message_caption(
+                            chat_id=chat_id,
+                            message_id=origin_mid,
+                            caption=message.caption
+                        )
+            except FloodWait as e:
+                sleep(e.x + 1)
+            except UserIsBlocked:
+                deliver_fail(client, message.from_user.id, message_id)
+                return None
+            except Exception as e:
+                logger.warning(f"Forward message error: {e}", exc_info=True)
+                return None
+    except Exception as e:
+        logger.warning(f"Deliver message error: {e}", exc_info=True)
+
+    return result
 
 
 def get_guest(message: Message) -> int:
