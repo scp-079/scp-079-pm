@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timer import clear_counts, clear_flood
+from plugins.functions.timers import clear_counts, clear_flood
 
 # Enable logging
 logging.basicConfig(

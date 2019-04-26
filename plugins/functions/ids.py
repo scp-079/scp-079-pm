@@ -19,7 +19,7 @@
 import logging
 
 from .. import glovar
-from ..functions.files import save
+from ..functions.file import save
 
 # Enable logging
 logger = logging.getLogger(__name__)

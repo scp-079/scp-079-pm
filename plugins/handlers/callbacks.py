@@ -23,7 +23,7 @@ from pyrogram import Client
 
 from .. import glovar
 from ..functions.etc import code, thread
-from ..functions.files import save
+from ..functions.file import save
 from ..functions.ids import init_id, remove_id
 from ..functions.telegram import answer_callback, delete_messages, edit_message_text
 
