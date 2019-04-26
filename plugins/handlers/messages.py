@@ -39,6 +39,7 @@ def deliver_to_guest(client, message):
         r_message = message.reply_to_message
         if r_message:
             if (r_message.from_user.is_self
+                    and r_message.text
                     and "ID" in r_message.text
                     and len(r_message.text.split("\n")) > 1):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
