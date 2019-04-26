@@ -18,6 +18,7 @@ See [this article](https://scp-079.org/pm/).
 - [x] Anti-flood
 - [x] Add reply-to feature
 - [x] Chat directly with someone
+- [x] Support editing message text or caption
 
 ## Requirements
 
