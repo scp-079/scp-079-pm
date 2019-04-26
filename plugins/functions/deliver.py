@@ -234,12 +234,15 @@ def deliver_message(client: Client, message: Message,
         while not result:
             try:
                 if not message.edit_date:
-                    result = forward(
-                        self=message,
-                        chat_id=chat_id,
-                        as_copy=as_copy,
-                        reply_to_message_id=reply_mid
-                    )
+                    if as_copy:
+                        result = forward(
+                            self=message,
+                            chat_id=chat_id,
+                            as_copy=True,
+                            reply_to_message_id=reply_mid
+                        )
+                    else:
+                        result = message.forward(chat_id=chat_id)
                 else:
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
                     if origin_mid and message.text:
