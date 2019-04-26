@@ -64,6 +64,9 @@ def answer(client, callback_query):
 
                         if glovar.message_ids[cid]["guest"]:
                             thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
+                            guest_to_host = {glovar.reply_ids["g2h"].get(i, (0, 0))[0]
+                                             for i in glovar.message_ids[cid]["guest"]}
+                            thread(delete_messages, (client, hid, guest_to_host))
 
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('已撤回全部消息')}")
