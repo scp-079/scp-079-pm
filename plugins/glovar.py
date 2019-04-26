@@ -40,7 +40,7 @@ all_commands: List[str] = [
     "unblock",
     "version"
 ]
-version: str = "0.3.0"
+version: str = "0.3.1"
 direct_chat: int = 0
 
 # Load data from pickle
