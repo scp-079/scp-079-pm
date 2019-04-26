@@ -78,7 +78,7 @@ def count(client, message):
     try:
         cid = message.from_user.id
         counts = count_id(cid)
-        if counts == 30:
+        if counts == 20:
             add_id(cid, 0, "flood")
             text = "您发送的消息过于频繁，请 15 分钟后重试\n期间机器人将对您的消息不做任何转发和应答"
             thread(send_message, (client, cid, text))
