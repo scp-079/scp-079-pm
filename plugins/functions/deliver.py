@@ -228,7 +228,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
 
             text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                     f"状态：{code('已发送')}")
-            forward_mid = result.messages[0].message_id
+            forward_mid = result.message_id
             data = button_data("recall", "single", str(forward_mid))
             markup = InlineKeyboardMarkup(
                 [
