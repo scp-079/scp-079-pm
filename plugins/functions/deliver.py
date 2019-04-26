@@ -17,9 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from functools import partial
 from time import sleep
+from typing import Iterable, Union
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
+import pyrogram
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, ParseMode
+from pyrogram.api import functions, types
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
@@ -29,6 +33,191 @@ from .telegram import send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def forward_messages(
+        self,
+        chat_id: Union[int, str],
+        from_chat_id: Union[int, str],
+        message_ids: Iterable[int],
+        disable_notification: bool = None,
+        as_copy: bool = False,
+        remove_caption: bool = False,
+        reply_to_message_id: int = None
+) -> "pyrogram.Messages":
+    is_iterable = not isinstance(message_ids, int)
+    message_ids = list(message_ids) if is_iterable else [message_ids]
+
+    if as_copy:
+        forwarded_messages = []
+
+        for chunk in [message_ids[i:i + 200] for i in range(0, len(message_ids), 200)]:
+            messages = self.get_messages(chat_id=from_chat_id, message_ids=chunk)  # type: pyrogram.Messages
+
+            for message in messages.messages:
+                forwarded_messages.append(
+                    message.forward(
+                        chat_id,
+                        disable_notification=disable_notification,
+                        as_copy=True,
+                        remove_caption=remove_caption,
+                        reply_to_message_id=reply_to_message_id
+                    )
+                )
+
+        return pyrogram.Messages(
+            client=self,
+            total_count=len(forwarded_messages),
+            messages=forwarded_messages
+        ) if is_iterable else forwarded_messages[0]
+    else:
+        r = self.send(
+            functions.messages.ForwardMessages(
+                to_peer=self.resolve_peer(chat_id),
+                from_peer=self.resolve_peer(from_chat_id),
+                id=message_ids,
+                silent=disable_notification or None,
+                random_id=[self.rnd_id() for _ in message_ids]
+            )
+        )
+
+        forwarded_messages = []
+
+        users = {i.id: i for i in r.users}
+        chats = {i.id: i for i in r.chats}
+
+        for i in r.updates:
+            if isinstance(i, (types.UpdateNewMessage, types.UpdateNewChannelMessage)):
+                forwarded_messages.append(
+                    pyrogram.Message._parse(
+                        self, i.message,
+                        users, chats
+                    )
+                )
+
+        return pyrogram.Messages(
+            client=self,
+            total_count=len(forwarded_messages),
+            messages=forwarded_messages
+        ) if is_iterable else forwarded_messages[0]
+
+
+def forward(
+        self,
+        chat_id: int or str,
+        disable_notification: bool = None,
+        as_copy: bool = False,
+        remove_caption: bool = False,
+        reply_to_message_id: int = None
+) -> "Message":
+    if as_copy:
+        if self.service:
+            raise ValueError("Unable to copy service messages")
+
+        if self.game and not self._client.is_bot:
+            raise ValueError("Users cannot send messages with Game media type")
+
+        if self.text:
+            return self._client.send_message(
+                chat_id,
+                text=self.text.html,
+                parse_mode="html",
+                disable_web_page_preview=not self.web_page,
+                disable_notification=disable_notification,
+                reply_to_message_id=reply_to_message_id
+            )
+        elif self.media:
+            caption = self.caption.html if self.caption and not remove_caption else None
+
+            send_media = partial(
+                self._client.send_cached_media,
+                chat_id=chat_id,
+                disable_notification=disable_notification,
+                reply_to_message_id=reply_to_message_id
+            )
+
+            if self.photo:
+                file_id = self.photo.sizes[-1].file_id
+            elif self.audio:
+                file_id = self.audio.file_id
+            elif self.document:
+                file_id = self.document.file_id
+            elif self.video:
+                file_id = self.video.file_id
+            elif self.animation:
+                file_id = self.animation.file_id
+            elif self.voice:
+                file_id = self.voice.file_id
+            elif self.sticker:
+                file_id = self.sticker.file_id
+            elif self.video_note:
+                file_id = self.video_note.file_id
+            elif self.contact:
+                return self._client.send_contact(
+                    chat_id,
+                    phone_number=self.contact.phone_number,
+                    first_name=self.contact.first_name,
+                    last_name=self.contact.last_name,
+                    vcard=self.contact.vcard,
+                    disable_notification=disable_notification,
+                    reply_to_message_id=reply_to_message_id
+                )
+            elif self.location:
+                return self._client.send_location(
+                    chat_id,
+                    latitude=self.location.latitude,
+                    longitude=self.location.longitude,
+                    disable_notification=disable_notification,
+                    reply_to_message_id=reply_to_message_id
+                )
+            elif self.venue:
+                return self._client.send_venue(
+                    chat_id,
+                    latitude=self.venue.location.latitude,
+                    longitude=self.venue.location.longitude,
+                    title=self.venue.title,
+                    address=self.venue.address,
+                    foursquare_id=self.venue.foursquare_id,
+                    foursquare_type=self.venue.foursquare_type,
+                    disable_notification=disable_notification,
+                    reply_to_message_id=reply_to_message_id
+                )
+            elif self.poll:
+                return self._client.send_poll(
+                    chat_id,
+                    question=self.poll.question,
+                    options=[opt.text for opt in self.poll.options],
+                    disable_notification=disable_notification,
+                    reply_to_message_id=reply_to_message_id
+                )
+            elif self.game:
+                return self._client.send_game(
+                    chat_id,
+                    game_short_name=self.game.short_name,
+                    disable_notification=disable_notification,
+                    reply_to_message_id=reply_to_message_id
+                )
+            else:
+                raise ValueError("Unknown media type")
+
+            if self.sticker or self.video_note:  # Sticker and VideoNote should have no caption
+                return send_media(file_id=file_id)
+            else:
+                return send_media(file_id=file_id, caption=caption, parse_mode=ParseMode.HTML)
+        else:
+            raise ValueError("Can't copy this message")
+    else:
+        return self._client.forward_messages(
+            chat_id=chat_id,
+            from_chat_id=self.chat.id,
+            message_ids=self.message_id,
+            disable_notification=disable_notification,
+            reply_to_message_id=reply_to_message_id
+        )
+
+
+pyrogram.Client.forward_messages = forward_messages
+pyrogram.Message.forward = forward
 
 
 def deliver_guest_message(client: Client, message: Message) -> bool:
