@@ -151,7 +151,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         hid = glovar.host_id
         cid = message.chat.id
         mid = message.message_id
-        mids = [mid]
+        # mids = [mid]
         if message.forward_from or message.forward_from_chat or message.forward_from_name:
             as_copy = False
         else:
@@ -165,13 +165,13 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         result = None
         while not result:
             try:
-                result = client.forward_messages(
-                    chat_id=hid,
-                    from_chat_id=cid,
-                    message_ids=mids,
-                    disable_notification=True,
-                    as_copy=as_copy
-                )
+                # result = client.forward_messages(
+                #     chat_id=hid,
+                #     from_chat_id=cid,
+                #     message_ids=mids,
+                #     disable_notification=True,
+                #     as_copy=as_copy
+                # )
                 result = forward(
                     self=message,
                     chat_id=hid,
