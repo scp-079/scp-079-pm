@@ -189,7 +189,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 
         text = (f"用户 ID：{code(cid)}\n"
                 f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
-        forward_mid = result.messages[0].message_id
+        forward_mid = result.message_id
         thread(send_message, (client, hid, text, forward_mid))
         add_id(cid, mid, "guest")
         reply_id(mid, forward_mid, cid, "guest")
