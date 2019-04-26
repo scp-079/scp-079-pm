@@ -5,9 +5,9 @@ api_hash = [DATA EXPUNGED]
 [plugins]
 root = plugins
 include =
-    handlers.callbacks
-    handlers.commands
-    handlers.messages
+    handlers.callback
+    handlers.command
+    handlers.message
 
 [proxy]
 enabled = False
