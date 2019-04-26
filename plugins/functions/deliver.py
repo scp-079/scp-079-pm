@@ -174,7 +174,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         mid = message.message_id
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
-            if result:
+            if result and isinstance(result, Message) and not result.edit_date:
                 text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                         f"状态：{code('已发送')}")
                 forward_mid = result.message_id
