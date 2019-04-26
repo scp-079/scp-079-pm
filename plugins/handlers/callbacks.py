@@ -83,11 +83,12 @@ def answer(client, callback_query):
                         "h2g": {}
                     }
                     save("reply_ids")
+                    text = f"已清空：{code('消息 ID')}"
                 else:
                     glovar.blacklist_ids = set()
                     save("blacklist_ids")
+                    text = f"已清空：{code('黑名单')}"
 
-                text = "已清空"
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))
 
