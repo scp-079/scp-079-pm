@@ -43,6 +43,9 @@ def deliver_to_guest(client, message):
                     and len(r_message.text.split("\n")) > 1):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
                 thread(deliver_host_message, (client, message, cid))
+            elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
+                cid = glovar.reply_ids["h2g"][r_message.message_id][1]
+                thread(deliver_host_message, (client, message, cid))
             else:
                 if glovar.direct_chat:
                     text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"

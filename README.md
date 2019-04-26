@@ -16,7 +16,7 @@ See [this article](https://scp-079.org/pm/).
 - [x] Recall all messages
 - [x] Add blacklist feature
 - [x] Anti-flood
-- [ ] Add reply-to feature
+- [x] Add reply-to feature
 - [x] Chat directly with someone
 
 ## Requirements

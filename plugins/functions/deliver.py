@@ -159,7 +159,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         reply_mid = None
         if message.reply_to_message:
             reply_mid = message.reply_to_message.message_id
-            reply_mid = glovar.reply_ids["g2h"].get(reply_mid, (None, 0))[0]
+            reply_mid = glovar.reply_ids["g2h"].get(reply_mid, (None, None))[0]
 
         result = None
         while not result:
@@ -197,22 +197,25 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
     try:
         hid = glovar.host_id
         mid = message.message_id
-        mids = [mid]
         if cid not in glovar.blacklist_ids:
             if message.forward_from or message.forward_from_chat or message.forward_from_name:
                 as_copy = False
             else:
                 as_copy = True
 
+            reply_mid = None
+            if message.reply_to_message:
+                reply_mid = message.reply_to_message.message_id
+                reply_mid = glovar.reply_ids["g2h"].get(reply_mid, (None, None))[0]
+
             result = None
             while not result:
                 try:
-                    result = client.forward_messages(
+                    result = forward(
+                        self=message,
                         chat_id=cid,
-                        from_chat_id=hid,
-                        message_ids=mids,
-                        disable_notification=True,
-                        as_copy=as_copy
+                        as_copy=as_copy,
+                        reply_to_message_id=reply_mid
                     )
                 except FloodWait as e:
                     sleep(e.x + 1)
