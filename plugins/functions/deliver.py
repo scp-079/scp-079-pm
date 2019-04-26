@@ -153,7 +153,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         cid = message.chat.id
         mid = message.message_id
         result = deliver_message(client, message, hid, mid, "g2h")
-        if result:
+        if result and isinstance(result, Message) and not result.edit_date:
             text = (f"用户 ID：{code(cid)}\n"
                     f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
             forward_mid = result.message_id
