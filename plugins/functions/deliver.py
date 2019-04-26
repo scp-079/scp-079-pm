@@ -254,6 +254,13 @@ def deliver_message(client: Client, message: Message,
                             message_id=origin_mid,
                             caption=message.caption
                         )
+                    else:
+                        result = forward(
+                            self=message,
+                            chat_id=chat_id,
+                            as_copy=as_copy,
+                            reply_to_message_id=reply_mid
+                        )
             except FloodWait as e:
                 sleep(e.x + 1)
             except UserIsBlocked:
