@@ -206,7 +206,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
             reply_mid = None
             if message.reply_to_message:
                 reply_mid = message.reply_to_message.message_id
-                reply_mid = glovar.reply_ids["g2h"].get(reply_mid, (None, None))[0]
+                reply_mid = glovar.reply_ids["h2g"].get(reply_mid, (None, None))[0]
 
             result = None
             while not result:
