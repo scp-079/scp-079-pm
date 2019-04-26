@@ -38,7 +38,7 @@ def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
 
 def is_limited_user(_, message: Message) -> bool:
     cid = message.chat.id
-    if cid in glovar.blacklist_ids and cid not in glovar.flood_ids["users"]:
+    if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
         return True
 
     return False
