@@ -31,13 +31,15 @@ See [this article](https://scp-079.org/pm/).
     - functions
         - `deliver.py` : I am a postman
         - `etc.py` : Miscellaneous
-        - `files.py` : Save files
+        - `file.py` : Save files
+        - `filters.py` : Some filters
         - `ids.py` : Modify id lists
         - `telegram.py` : Some telegram functions
+        - `timers.py` : Timer functions
     - handlers
-        - `callbacks.py` : Handle callbacks
-        - `commands.py` : Handle commands
-        - `messages.py` : Handle messages
+        - `callback.py` : Handle callbacks
+        - `command.py` : Handle commands
+        - `message.py` : Handle messages
     - `glovar.py` : Global variables
 - `.gitignore` : Ignore
 - `config.ini.example` -> `config.ini` : Configures
