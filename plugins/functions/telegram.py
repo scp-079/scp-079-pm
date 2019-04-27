@@ -33,8 +33,7 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
             try:
                 result = client.answer_callback_query(
                     callback_query_id=query_id,
-                    text=text,
-                    show_alert=True
+                    text=text
                 )
             except FloodWait as e:
                 sleep(e.x + 1)
