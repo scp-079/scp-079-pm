@@ -23,7 +23,7 @@ See [this article](https://scp-079.org/pm/).
 ## Requirements
 
 - Python 3.6 or higher
-- requirements.txt
+- `requirements.txt`: APScheduler pyrogram[fast]
 
 ## Files
 
