@@ -231,7 +231,8 @@ def deliver_message(client: Client, message: Message,
             reply_mid = message.reply_to_message.message_id
             reply_mid = glovar.reply_ids[reply_type].get(reply_mid, (None, None))[0]
 
-        while not result:
+        flood_wait = True
+        while flood_wait:
             try:
                 if not message.edit_date:
                     if as_copy:
@@ -243,6 +244,8 @@ def deliver_message(client: Client, message: Message,
                         )
                     else:
                         result = message.forward(chat_id=chat_id)
+
+                    flood_wait = False
                 else:
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
                     if origin_mid and message.text:
@@ -264,6 +267,8 @@ def deliver_message(client: Client, message: Message,
                             as_copy=as_copy,
                             reply_to_message_id=reply_mid
                         )
+
+                    flood_wait = False
             except FloodWait as e:
                 sleep(e.x + 1)
             except UserIsBlocked:
