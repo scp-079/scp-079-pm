@@ -21,8 +21,8 @@ import logging
 from pyrogram import Client, Filters
 
 from .. import glovar
-from ..functions.etc import thread
-from ..functions.deliver import deliver_guest_message, deliver_host_message, send_message
+from ..functions.etc import bold, thread
+from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
 from ..functions.filters import host_chat, limited_user
 from ..functions.ids import add_id, count_id
 
@@ -36,29 +36,18 @@ def deliver_to_guest(client, message):
     try:
         hid = message.chat.id
         mid = message.message_id
-        r_message = message.reply_to_message
-        if r_message:
-            if (r_message.from_user.is_self
-                    and r_message.text
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                thread(deliver_host_message, (client, message, cid))
-            elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
-                cid = glovar.reply_ids["h2g"][r_message.message_id][1]
-                thread(deliver_host_message, (client, message, cid))
-            else:
-                if glovar.direct_chat:
-                    text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
-                else:
-                    text = "如需在当前直接对话中另外回复某人，请回复某条包含该用户 ID 的汇报消息"
-
-                thread(send_message, (client, hid, text, mid))
-        elif not glovar.direct_chat:
-            text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
-            thread(send_message, (client, hid, text, mid))
-        else:
+        cid = get_guest(message)
+        if cid:
+            thread(deliver_host_message, (client, message, cid))
+        elif glovar.direct_chat:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
+        else:
+            if glovar.direct_chat:
+                text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+            else:
+                text = "如需在当前直接对话中另外回复某人，请回复某条包含该用户 ID 的汇报消息"
+
+            thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Deliver to guest error: {e}", exc_info=True)
 
@@ -76,11 +65,13 @@ def deliver_to_host(client, message):
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
 def count(client, message):
     try:
+        # Count user's messages in 5 seconds
         cid = message.from_user.id
         counts = count_id(cid)
         if counts == 20:
             add_id(cid, 0, "flood")
-            text = "您发送的消息过于频繁，请 15 分钟后重试\n期间机器人将对您的消息不做任何转发和应答"
+            text = (f"您发送的消息过于频繁，请 {bold('15')} 分钟后重试\n"
+                    f"期间机器人将对您的消息不做任何转发和应答")
             thread(send_message, (client, cid, text))
     except Exception as e:
         logger.warning(f"Count error: {e}", exc_info=True)

@@ -2,7 +2,7 @@
 
 Everyone can have their own Telegram private chat bot.
 
-This project provides python code of a Telegram private chat forwarding bot, constantly improving...
+This project provides python code of a Telegram private chat forwarding bot.
 
 ## How to use
 
@@ -18,7 +18,7 @@ See [this article](https://scp-079.org/pm/).
 - [x] Anti-flood
 - [x] Add reply-to feature
 - [x] Chat directly with someone
-- [x] Support editing message text or caption
+- [x] Support editing message text
 
 ## Requirements
 

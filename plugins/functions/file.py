@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def save(file: str) -> bool:
+    # Save a global variable to a file
     t = Thread(target=save_thread, args=(file,))
     t.start()
 

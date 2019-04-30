@@ -36,18 +36,22 @@ def answer(client, callback_query):
     try:
         uid = callback_query.from_user.id
         hid = glovar.host_id
+        # Check permission
         if uid == hid:
             mid = callback_query.message.message_id
             callback_data = json.loads(callback_query.data)
+            # If action is recall
             if callback_data["a"] == "recall":
                 cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
                 init_id(cid)
+                # Recall single message
                 if callback_data["t"] == "single":
                     recall_mid = int(callback_data["d"])
                     thread(delete_messages, (client, cid, [recall_mid]))
                     text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
                             f"状态：{code('已撤回')}")
                     remove_id(cid, mid, "host")
+                # Recall all host's messages
                 elif callback_data["t"] == "host":
                     if glovar.message_ids[cid]["host"]:
                         thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
@@ -57,6 +61,7 @@ def answer(client, callback_query):
                     else:
                         text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
                                 f"状态：{code('没有可撤回的消息')}")
+                # Recall all messages in a guest's chat
                 else:
                     if glovar.message_ids[cid]["host"] or glovar.message_ids[cid]["guest"]:
                         if glovar.message_ids[cid]["host"]:
@@ -74,6 +79,7 @@ def answer(client, callback_query):
 
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))
+            # Clear all stored data
             elif callback_data["a"] == "clear":
                 if callback_data["t"] == "messages":
                     glovar.message_ids = {}

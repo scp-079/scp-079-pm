@@ -22,7 +22,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .. functions.deliver import get_guest
-from ..functions.etc import bold, button_data, code, code_block, thread
+from ..functions.etc import bold, button_data, code, code_block, general_link, thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, get_users, send_message
@@ -41,6 +41,7 @@ def block(client, message):
         if cid:
             if cid not in glovar.blacklist_ids:
                 add_id(cid, 0, "blacklist")
+                # When add someone to blacklist, delete all messages in this guest's chat
                 if glovar.message_ids[cid]["host"]:
                     thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
 
@@ -48,10 +49,10 @@ def block(client, message):
                     thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
 
                 remove_id(cid, mid, "chat_all")
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('已拉黑')}")
             else:
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('无需操作')}\n"
                         f"原因：{code('该用户已在黑名单中')}")
 
@@ -101,10 +102,10 @@ def direct_chat(client, message):
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('已开始与该用户的直接对话')}")
             else:
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
                         f"原因：{code('该用户在黑名单中')}")
 
@@ -121,10 +122,10 @@ def direct_chat(client, message):
 def leave_chat(client, message):
     try:
         hid = message.from_user.id
-        did = glovar.direct_chat
-        if did:
+        cid = glovar.direct_chat
+        if cid:
             glovar.direct_chat = 0
-            text = (f"用户 ID：[{did}](tg://user?id={did})\n"
+            text = (f"用户 ID：{user_mention(cid)}\n"
                     f"状态：{code('已退出与该用户的直接对话')}")
         else:
             text = (f"状态：{code('操作失败')}\n"
@@ -140,9 +141,9 @@ def leave_chat(client, message):
 def now_chat(client, message):
     try:
         hid = message.from_user.id
-        did = glovar.direct_chat
-        if did:
-            text = (f"用户 ID：[{did}](tg://user?id={did})\n"
+        cid = glovar.direct_chat
+        if cid:
+            text = (f"用户 ID：{user_mention(cid)}\n"
                     f"状态：{code('正在与该用户直接对话')}")
         else:
             text = f"状态：{code('当前无直接对话')}"
@@ -171,7 +172,7 @@ def recall(client, message):
         mid = message.message_id
         cid = get_guest(message)
         if cid:
-            text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
+            text = (f"对话 ID：{user_mention(cid)}\n"
                     f"请选择要撤回全部消息的类别：")
             data_to = button_data("recall", "host", str(cid))
             data_all = button_data("recall", "all", str(cid))
@@ -203,14 +204,14 @@ def start(client, message):
     try:
         uid = message.from_user.id
         if uid == glovar.host_id:
-            text = ("您的传送信使已准备就绪\n"
-                    "请勿停用机器人，否则无法收到他人的消息\n"
-                    "关注[此页面](https://scp-079.org/pm/)可及时获取更新信息")
+            text = (f"您的传送信使已准备就绪\n"
+                    f"请勿停用机器人，否则无法收到他人的消息\n"
+                    f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息")
         elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
             host = get_users(client, [glovar.host_id])[0]
-            text = ("欢迎使用\n"
+            text = (f"欢迎使用\n"
                     f"如您需要私聊 {code(host.first_name)}，您可以直接在此发送消息并等待回复\n"
-                    "若您也想拥有自己的私聊机器人，请参照[说明](https://scp-079.org/pm/)建立")
+                    f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立")
         else:
             text = ""
 
@@ -229,10 +230,10 @@ def unblock(client, message):
         if cid:
             if cid in glovar.blacklist_ids:
                 remove_id(cid, 0, "blacklist")
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('已解禁')}")
             else:
-                text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
                         f"原因：{code('该用户不在黑名单中')}")
 
@@ -241,13 +242,13 @@ def unblock(client, message):
             try:
                 cid = int(message.command[1])
             except Exception as e:
-                text = ("格式有误\n"
+                text = (f"格式有误\n"
                         f"{code_block(e)}")
                 thread(send_message, (client, hid, text, mid))
                 return
 
             remove_id(cid, 0, "blacklist")
-            text = (f"用户 ID：[{cid}](tg://user?id={cid})\n"
+            text = (f"用户 ID：{user_mention(cid)}\n"
                     f"状态：{code('已解禁')}")
             thread(send_message, (client, hid, text, mid))
         else:

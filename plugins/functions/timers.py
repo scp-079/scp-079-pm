@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def clear_counts() -> bool:
+    # Clear the user's message count every 5 seconds
     try:
         glovar.flood_ids["counts"] = {}
         return True
@@ -35,6 +36,7 @@ def clear_counts() -> bool:
 
 
 def clear_flood() -> bool:
+    # Clear the user's flood status every 15 minutes
     try:
         glovar.flood_ids["users"] = set()
         return True

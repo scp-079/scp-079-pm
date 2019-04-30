@@ -28,6 +28,7 @@ from typing import List, Dict, Set, Tuple, Union
 logger = logging.getLogger(__name__)
 
 # Init
+
 all_commands: List[str] = [
     "block",
     "clear",
@@ -40,7 +41,9 @@ all_commands: List[str] = [
     "unblock",
     "version"
 ]
-version: str = "0.3.1"
+
+version: str = "0.3.2"
+
 direct_chat: int = 0
 
 # Load data from pickle
@@ -139,7 +142,6 @@ except Exception as e:
 if (bot_token in {"", "[DATA EXPUNGED"}
         or prefix == []
         or host_id == 0):
-    logger.critical("No proper settings")
     raise SystemExit('No proper settings')
 
 # Start program

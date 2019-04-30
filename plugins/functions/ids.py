@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def add_id(cid: int, mid: int, id_type: str) -> bool:
+    # Add a id to global variables
     try:
         init_id(cid)
         if id_type == "blacklist":
@@ -35,6 +36,7 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
         elif id_type == "flood":
             if cid not in glovar.flood_ids["users"]:
                 glovar.flood_ids["users"].add(cid)
+        # Store the message's id in guest chat, in order to recall all messages sometime
         elif id_type in {"guest", "host"}:
             if mid not in glovar.message_ids[cid][id_type]:
                 glovar.message_ids[cid][id_type].add(mid)
@@ -48,6 +50,7 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
 
 
 def count_id(cid: int) -> int:
+    # Count user's messages, plus one, return the total number
     try:
         init_id(cid)
         glovar.flood_ids["counts"][cid] += 1
@@ -59,6 +62,7 @@ def count_id(cid: int) -> int:
 
 
 def init_id(cid: int) -> bool:
+    # Initiate the guest user's status
     try:
         if glovar.flood_ids["counts"].get(cid) is None:
             glovar.flood_ids["counts"][cid] = 0
@@ -77,12 +81,14 @@ def init_id(cid: int) -> bool:
 
 
 def remove_id(cid, mid, ctx):
+    # Remove a id in global variables
     try:
         init_id(cid)
         if ctx == "blacklist":
             if cid in glovar.blacklist_ids:
                 glovar.blacklist_ids.remove(cid)
                 save("blacklist_ids")
+        # Remove all ids the host sent to guest chat
         elif ctx == "chat_host":
             for mid in glovar.message_ids[cid]["host"]:
                 glovar.reply_ids["g2h"].pop(mid, ())
@@ -91,6 +97,7 @@ def remove_id(cid, mid, ctx):
             save("reply_ids")
             glovar.message_ids[cid]["host"] = set()
             save("message_ids")
+        # Remove all ids the guest chat got
         elif ctx == "chat_all":
             for mid in glovar.message_ids[cid]["host"]:
                 glovar.reply_ids["g2h"].pop(mid, ())
@@ -103,6 +110,7 @@ def remove_id(cid, mid, ctx):
             save("reply_ids")
             glovar.message_ids.pop(cid, {})
             save("message_ids")
+        # Remove a single id the host sent to guest chat
         elif ctx == "host":
             glovar.message_ids[cid]["guest"].discard(mid)
             save("message_ids")
@@ -118,6 +126,7 @@ def remove_id(cid, mid, ctx):
 
 
 def reply_id(a: int, b: int, cid: int, ctx: str):
+    # Add ids to "reply" records, in order to let bot know which id is corresponding to another (also know the chat id)
     try:
         if ctx == "guest":
             glovar.reply_ids["g2h"][a] = (b, cid)

@@ -25,7 +25,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, thread, user_mention
+from .etc import button_data, code, name_mention, thread, user_mention
 from .ids import add_id, reply_id
 from .telegram import send_message
 
@@ -41,6 +41,8 @@ def forward(
         remove_caption: bool = False,
         reply_to_message_id: int = None
 ) -> "Message":
+    # Redefine the forward method of "Message", see:
+    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2558
     if as_copy:
         if self.service:
             raise ValueError("Unable to copy service messages")
@@ -148,6 +150,7 @@ def forward(
 
 
 def deliver_guest_message(client: Client, message: Message) -> bool:
+    # Deliver guest message to host chat
     try:
         hid = glovar.host_id
         cid = message.chat.id
@@ -155,9 +158,10 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         result = deliver_message(client, message, hid, mid, "g2h")
         if result and isinstance(result, Message) and not result.edit_date:
             text = (f"用户 ID：{code(cid)}\n"
-                    f"昵称：[{message.from_user.first_name}](tg://user?id={cid})")
+                    f"昵称：{name_mention(message.from_user)}")
             forward_mid = result.message_id
             thread(send_message, (client, hid, text, forward_mid))
+            # Record the message's id
             add_id(cid, mid, "guest")
             reply_id(mid, forward_mid, cid, "guest")
             reply_id(forward_mid, mid, cid, "host")
@@ -169,13 +173,14 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 
 
 def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
+    # Deliver host message to guest chat
     try:
         hid = glovar.host_id
         mid = message.message_id
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
             if result and isinstance(result, Message) and not result.edit_date:
-                text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
+                text = (f"发送至 ID：{user_mention(cid)}\n"
                         f"状态：{code('已发送')}")
                 forward_mid = result.message_id
                 data = button_data("recall", "single", str(forward_mid))
@@ -190,6 +195,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                     ]
                 )
                 thread(send_message, (client, hid, text, mid, markup))
+                # Record the message's id
                 add_id(cid, forward_mid, "host")
                 reply_id(mid, forward_mid, cid, "host")
                 reply_id(forward_mid, mid, cid, "guest")
@@ -206,6 +212,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
 
 
 def deliver_fail(client: Client, cid: int, mid: int) -> bool:
+    # Send a report message when deliver failed
     try:
         text = (f"状态：{code('发送失败')}\n"
                 f"原因：{code('对方已停用机器人')}")
@@ -219,13 +226,16 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
 
 def deliver_message(client: Client, message: Message,
                     chat_id: int, message_id: int, reply_type: str) -> Optional[Message]:
+    # Deliver a message to guest or host
     result = None
     try:
+        # If message is forwarded from someone else, bot directly forward this message, not using as copy mode
         if message.forward_from or message.forward_from_chat or message.forward_from_name:
             as_copy = False
         else:
             as_copy = True
 
+        # Check to see if the bot knows which message shall be replied to
         reply_mid = None
         if message.reply_to_message:
             reply_mid = message.reply_to_message.message_id
@@ -235,6 +245,7 @@ def deliver_message(client: Client, message: Message,
         while flood_wait:
             flood_wait = False
             try:
+                # If message is not edited, directly send it
                 if not message.edit_date:
                     if as_copy:
                         result = forward(
@@ -246,6 +257,7 @@ def deliver_message(client: Client, message: Message,
                     else:
                         result = message.forward(chat_id=chat_id)
                 else:
+                    # If message is edited, check to see if the bot knows which message is corresponding
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
                     if origin_mid and message.text:
                         result = client.edit_message_text(
@@ -253,12 +265,7 @@ def deliver_message(client: Client, message: Message,
                             message_id=origin_mid,
                             text=message.text
                         )
-                    elif origin_mid and message.caption:
-                        result = client.edit_message_caption(
-                            chat_id=chat_id,
-                            message_id=origin_mid,
-                            caption=message.caption
-                        )
+                    # Not a text message, so bot resend the message
                     else:
                         result = forward(
                             self=message,
@@ -270,6 +277,7 @@ def deliver_message(client: Client, message: Message,
                 flood_wait = True
                 sleep(e.x + 1)
             except UserIsBlocked:
+                # If the other user blocked the bot, send a failure report to who sent the message
                 deliver_fail(client, message.from_user.id, message_id)
                 return None
             except Exception as e:
@@ -282,15 +290,20 @@ def deliver_message(client: Client, message: Message,
 
 
 def get_guest(message: Message) -> int:
+    # Get a guest chat id
+    cid = 0
     try:
         r_message = message.reply_to_message
         if r_message:
+            # Check if the replied message is a valid report message
             if (r_message.from_user.is_self
                     and "ID" in r_message.text
                     and len(r_message.text.split("\n")) > 1):
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
-                return cid
+            # Else check to see if bot knows which message is corresponding
+            elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
+                cid = glovar.reply_ids["h2g"][r_message.message_id][1]
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
-    return 0
+    return cid

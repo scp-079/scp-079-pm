@@ -21,6 +21,8 @@ from json import dumps
 from threading import Thread
 from typing import Callable, Union
 
+from pyrogram import User
+
 # Enable logging
 logger = logging.getLogger(__name__)
 
@@ -53,6 +55,17 @@ def code_block(text) -> str:
         return f"```{text}```"
 
     return ""
+
+
+def general_link(text: Union[int, str], link: str) -> str:
+    return f"[{text}]({link})"
+
+
+def name_mention(user: User) -> str:
+    name = user.first_name
+    uid = user.id
+
+    return f"[{name}](tg://user?id={uid})"
 
 
 def thread(target: Callable, args: tuple) -> bool:
