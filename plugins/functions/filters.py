@@ -1,7 +1,7 @@
-# SCP-079-REGEX - Manage the regex patterns
+# SCP-079-PM - Everyone can have their own Telegram private chat bot
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
-# This file is part of SCP-079-REGEX.
+# This file is part of SCP-079-PM.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published

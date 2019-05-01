@@ -17,50 +17,34 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from typing import List, Union
 
 from pyrogram import Client
 
 from .. import glovar
-from .channel import share_data
+from .etc import format_data, thread
+from .telegram import send_message
+
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def clear_counts() -> bool:
-    # Clear the user's message count every 5 seconds
+def share_data(client: Client, receivers: List[str], action: str, action_type: str,
+               data: Union[dict, int, str]) -> bool:
+    # Use this function to share data in exchange channel
     try:
-        glovar.flood_ids["counts"] = {}
-        return True
-    except Exception as e:
-        logger.warning(f"Clear counts error: {e}", exc_info=True)
-
-    return False
-
-
-def clear_flood() -> bool:
-    # Clear the user's flood status every 15 minutes
-    try:
-        glovar.flood_ids["users"] = set()
-        return True
-    except Exception as e:
-        logger.warning(f"Clear flood users error: {e}", exc_info=True)
-
-    return False
-
-
-def update_status(client: Client) -> bool:
-    # Update running status to BACKUP
-    try:
-        share_data(
-            client=client,
-            receivers=["BACKUP"],
-            action="update",
-            action_type="status",
-            data="awake"
+        sender = "PM"
+        text = format_data(
+            sender=sender,
+            receivers=receivers,
+            action=action,
+            action_type=action_type,
+            data=data
         )
+        thread(send_message, (client, glovar.exchange_channel_id, text))
         return True
     except Exception as e:
-        logger.warning(f"Update status error: {e}")
+        logger.warning(f"Share data error: {e}", exc_info=True)
 
     return False
