@@ -29,6 +29,7 @@ See [this article](https://scp-079.org/pm/).
 
 - plugins
     - functions
+        - `channel.py` : Send messages to channel
         - `deliver.py` : I am a postman
         - `etc.py` : Miscellaneous
         - `file.py` : Save files
