@@ -42,9 +42,45 @@ all_commands: List[str] = [
     "version"
 ]
 
+sender: str = "PM"
+
 version: str = "0.3.3"
 
 direct_chat: int = 0
+
+# Read data from config.ini
+
+# [basic]
+bot_token: str = ""
+prefix: List[str] = []
+prefix_str: str = "/!"
+
+# [channels]
+exchange_channel_id: int = 0
+test_group_id: int = 0
+
+# [custom]
+host_id: int = 0
+
+try:
+    config = RawConfigParser()
+    config.read("config.ini")
+    # [basic]
+    bot_token = config["basic"].get("bot_token", bot_token)
+    prefix = list(config["basic"].get("prefix", prefix_str))
+    # [channels]
+    exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
+    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    # [custom]
+    host_id = int(config["custom"].get("host_id"), host_id)
+except Exception as e:
+    logger.warning(f"Read data from config.ini error: {e}")
+
+# Check
+if (bot_token in {"", "[DATA EXPUNGED"}
+        or prefix == []
+        or host_id == 0):
+    raise SystemExit('No proper settings')
 
 # Load data from pickle
 
@@ -111,40 +147,6 @@ for file in file_list:
     except Exception as e:
         logger.critical(f"Load data {file} backup error: {e}")
         raise SystemExit("[DATA CORRUPTION]")
-
-# Read data from config.ini
-
-# [basic]
-bot_token: str = ""
-prefix: List[str] = []
-prefix_str: str = "/!"
-
-# [channels]
-exchange_channel_id: int = 0
-test_group_id: int = 0
-
-# [custom]
-host_id: int = 0
-
-try:
-    config = RawConfigParser()
-    config.read("config.ini")
-    # [basic]
-    bot_token = config["basic"].get("bot_token", bot_token)
-    prefix = list(config["basic"].get("prefix", prefix_str))
-    # [channels]
-    exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
-    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
-    # [custom]
-    host_id = int(config["custom"].get("host_id"), host_id)
-except Exception as e:
-    logger.warning(f"Read data from config.ini error: {e}")
-
-# Check
-if (bot_token in {"", "[DATA EXPUNGED"}
-        or prefix == []
-        or host_id == 0):
-    raise SystemExit('No proper settings')
 
 # Start program
 copyright_text = (f"SCP-079-PM v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"

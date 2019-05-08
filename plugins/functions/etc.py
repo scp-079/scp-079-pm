@@ -28,13 +28,15 @@ logger = logging.getLogger(__name__)
 
 
 def bold(text) -> str:
-    if text != "":
+    # Get a bold text
+    if text:
         return f"**{text}**"
 
     return ""
 
 
 def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> bytes:
+    # Get a button's bytes data
     button = {
         "a": action,
         "t": action_type,
@@ -44,14 +46,16 @@ def button_data(action: str, action_type: str = None, data: Union[int, str] = No
 
 
 def code(text) -> str:
-    if text != "":
+    # Get a code text
+    if text:
         return f"`{text}`"
 
     return ""
 
 
 def code_block(text) -> str:
-    if text != "":
+    # Get a code block text
+    if text:
         return f"```{text}```"
 
     return ""
@@ -71,10 +75,12 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 
 
 def general_link(text: Union[int, str], link: str) -> str:
+    # Get a general markdown link
     return f"[{text}]({link})"
 
 
 def name_mention(user: User) -> str:
+    # Get a mention text with user's name
     name = user.first_name
     uid = user.id
 
@@ -82,6 +88,7 @@ def name_mention(user: User) -> str:
 
 
 def thread(target: Callable, args: tuple) -> bool:
+    # Call a function using thread
     t = Thread(target=target, args=args)
     t.daemon = True
     t.start()
@@ -90,4 +97,5 @@ def thread(target: Callable, args: tuple) -> bool:
 
 
 def user_mention(uid: int) -> str:
+    # Get a mention text
     return f"[{uid}](tg://user?id={uid})"

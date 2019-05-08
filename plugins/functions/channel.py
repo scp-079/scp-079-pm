@@ -34,9 +34,11 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                data: Union[dict, int, str]) -> bool:
     # Use this function to share data in exchange channel
     try:
-        sender = "PM"
+        if glovar.sender in receivers:
+            receivers.remove(glovar.sender)
+
         text = format_data(
-            sender=sender,
+            sender=glovar.sender,
             receivers=receivers,
             action=action,
             action_type=action_type,
