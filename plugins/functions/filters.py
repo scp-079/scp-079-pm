@@ -24,6 +24,7 @@ from .. import glovar
 
 
 def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
+    # Check if the update is in the host chat
     if isinstance(update, CallbackQuery):
         message = update.message
     else:
@@ -37,6 +38,7 @@ def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_limited_user(_, message: Message) -> bool:
+    # Check if the message is sent by a limited user
     cid = message.chat.id
     if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
         return True
@@ -45,6 +47,7 @@ def is_limited_user(_, message: Message) -> bool:
 
 
 def is_test_group(_, message: Message) -> bool:
+    # Check if the message is sent from test group
     cid = message.chat.id
     if cid == glovar.test_group_id:
         return True
