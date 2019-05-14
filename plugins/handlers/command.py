@@ -26,7 +26,7 @@ from ..functions.etc import bold, button_data, code, code_block, general_link, g
 from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, edit_message_text, get_users, send_message
+from ..functions.telegram import delete_messages, edit_message_reply_markup, get_users, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -209,6 +209,7 @@ def recall(client, message):
                     callback_data = get_callback_data(message.reply_to_message)
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
+                        thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
                     else:
                         text += (f"状态：{code('未撤回')}\n"
                                  f"原因：{code('回复有误')}\n")
@@ -218,8 +219,6 @@ def recall(client, message):
 
                 text = recall_messages(client, cid, command_list[1], recall_mid)
                 markup = None
-                if command_list[1] == "single":
-                    thread(edit_message_text, (client, hid, mid, text, markup))
             else:
                 text += (f"状态：{code('未撤回')}\n"
                          f"原因：{code('格式有误')}\n")

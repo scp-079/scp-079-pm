@@ -47,6 +47,29 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
     return result
 
 
+def edit_message_reply_markup(client: Client, cid: int, mid: int,
+                              markup: InlineKeyboardMarkup) -> Optional[Union[bool, Message]]:
+    # Edit the message's reply markup
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.edit_message_reply_markup(
+                    chat_id=cid,
+                    message_id=mid,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                sleep(e.x + 1)
+    except Exception as e:
+        logger.warning(f"Edit message reply markup error: {e}", exc_info=True)
+
+    return result
+
+
 def edit_message_text(client: Client, cid: int, mid: int, text: str,
                       markup: InlineKeyboardMarkup = None) -> Optional[Message]:
     # Edit the message's text
