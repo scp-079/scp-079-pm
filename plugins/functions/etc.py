@@ -17,11 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from json import dumps
+from json import dumps, loads
 from threading import Thread
 from typing import Callable, List, Union
 
-from pyrogram import Message, User
+from pyrogram import InlineKeyboardMarkup, Message, User
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -77,6 +77,26 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 def general_link(text: Union[int, str], link: str) -> str:
     # Get a general markdown link
     return f"[{text}]({link})"
+
+
+def get_callback_data(message: Message) -> List[dict]:
+    # Get a message's inline button's callback data
+    callback_data_list = []
+    try:
+        if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
+            reply_markup = message.reply_markup
+            if reply_markup.inline_keyboard:
+                inline_keyboard = reply_markup.inline_keyboard
+                if inline_keyboard:
+                    for button in inline_keyboard:
+                        if button.callback_data:
+                            callback_data = button.callback_data
+                            callback_data = loads(callback_data)
+                            callback_data_list.append(callback_data)
+    except Exception as e:
+        logger.warning(f"Get callback data error: {e}", exc_info=True)
+
+    return callback_data_list
 
 
 def get_text(message: Message) -> str:

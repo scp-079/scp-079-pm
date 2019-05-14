@@ -22,7 +22,8 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
-from ..functions.etc import bold, button_data, code, code_block, general_link, get_text, thread, user_mention
+from ..functions.etc import bold, button_data, code, code_block, general_link, get_callback_data, get_text
+from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, get_users, send_message
@@ -204,6 +205,17 @@ def recall(client, message):
                     ]
                 )
             elif len(command_list) == 2 and command_list[1] in {"all", "host", "single"}:
+                if command_list[1] == "single" and not recall_mid:
+                    callback_data = get_callback_data(message)
+                    if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
+                        recall_mid = callback_data[0]["d"]
+                    else:
+                        text += (f"状态：{code('未撤回')}\b"
+                                 f"原因：{code('回复有误')}")
+                        markup = None
+                        thread(send_message, (client, hid, text, mid, markup))
+                        return
+
                 text = recall_messages(client, cid, command_list[1], recall_mid)
                 markup = None
             else:

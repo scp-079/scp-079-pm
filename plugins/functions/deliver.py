@@ -19,7 +19,7 @@
 import logging
 from functools import partial
 from time import sleep
-from typing import Optional, Union
+from typing import Optional
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, ParseMode
 from pyrogram.errors import FloodWait, UserIsBlocked
@@ -209,7 +209,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                 text = (f"发送至 ID：{user_mention(cid)}\n"
                         f"状态：{code('已发送')}")
                 forward_mid = result.message_id
-                data = button_data("recall", "single", str(forward_mid))
+                data = button_data("recall", "single", forward_mid)
                 markup = InlineKeyboardMarkup(
                     [
                         [
@@ -337,15 +337,12 @@ def get_guest(message: Message) -> (int, int):
     return mid, cid
 
 
-def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: Union[int, str]) -> str:
+def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
     text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
     try:
         init_id(cid)
         # Recall single message
         if recall_type == "single":
-            if isinstance(recall_mid, str):
-                recall_mid = int(recall_mid)
-
             thread(delete_messages, (client, cid, [recall_mid]))
             remove_id(cid, recall_mid, "host")
             text += f"状态：{code('已撤回')}\n"
