@@ -211,6 +211,7 @@ def recall(client, message):
                     callback_data = get_callback_data(message.reply_to_message)
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
+                        # Edit the origin report message, delete the reply markup
                         thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
                     # If the data cannot be found, send a error message
                     else:
