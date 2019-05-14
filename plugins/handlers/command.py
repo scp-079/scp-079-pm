@@ -51,15 +51,15 @@ def block(client, message):
 
                 remove_id(cid, mid, "chat_all")
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已拉黑')}")
+                        f"状态：{code('已拉黑')}\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('无需操作')}\n"
-                        f"原因：{code('该用户已在黑名单中')}")
+                        f"原因：{code('该用户已在黑名单中')}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息"
+            text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Block error: {e}", exc_info=True)
@@ -74,7 +74,7 @@ def clear(client, message):
         message_text = get_text(message)
         command_list = list(filter(None, message_text.split(" ")))
         if len(command_list) == 1:
-            text = "请选择要清空的数据"
+            text = "请选择要清空的数据\n"
             data_reply = button_data("clear", "messages", 0)
             data_blacklist = button_data("clear", "blacklist", 0)
             markup = InlineKeyboardMarkup(
@@ -114,15 +114,15 @@ def direct_chat(client, message):
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已开始与该用户的直接对话')}")
+                        f"状态：{code('已开始与该用户的直接对话')}\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户在黑名单中')}")
+                        f"原因：{code('该用户在黑名单中')}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息"
+            text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Direct chat error: {e}", exc_info=True)
@@ -137,10 +137,10 @@ def leave_chat(client, message):
         if cid:
             glovar.direct_chat = 0
             text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('已退出与该用户的直接对话')}")
+                    f"状态：{code('已退出与该用户的直接对话')}\n")
         else:
             text = (f"状态：{code('操作失败')}\n"
-                    f"原因：{code('当前无直接对话')}")
+                    f"原因：{code('当前无直接对话')}\n")
 
         thread(send_message, (client, hid, text))
     except Exception as e:
@@ -155,9 +155,9 @@ def now_chat(client, message):
         cid = glovar.direct_chat
         if cid:
             text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('正在与该用户直接对话')}")
+                    f"状态：{code('正在与该用户直接对话')}\n")
         else:
-            text = f"状态：{code('当前无直接对话')}"
+            text = f"状态：{code('当前无直接对话')}\n"
 
         thread(send_message, (client, hid, text))
     except Exception as e:
@@ -210,8 +210,8 @@ def recall(client, message):
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
                     else:
-                        text += (f"状态：{code('未撤回')}\b"
-                                 f"原因：{code('回复有误')}")
+                        text += (f"状态：{code('未撤回')}\n"
+                                 f"原因：{code('回复有误')}\n")
                         markup = None
                         thread(send_message, (client, hid, text, mid, markup))
                         return
@@ -219,13 +219,13 @@ def recall(client, message):
                 text = recall_messages(client, cid, command_list[1], recall_mid)
                 markup = None
             else:
-                text += (f"状态：{code('未撤回')}\b"
-                         f"原因：{code('格式有误')}")
+                text += (f"状态：{code('未撤回')}\n"
+                         f"原因：{code('格式有误')}\n")
                 markup = None
 
             thread(send_message, (client, hid, text, mid, markup))
         else:
-            text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
+            text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Recall error: {e}", exc_info=True)
@@ -239,12 +239,12 @@ def start(client, message):
         if uid == glovar.host_id:
             text = (f"您的传送信使已准备就绪\n"
                     f"请勿停用机器人，否则无法收到他人的消息\n"
-                    f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息")
+                    f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息\n")
         elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
             host = get_users(client, [glovar.host_id])[0]
             text = (f"欢迎使用\n"
                     f"如您需要私聊 {code(host.first_name)}，您可以直接在此发送消息并等待回复\n"
-                    f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立")
+                    f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立\n")
         else:
             text = ""
 
@@ -264,11 +264,11 @@ def unblock(client, message):
             if cid in glovar.blacklist_ids:
                 remove_id(cid, 0, "blacklist")
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已解禁')}")
+                        f"状态：{code('已解禁')}\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户不在黑名单中')}")
+                        f"原因：{code('该用户不在黑名单中')}\n")
 
             thread(send_message, (client, hid, text, mid))
         elif len(message.command) == 2:
@@ -276,16 +276,16 @@ def unblock(client, message):
                 cid = int(message.command[1])
             except Exception as e:
                 text = (f"格式有误\n"
-                        f"{code_block(e)}")
+                        f"{code_block(e)}\n")
                 thread(send_message, (client, hid, text, mid))
                 return
 
             remove_id(cid, 0, "blacklist")
             text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('已解禁')}")
+                    f"状态：{code('已解禁')}\n")
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息"
+            text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Unblock error: {e}", exc_info=True)

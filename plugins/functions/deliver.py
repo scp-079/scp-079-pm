@@ -54,7 +54,7 @@ def clear_data(data_type: str) -> str:
         logger.warning(f"Clear data error: {e}", exc_info=True)
         text = (f"未清空：{code('出现错误')}\n"
                 f"错误：\n\n"
-                f"{code_block(e)}")
+                f"{code_block(e)}\n")
 
     return text
 
@@ -184,7 +184,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         result = deliver_message(client, message, hid, mid, "g2h")
         if result and isinstance(result, Message) and not result.edit_date:
             text = (f"用户 ID：{code(cid)}\n"
-                    f"昵称：{name_mention(message.from_user)}")
+                    f"昵称：{name_mention(message.from_user)}\n")
             forward_mid = result.message_id
             thread(send_message, (client, hid, text, forward_mid))
             # Record the message's id
@@ -207,7 +207,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
             result = deliver_message(client, message, cid, mid, "h2g")
             if result and isinstance(result, Message) and not result.edit_date:
                 text = (f"发送至 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已发送')}")
+                        f"状态：{code('已发送')}\n")
                 forward_mid = result.message_id
                 data = button_data("recall", "single", forward_mid)
                 markup = InlineKeyboardMarkup(
@@ -229,7 +229,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         else:
             text = (f"发送至 ID：{user_mention(cid)}\n"
                     f"状态：{code('发送失败')}\n"
-                    f"原因：{code('该用户在黑名单中')}")
+                    f"原因：{code('该用户在黑名单中')}\n")
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Deliver host message error: {e}", exc_info=True)
@@ -241,7 +241,7 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
     # Send a report message when deliver failed
     try:
         text = (f"状态：{code('发送失败')}\n"
-                f"原因：{code('对方已停用机器人')}")
+                f"原因：{code('对方已停用机器人')}\n")
         thread(send_message, (client, cid, text, mid))
         return True
     except Exception as e:
@@ -371,6 +371,6 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
         logger.warning(f"Recall message error: {e}", exc_info=True)
         text += (f"状态：{code('出现错误')}\n"
                  f"错误：\n\n"
-                 f"{code_block(e)}")
+                 f"{code_block(e)}\n")
 
     return text
