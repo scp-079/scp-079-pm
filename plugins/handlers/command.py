@@ -220,7 +220,6 @@ def recall(client, message):
                 markup = None
                 if command_list[1] == "single":
                     thread(edit_message_text, (client, hid, mid, text, markup))
-                    return
             else:
                 text += (f"状态：{code('未撤回')}\n"
                          f"原因：{code('格式有误')}\n")
