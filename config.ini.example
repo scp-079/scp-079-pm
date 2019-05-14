@@ -20,6 +20,7 @@ prefix = /!
 
 [channels]
 exchange_channel_id = 0
+hide_channel_id = [DATA EXPUNGED]
 test_group_id = 0
 
 [custom]

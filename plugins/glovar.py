@@ -44,7 +44,7 @@ all_commands: List[str] = [
 
 sender: str = "PM"
 
-version: str = "0.3.3"
+version: str = "0.3.4"
 
 direct_chat: int = 0
 
@@ -57,6 +57,7 @@ prefix_str: str = "/!"
 
 # [channels]
 exchange_channel_id: int = 0
+hide_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
@@ -70,6 +71,7 @@ try:
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [channels]
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
+    hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
     host_id = int(config["custom"].get("host_id"), host_id)
