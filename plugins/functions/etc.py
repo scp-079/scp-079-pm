@@ -89,11 +89,12 @@ def get_callback_data(message: Message) -> List[dict]:
             if reply_markup.inline_keyboard:
                 inline_keyboard = reply_markup.inline_keyboard
                 if inline_keyboard:
-                    for button in inline_keyboard:
-                        if button.callback_data:
-                            callback_data = button.callback_data
-                            callback_data = loads(callback_data)
-                            callback_data_list.append(callback_data)
+                    for button_row in inline_keyboard:
+                        for button in button_row:
+                            if button.callback_data:
+                                callback_data = button.callback_data
+                                callback_data = loads(callback_data)
+                                callback_data_list.append(callback_data)
     except Exception as e:
         logger.warning(f"Get callback data error: {e}", exc_info=True)
 
