@@ -206,7 +206,7 @@ def recall(client, message):
                 )
             elif len(command_list) == 2 and command_list[1] in {"all", "host", "single"}:
                 if command_list[1] == "single" and not recall_mid:
-                    callback_data = get_callback_data(message)
+                    callback_data = get_callback_data(message.reply_to_message)
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
                     else:
