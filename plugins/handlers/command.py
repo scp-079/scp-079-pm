@@ -26,7 +26,7 @@ from ..functions.etc import bold, button_data, code, code_block, general_link, g
 from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, get_users, send_message
+from ..functions.telegram import delete_messages, edit_message_text, get_users, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -218,6 +218,9 @@ def recall(client, message):
 
                 text = recall_messages(client, cid, command_list[1], recall_mid)
                 markup = None
+                if command_list[1] == "single":
+                    thread(edit_message_text, (client, hid, mid, text, markup))
+                    return
             else:
                 text += (f"状态：{code('未撤回')}\n"
                          f"原因：{code('格式有误')}\n")
