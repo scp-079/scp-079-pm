@@ -212,6 +212,7 @@ def recall(client, message):
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
                         thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
+                    # If the data cannot be found, send a error message
                     else:
                         text += (f"状态：{code('未撤回')}\n"
                                  f"原因：{code('回复有误')}\n")
