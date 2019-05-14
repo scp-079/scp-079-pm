@@ -42,7 +42,7 @@ def deliver_to_guest(client, message):
         elif glovar.direct_chat:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
         else:
-            if glovar.direct_chat:
+            if not glovar.direct_chat:
                 text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
             else:
                 text = "如需在当前直接对话中另外回复某人，请回复某条包含该用户 ID 的汇报消息"
