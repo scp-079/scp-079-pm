@@ -265,8 +265,8 @@ def version(client, message):
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"版本：{bold(glovar.version)}\n"
-                f"管理员：{user_mention(aid)}")
+        text = (f"管理员：{user_mention(aid)}\n\n"
+                f"版本：{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)

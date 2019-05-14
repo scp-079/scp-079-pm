@@ -18,15 +18,16 @@
 
 import logging
 from time import sleep
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Union
 
 from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode, User
-from pyrogram.errors import FloodWait
+from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 logger = logging.getLogger(__name__)
 
 
 def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
+    # Answer the callback
     result = None
     try:
         flood_wait = True
@@ -48,6 +49,7 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
 
 def edit_message_text(client: Client, cid: int, mid: int, text: str,
                       markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+    # Edit the message's text
     result = None
     try:
         if text.strip():
@@ -73,6 +75,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
 
 
 def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[bool]:
+    # Delete some messages
     result = None
     try:
         flood_wait = True
@@ -90,6 +93,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
 
 
 def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:
+    # Get some users
     result = None
     try:
         flood_wait = True
@@ -107,7 +111,8 @@ def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:
 
 
 def send_message(client: Client, cid: int, text: str, mid: int = None,
-                 markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+                 markup: InlineKeyboardMarkup = None) -> Optional[Union[bool, Message]]:
+    # Send a message to a chat
     result = None
     try:
         if text.strip():
@@ -126,6 +131,8 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                 except FloodWait as e:
                     flood_wait = True
                     sleep(e.x + 1)
+                except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                    return False
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 

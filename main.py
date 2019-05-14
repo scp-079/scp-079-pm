@@ -46,7 +46,9 @@ app.start()
 
 # Timer
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_status, "cron", [app], minute=30)
+if glovar.exchange_channel_id:
+    scheduler.add_job(update_status, "cron", [app], minute=30)
+
 scheduler.add_job(clear_counts, 'interval', seconds=5)
 scheduler.add_job(clear_flood, "interval", minutes=15)
 scheduler.start()

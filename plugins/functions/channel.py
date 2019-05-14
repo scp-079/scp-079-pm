@@ -30,12 +30,36 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
+def exchange_to_hide(client: Client) -> bool:
+    # Let other bots exchange data in the hide channel instead
+    try:
+        glovar.should_hide = True
+        text = format_data(
+            sender="EMERGENCY",
+            receivers=["EMERGENCY"],
+            action="backup",
+            action_type="hide",
+            data=True
+        )
+        thread(send_message, (client, glovar.hide_channel_id, text))
+        return True
+    except Exception as e:
+        logger.warning(f"Exchange to hide error: {e}", exc_info=True)
+
+    return False
+
+
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,
                data: Union[dict, int, str]) -> bool:
     # Use this function to share data in exchange channel
     try:
         if glovar.sender in receivers:
             receivers.remove(glovar.sender)
+
+        if glovar.should_hide:
+            channel_id = glovar.hide_channel_id
+        else:
+            channel_id = glovar.exchange_channel_id
 
         text = format_data(
             sender=glovar.sender,
@@ -44,7 +68,11 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             action_type=action_type,
             data=data
         )
-        thread(send_message, (client, glovar.exchange_channel_id, text))
+        result = send_message(client, channel_id, text)
+        if result is False:
+            exchange_to_hide(client)
+            thread(share_data, (client, receivers, action, action_type, data))
+
         return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)
