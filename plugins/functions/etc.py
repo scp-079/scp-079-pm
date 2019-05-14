@@ -83,6 +83,7 @@ def get_callback_data(message: Message) -> List[dict]:
     # Get a message's inline button's callback data
     callback_data_list = []
     try:
+        logger.warning(message)
         if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
             reply_markup = message.reply_markup
             if reply_markup.inline_keyboard:
