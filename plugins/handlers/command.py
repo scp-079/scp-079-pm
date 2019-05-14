@@ -205,7 +205,9 @@ def recall(client, message):
                     ]
                 )
             elif len(command_list) == 2 and command_list[1] in {"all", "host", "single"}:
+                # If host want to recall single message, bot should found which message to recall
                 if command_list[1] == "single" and not recall_mid:
+                    # Get the message's id from message's inline button's data
                     callback_data = get_callback_data(message.reply_to_message)
                     if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
                         recall_mid = callback_data[0]["d"]
