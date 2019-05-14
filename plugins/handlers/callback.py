@@ -22,10 +22,9 @@ import json
 from pyrogram import Client
 
 from .. import glovar
-from ..functions.etc import code, thread
-from ..functions.file import save
-from ..functions.ids import init_id, remove_id
-from ..functions.telegram import answer_callback, delete_messages, edit_message_text
+from ..functions.etc import thread
+from ..functions.deliver import clear_data, recall_messages
+from ..functions.telegram import answer_callback, edit_message_text
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -43,58 +42,12 @@ def answer(client, callback_query):
             # If action is recall
             if callback_data["a"] == "recall":
                 cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
-                init_id(cid)
-                # Recall single message
-                if callback_data["t"] == "single":
-                    recall_mid = int(callback_data["d"])
-                    thread(delete_messages, (client, cid, [recall_mid]))
-                    text = (f"发送至 ID：[{cid}](tg://user?id={cid})\n"
-                            f"状态：{code('已撤回')}")
-                    remove_id(cid, mid, "host")
-                # Recall all host's messages
-                elif callback_data["t"] == "host":
-                    if glovar.message_ids[cid]["host"]:
-                        thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
-                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('已撤回由您发送的全部消息')}")
-                        remove_id(cid, mid, "chat_host")
-                    else:
-                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('没有可撤回的消息')}")
-                # Recall all messages in a guest's chat
-                else:
-                    if glovar.message_ids[cid]["host"] or glovar.message_ids[cid]["guest"]:
-                        if glovar.message_ids[cid]["host"]:
-                            thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
-
-                        if glovar.message_ids[cid]["guest"]:
-                            thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
-
-                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('已撤回全部消息')}")
-                        remove_id(cid, mid, "chat_all")
-                    else:
-                        text = (f"对话 ID：[{cid}](tg://user?id={cid})\n"
-                                f"状态：{code('没有可撤回的消息')}")
-
+                text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))
             # Clear all stored data
             elif callback_data["a"] == "clear":
-                if callback_data["t"] == "messages":
-                    glovar.message_ids = {}
-                    save("message_ids")
-                    glovar.reply_ids = {
-                        "g2h": {},
-                        "h2g": {}
-                    }
-                    save("reply_ids")
-                    text = f"已清空：{code('消息 ID')}"
-                else:
-                    glovar.blacklist_ids = set()
-                    save("blacklist_ids")
-                    text = f"已清空：{code('黑名单')}"
-
+                text = clear_data(callback_data["t"])
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))
 

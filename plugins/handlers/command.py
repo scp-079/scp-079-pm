@@ -21,8 +21,8 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .. functions.deliver import get_guest
-from ..functions.etc import bold, button_data, code, code_block, general_link, thread, user_mention
+from .. functions.deliver import clear_data, get_guest, recall_messages
+from ..functions.etc import bold, button_data, code, code_block, general_link, get_text, thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, get_users, send_message
@@ -37,7 +37,7 @@ def block(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        cid = get_guest(message)
+        _, cid = get_guest(message)
         if cid:
             if cid not in glovar.blacklist_ids:
                 add_id(cid, 0, "blacklist")
@@ -70,23 +70,33 @@ def clear(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        text = "请选择要清空的数据"
-        data_to = button_data("clear", "messages", 0)
-        data_all = button_data("clear", "blacklist", 0)
-        markup = InlineKeyboardMarkup(
-            [
+        message_text = get_text(message)
+        command_list = list(filter(None, message_text.split(" ")))
+        if len(command_list) == 1:
+            text = "请选择要清空的数据"
+            data_reply = button_data("clear", "messages", 0)
+            data_blacklist = button_data("clear", "blacklist", 0)
+            markup = InlineKeyboardMarkup(
                 [
-                    InlineKeyboardButton(
-                        "消息 ID",
-                        callback_data=data_to
-                    ),
-                    InlineKeyboardButton(
-                        "黑名单",
-                        callback_data=data_all
-                    )
+                    [
+                        InlineKeyboardButton(
+                            "消息 ID",
+                            callback_data=data_reply
+                        ),
+                        InlineKeyboardButton(
+                            "黑名单",
+                            callback_data=data_blacklist
+                        )
+                    ]
                 ]
-            ]
-        )
+            )
+        elif len(command_list) == 2 and command_list[1] in {"blacklist", "messages"}:
+            text = clear_data(command_list[1])
+            markup = None
+        else:
+            text = f"未操作：{code('格式有误')}"
+            markup = None
+
         thread(send_message, (client, hid, text, mid, markup))
     except Exception as e:
         logger.warning(f"Clear error: {e}", exc_info=True)
@@ -98,7 +108,7 @@ def direct_chat(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        cid = get_guest(message)
+        _, cid = get_guest(message)
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
@@ -170,26 +180,37 @@ def recall(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        cid = get_guest(message)
+        recall_mid, cid = get_guest(message)
         if cid:
-            text = (f"对话 ID：{user_mention(cid)}\n"
-                    f"请选择要撤回全部消息的类别：")
-            data_to = button_data("recall", "host", str(cid))
-            data_all = button_data("recall", "all", str(cid))
-            markup = InlineKeyboardMarkup(
-                [
+            message_text = get_text(message)
+            command_list = list(filter(None, message_text.split(" ")))
+            text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
+            if len(command_list) == 1:
+                text += f"请选择要撤回全部消息的类别：\n"
+                data_host = button_data("recall", "host", str(cid))
+                data_all = button_data("recall", "all", str(cid))
+                markup = InlineKeyboardMarkup(
                     [
-                        InlineKeyboardButton(
-                            "由您发送的消息",
-                            callback_data=data_to
-                        ),
-                        InlineKeyboardButton(
-                            "全部对话消息",
-                            callback_data=data_all
-                        )
+                        [
+                            InlineKeyboardButton(
+                                "由您发送的消息",
+                                callback_data=data_host
+                            ),
+                            InlineKeyboardButton(
+                                "全部对话消息",
+                                callback_data=data_all
+                            )
+                        ]
                     ]
-                ]
-            )
+                )
+            elif len(command_list) == 2 and command_list[1] in {"all", "host", "single"}:
+                text = recall_messages(client, cid, command_list[1], recall_mid)
+                markup = None
+            else:
+                text += (f"状态：{code('未撤回')}\b"
+                         f"原因：{code('格式有误')}")
+                markup = None
+
             thread(send_message, (client, hid, text, mid, markup))
         else:
             text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息"
@@ -226,7 +247,7 @@ def unblock(client, message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        cid = get_guest(message)
+        _, cid = get_guest(message)
         if cid:
             if cid in glovar.blacklist_ids:
                 remove_id(cid, 0, "blacklist")

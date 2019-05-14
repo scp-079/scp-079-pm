@@ -21,7 +21,7 @@ from json import dumps
 from threading import Thread
 from typing import Callable, List, Union
 
-from pyrogram import User
+from pyrogram import Message, User
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -77,6 +77,21 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 def general_link(text: Union[int, str], link: str) -> str:
     # Get a general markdown link
     return f"[{text}]({link})"
+
+
+def get_text(message: Message) -> str:
+    # Get message's text
+    text = ""
+    try:
+        if message.text or message.caption:
+            if message.text:
+                text += message.text
+            else:
+                text += message.caption
+    except Exception as e:
+        logger.warning(f"Get text error: {e}", exc_info=True)
+
+    return text
 
 
 def name_mention(user: User) -> str:

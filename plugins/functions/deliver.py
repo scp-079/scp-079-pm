@@ -19,18 +19,44 @@
 import logging
 from functools import partial
 from time import sleep
-from typing import Optional
+from typing import Optional, Union
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, ParseMode
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, name_mention, thread, user_mention
+from .etc import button_data, code, code_block, name_mention, thread, user_mention
+from .file import save
+from .ids import init_id, remove_id
 from .ids import add_id, reply_id
-from .telegram import send_message
+from .telegram import delete_messages, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def clear_data(data_type: str) -> str:
+    try:
+        if data_type == "messages":
+            glovar.message_ids = {}
+            save("message_ids")
+            glovar.reply_ids = {
+                "g2h": {},
+                "h2g": {}
+            }
+            save("reply_ids")
+            text = f"已清空：{code('消息 ID')}\n"
+        else:
+            glovar.blacklist_ids = set()
+            save("blacklist_ids")
+            text = f"已清空：{code('黑名单')}\n"
+    except Exception as e:
+        logger.warning(f"Clear data error: {e}", exc_info=True)
+        text = (f"未清空：{code('出现错误')}\n"
+                f"错误：\n\n"
+                f"{code_block(e)}")
+
+    return text
 
 
 def forward(
@@ -289,8 +315,9 @@ def deliver_message(client: Client, message: Message,
     return result
 
 
-def get_guest(message: Message) -> int:
+def get_guest(message: Message) -> (int, int):
     # Get a guest chat id
+    mid = 0
     cid = 0
     try:
         r_message = message.reply_to_message
@@ -302,8 +329,51 @@ def get_guest(message: Message) -> int:
                 cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
             # Else check to see if bot knows which message is corresponding
             elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
+                mid = glovar.reply_ids["h2g"][r_message.message_id][0]
                 cid = glovar.reply_ids["h2g"][r_message.message_id][1]
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
-    return cid
+    return mid, cid
+
+
+def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: Union[int, str]) -> str:
+    text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
+    try:
+        init_id(cid)
+        # Recall single message
+        if recall_type == "single":
+            if isinstance(recall_mid, str):
+                recall_mid = int(recall_mid)
+
+            thread(delete_messages, (client, cid, [recall_mid]))
+            remove_id(cid, recall_mid, "host")
+            text += f"状态：{code('已撤回')}\n"
+        # Recall all host's messages
+        elif recall_type == "host":
+            if glovar.message_ids[cid]["host"]:
+                thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
+                remove_id(cid, 0, "chat_host")
+                text += f"状态：{code('已撤回由您发送的全部消息')}\n"
+            else:
+                text += f"状态：{code('没有可撤回的消息')}\n"
+        # Recall all messages in a guest's chat
+        else:
+            if glovar.message_ids[cid]["host"] or glovar.message_ids[cid]["guest"]:
+                if glovar.message_ids[cid]["host"]:
+                    thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
+
+                if glovar.message_ids[cid]["guest"]:
+                    thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
+
+                remove_id(cid, 0, "chat_all")
+                text += f"状态：{code('已撤回全部消息')}\n"
+            else:
+                text += f"状态：{code('没有可撤回的消息')}\n"
+    except Exception as e:
+        logger.warning(f"Recall message error: {e}", exc_info=True)
+        text += (f"状态：{code('出现错误')}\n"
+                 f"错误：\n\n"
+                 f"{code_block(e)}")
+
+    return text

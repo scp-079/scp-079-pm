@@ -46,7 +46,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.3.4"
+version: str = "0.3.5"
 
 direct_chat: int = 0
 

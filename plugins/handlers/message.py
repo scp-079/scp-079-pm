@@ -36,7 +36,7 @@ def deliver_to_guest(client, message):
     try:
         hid = message.chat.id
         mid = message.message_id
-        cid = get_guest(message)
+        _, cid = get_guest(message)
         if cid:
             thread(deliver_host_message, (client, message, cid))
         elif glovar.direct_chat:
