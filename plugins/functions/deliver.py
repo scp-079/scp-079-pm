@@ -25,7 +25,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, name_mention, thread, user_mention
+from .etc import button_data, code, code_block, get_text, name_mention, thread, user_mention
 from .file import save
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
@@ -321,12 +321,13 @@ def get_guest(message: Message) -> (int, int):
     cid = 0
     try:
         r_message = message.reply_to_message
+        message_text = get_text(r_message)
         if r_message:
             # Check if the replied message is a valid report message
             if (r_message.from_user.is_self
-                    and "ID" in r_message.text
-                    and len(r_message.text.split("\n")) > 1):
-                cid = int(r_message.text.partition("\n")[0].partition("ID")[2][1:])
+                    and "ID" in message_text
+                    and len(message_text.split("\n")) > 1):
+                cid = int(message_text.partition("\n")[0].partition("ID")[2][1:])
             # Else check to see if bot knows which message is corresponding
             elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
                 mid = glovar.reply_ids["h2g"][r_message.message_id][0]
