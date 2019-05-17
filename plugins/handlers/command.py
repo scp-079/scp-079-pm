@@ -208,9 +208,11 @@ def recall(client, message):
                 # If the host want to recall single message, bot should found which message to recall
                 if command_list[1] == "single" and not recall_mid:
                     # Get the message's id from message's inline button's data
-                    callback_data = get_callback_data(message.reply_to_message)
-                    if callback_data and callback_data[0]["a"] == "recall" and callback_data[0]["t"] == "single":
-                        recall_mid = callback_data[0]["d"]
+                    callback_data_list = get_callback_data(message.reply_to_message)
+                    if (callback_data_list
+                            and callback_data_list[0]["a"] == "recall"
+                            and callback_data_list[0]["t"] == "single"):
+                        recall_mid = callback_data_list[0]["d"]
                         # Edit the origin report message, delete the reply markup
                         thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
                     # If the data cannot be found, send a error message
