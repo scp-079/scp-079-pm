@@ -26,7 +26,7 @@ from ..functions.etc import bold, button_data, code, code_block, general_link, g
 from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, edit_message_reply_markup, get_users, send_message
+from ..functions.telegram import delete_messages, edit_message_reply_markup, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -248,9 +248,8 @@ def start(client, message):
                     f"请勿停用机器人，否则无法收到他人的消息\n"
                     f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息\n")
         elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
-            host = get_users(client, [glovar.host_id])[0]
             text = (f"欢迎使用\n"
-                    f"如您需要私聊 {code(host.first_name)}，您可以直接在此发送消息并等待回复\n"
+                    f"如您需要私聊 {code(glovar.host_name)}，您可以直接在此发送消息并等待回复\n"
                     f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立\n")
         else:
             text = ""

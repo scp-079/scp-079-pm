@@ -64,6 +64,7 @@ test_group_id: int = 0
 
 # [custom]
 host_id: int = 0
+host_name: str = ""
 
 try:
     config = RawConfigParser()
@@ -76,14 +77,16 @@ try:
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
-    host_id = int(config["custom"].get("host_id"), host_id)
+    host_id = int(config["custom"].get("host_id", host_id))
+    host_name = config["custom"].get("host_name", host_name)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
 
 # Check
-if (bot_token in {"", "[DATA EXPUNGED"}
+if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
-        or host_id == 0):
+        or host_id == 0
+        or host_name in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
 # Load data from pickle

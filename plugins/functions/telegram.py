@@ -18,9 +18,9 @@
 
 import logging
 from time import sleep
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, Optional, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode, User
+from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 logger = logging.getLogger(__name__)
@@ -111,24 +111,6 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
                 sleep(e.x + 1)
     except Exception as e:
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
-
-    return result
-
-
-def get_users(client: Client, uids: Iterable[int]) -> Optional[List[User]]:
-    # Get some users
-    result = None
-    try:
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
-            try:
-                result = client.get_users(user_ids=uids)
-            except FloodWait as e:
-                flood_wait = True
-                sleep(e.x + 1)
-    except Exception as e:
-        logger.warning(f"Get users {uids} error: {e}", exc_info=True)
 
     return result
 
