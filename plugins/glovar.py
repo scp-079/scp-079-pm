@@ -46,7 +46,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.3.6"
+version: str = "0.3.7"
 
 direct_chat: int = 0
 
@@ -65,6 +65,7 @@ test_group_id: int = 0
 # [custom]
 host_id: int = 0
 host_name: str = ""
+reset_day: str = ""
 
 try:
     config = RawConfigParser()
@@ -79,6 +80,7 @@ try:
     # [custom]
     host_id = int(config["custom"].get("host_id", host_id))
     host_name = config["custom"].get("host_name", host_name)
+    reset_day = config["custom"].get("reset_day", reset_day)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
 
@@ -86,7 +88,8 @@ except Exception as e:
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
         or host_id == 0
-        or host_name in {"", "[DATA EXPUNGED]"}):
+        or host_name in {"", "[DATA EXPUNGED]"}
+        or reset_day in {"", "[DATA EXPUNGED]"}):
     raise SystemExit('No proper settings')
 
 # Load data from pickle

@@ -22,6 +22,7 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data
+from .file import save
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -47,6 +48,20 @@ def clear_flood() -> bool:
         logger.warning(f"Clear flood users error: {e}", exc_info=True)
 
     return False
+
+
+def reset_data() -> bool:
+    # Reset user data every month
+    glovar.message_ids = {}
+    save("message_ids")
+
+    glovar.reply_ids = {
+        "g2h": {},
+        "h2g": {}
+    }
+    save("reply_ids")
+
+    return True
 
 
 def update_status(client: Client) -> bool:
