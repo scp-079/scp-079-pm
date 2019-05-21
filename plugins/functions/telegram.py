@@ -101,14 +101,20 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
     # Delete some messages
     result = None
     try:
-        flood_wait = True
-        while flood_wait:
-            flood_wait = False
+        mids = list(mids)
+        mids_list = [mids[i:i + 100] for i in range(0, len(mids), 100)]
+        for mids in mids_list:
             try:
-                result = client.delete_messages(chat_id=cid, message_ids=mids)
-            except FloodWait as e:
                 flood_wait = True
-                sleep(e.x + 1)
+                while flood_wait:
+                    flood_wait = False
+                    try:
+                        result = client.delete_messages(chat_id=cid, message_ids=mids)
+                    except FloodWait as e:
+                        flood_wait = True
+                        sleep(e.x + 1)
+            except Exception as e:
+                logger.warning(f"Delete message in for loop error: {e}", exc_info=True)
     except Exception as e:
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
 
