@@ -16,41 +16,54 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 from typing import Union
 
 from pyrogram import CallbackQuery, Filters, Message
 
 from .. import glovar
 
+# Enable logging
+logger = logging.getLogger(__name__)
+
 
 def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the update is in the host chat
-    if isinstance(update, CallbackQuery):
-        message = update.message
-    else:
-        message = update
+    try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
 
-    cid = message.chat.id
-    if cid == glovar.host_id:
-        return True
+        cid = message.chat.id
+        if cid == glovar.host_id:
+            return True
+    except Exception as e:
+        logger.warning(f"Is host chat error: {e}", exc_info=True)
 
     return False
 
 
 def is_limited_user(_, message: Message) -> bool:
     # Check if the message is sent by a limited user
-    cid = message.chat.id
-    if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
-        return True
+    try:
+        cid = message.chat.id
+        if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
+            return True
+    except Exception as e:
+        logger.warning(f"Is limited user error: {e}", exc_info=True)
 
     return False
 
 
 def is_test_group(_, message: Message) -> bool:
-    # Check if the message is sent from test group
-    cid = message.chat.id
-    if cid == glovar.test_group_id:
-        return True
+    # Check if the message is sent from the test group
+    try:
+        cid = message.chat.id
+        if cid == glovar.test_group_id:
+            return True
+    except Exception as e:
+        logger.warning(f"Is test group error: {e}", exc_info=True)
 
     return False
 

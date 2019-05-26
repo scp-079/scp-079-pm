@@ -52,16 +52,21 @@ def clear_flood() -> bool:
 
 def reset_data() -> bool:
     # Reset user data every month
-    glovar.message_ids = {}
-    save("message_ids")
+    try:
+        glovar.message_ids = {}
+        save("message_ids")
 
-    glovar.reply_ids = {
-        "g2h": {},
-        "h2g": {}
-    }
-    save("reply_ids")
+        glovar.reply_ids = {
+            "g2h": {},
+            "h2g": {}
+        }
+        save("reply_ids")
 
-    return True
+        return True
+    except Exception as e:
+        logger.warning(f"Reset data error: {e}", exc_info=True)
+
+    return False
 
 
 def update_status(client: Client) -> bool:

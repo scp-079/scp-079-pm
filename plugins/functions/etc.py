@@ -18,10 +18,13 @@
 
 import logging
 from json import dumps, loads
+from random import uniform
 from threading import Thread
-from typing import Callable, List, Union
+from time import sleep
+from typing import Callable, List, Optional, Union
 
 from pyrogram import InlineKeyboardMarkup, Message, User
+from pyrogram.errors import FloodWait
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -29,54 +32,83 @@ logger = logging.getLogger(__name__)
 
 def bold(text) -> str:
     # Get a bold text
-    if text:
-        return f"**{text}**"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"**{text}**"
+    except Exception as e:
+        logger.warning(f"Bold error: {e}", exc_info=True)
 
     return ""
 
 
-def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> bytes:
+def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> Optional[bytes]:
     # Get a button's bytes data
-    button = {
-        "a": action,
-        "t": action_type,
-        "d": data
-    }
-    return dumps(button).replace(" ", "").encode("utf-8")
+    result = None
+    try:
+        button = {
+            "a": action,
+            "t": action_type,
+            "d": data
+        }
+        result = dumps(button).replace(" ", "").encode("utf-8")
+    except Exception as e:
+        logger.warning(f"Button data error: {e}", exc_info=True)
+
+    return result
 
 
 def code(text) -> str:
     # Get a code text
-    if text:
-        return f"`{text}`"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"`{text}`"
+    except Exception as e:
+        logger.warning(f"Code error: {e}", exc_info=True)
 
     return ""
 
 
 def code_block(text) -> str:
     # Get a code block text
-    if text:
-        return f"```{text}```"
+    try:
+        text = str(text)
+        if text.strip():
+            return f"```{text}```"
+    except Exception as e:
+        logger.warning(f"Code block error: {e}", exc_info=True)
 
     return ""
 
 
 def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
     # See https://scp-079.org/exchange/
-    data = {
-        "from": sender,
-        "to": receivers,
-        "action": action,
-        "type": action_type,
-        "data": data
-    }
+    text = ""
+    try:
+        data = {
+            "from": sender,
+            "to": receivers,
+            "action": action,
+            "type": action_type,
+            "data": data
+        }
+        text = code_block(dumps(data, indent=4))
+    except Exception as e:
+        logger.warning(f"Format data error: {e}", exc_info=True)
 
-    return code_block(dumps(data, indent=4))
+    return text
 
 
 def general_link(text: Union[int, str], link: str) -> str:
     # Get a general markdown link
-    return f"[{text}]({link})"
+    result = ""
+    try:
+        result = f"[{text}]({link})"
+    except Exception as e:
+        logger.warning(f"General link error: {e}", exc_info=True)
+
+    return result
 
 
 def get_callback_data(message: Message) -> List[dict]:
@@ -125,13 +157,34 @@ def name_mention(user: User) -> str:
 
 def thread(target: Callable, args: tuple) -> bool:
     # Call a function using thread
-    t = Thread(target=target, args=args)
-    t.daemon = True
-    t.start()
+    try:
+        t = Thread(target=target, args=args)
+        t.daemon = True
+        t.start()
+        return True
+    except Exception as e:
+        logger.warning(f"Thread error: {e}", exc_info=True)
 
-    return True
+    return False
 
 
 def user_mention(uid: int) -> str:
     # Get a mention text
-    return f"[{uid}](tg://user?id={uid})"
+    text = ""
+    try:
+        text = f"[{uid}](tg://user?id={uid})"
+    except Exception as e:
+        logger.warning(f"User mention error: {e}", exc_info=True)
+
+    return text
+
+
+def wait_flood(e: FloodWait) -> bool:
+    # Wait flood secs
+    try:
+        sleep(e.x + uniform(0.5, 1.0))
+        return True
+    except Exception as e:
+        logger.warning(f"Wait flood error: {e}", exc_info=True)
+
+    return False

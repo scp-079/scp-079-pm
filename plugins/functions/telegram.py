@@ -17,12 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from time import sleep
 from typing import Iterable, Optional, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message, ParseMode
+from pyrogram import Client, InlineKeyboardMarkup, Message
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
+from .etc import wait_flood
+
+# Enable logging
 logger = logging.getLogger(__name__)
 
 
@@ -40,7 +42,7 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
                 )
             except FloodWait as e:
                 flood_wait = True
-                sleep(e.x + 1)
+                wait_flood(e)
     except Exception as e:
         logger.warning(f"Answer query to {query_id} error: {e}", exc_info=True)
 
@@ -63,7 +65,7 @@ def edit_message_reply_markup(client: Client, cid: int, mid: int,
                 )
             except FloodWait as e:
                 flood_wait = True
-                sleep(e.x + 1)
+                wait_flood(e)
     except Exception as e:
         logger.warning(f"Edit message reply markup error: {e}", exc_info=True)
 
@@ -84,13 +86,12 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
                         chat_id=cid,
                         message_id=mid,
                         text=text,
-                        parse_mode=ParseMode.MARKDOWN,
                         disable_web_page_preview=True,
                         reply_markup=markup
                     )
                 except FloodWait as e:
                     flood_wait = True
-                    sleep(e.x + 1)
+                    wait_flood(e)
     except Exception as e:
         logger.warning(f"Edit message in {cid} error: {e}", exc_info=True)
 
@@ -112,7 +113,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
                         result = client.delete_messages(chat_id=cid, message_ids=mids)
                     except FloodWait as e:
                         flood_wait = True
-                        sleep(e.x + 1)
+                        wait_flood(e)
             except Exception as e:
                 logger.warning(f"Delete message in for loop error: {e}", exc_info=True)
     except Exception as e:
@@ -134,14 +135,13 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                     result = client.send_message(
                         chat_id=cid,
                         text=text,
-                        parse_mode=ParseMode.MARKDOWN,
                         disable_web_page_preview=True,
                         reply_to_message_id=mid,
                         reply_markup=markup
                     )
                 except FloodWait as e:
                     flood_wait = True
-                    sleep(e.x + 1)
+                    wait_flood(e)
                 except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                     return False
     except Exception as e:

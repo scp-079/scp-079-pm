@@ -1,7 +1,7 @@
 APScheduler==3.6.0
 pyaes==1.6.1
-Pyrogram==0.12.0
-PySocks==1.6.8
+Pyrogram==0.13.0
+PySocks==1.7.0
 pytz==2019.1
 six==1.12.0
 TgCrypto==1.1.1

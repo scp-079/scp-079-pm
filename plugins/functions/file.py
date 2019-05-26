@@ -19,9 +19,9 @@
 import logging
 from pickle import dump
 from shutil import copyfile
-from threading import Thread
 
 from .. import glovar
+from .etc import thread
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -29,10 +29,13 @@ logger = logging.getLogger(__name__)
 
 def save(file: str) -> bool:
     # Save a global variable to a file
-    t = Thread(target=save_thread, args=(file,))
-    t.start()
+    try:
+        thread(save_thread, (file,))
+        return True
+    except Exception as e:
+        logger.warning(f"Save error: {e}", exc_info=True)
 
-    return True
+    return False
 
 
 def save_thread(file: str) -> bool:

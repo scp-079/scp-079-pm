@@ -25,7 +25,6 @@ from .. import glovar
 from .etc import format_data, thread
 from .telegram import send_message
 
-
 # Enable logging
 logger = logging.getLogger(__name__)
 

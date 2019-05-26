@@ -18,14 +18,13 @@
 
 import logging
 from functools import partial
-from time import sleep
 from typing import Optional
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, ParseMode
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_text, name_mention, thread, user_mention
+from .etc import button_data, code, code_block, get_text, name_mention, thread, user_mention, wait_flood
 from .file import save
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
@@ -36,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 def clear_data(data_type: str) -> str:
+    # Clear stored data
     try:
         if data_type == "messages":
             glovar.message_ids = {}
@@ -60,21 +60,24 @@ def clear_data(data_type: str) -> str:
 
 
 def forward(
-        self,
-        chat_id: int or str,
-        disable_notification: bool = None,
-        as_copy: bool = False,
-        remove_caption: bool = False,
-        reply_to_message_id: int = None
+    self,
+    chat_id: int or str,
+    disable_notification: bool = None,
+    as_copy: bool = False,
+    remove_caption: bool = False,
+    reply_to_message_id: int = None
 ) -> "Message":
     # Redefine the forward method of "Message", see:
-    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2558
+    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2543
     if as_copy:
         if self.service:
             raise ValueError("Unable to copy service messages")
 
         if self.game and not self._client.is_bot:
             raise ValueError("Users cannot send messages with Game media type")
+
+        # TODO: Improve markdown parser. Currently html appears to be more stable, thus we use it here because users
+        #       can"t choose.
 
         if self.text:
             return self._client.send_message(
@@ -91,8 +94,7 @@ def forward(
             send_media = partial(
                 self._client.send_cached_media,
                 chat_id=chat_id,
-                disable_notification=disable_notification,
-                reply_to_message_id=reply_to_message_id
+                disable_notification=disable_notification
             )
 
             if self.photo:
@@ -162,7 +164,7 @@ def forward(
             if self.sticker or self.video_note:  # Sticker and VideoNote should have no caption
                 return send_media(file_id=file_id)
             else:
-                return send_media(file_id=file_id, caption=caption, parse_mode=ParseMode.HTML)
+                return send_media(file_id=file_id, caption=caption, parse_mode="html")
         else:
             raise ValueError("Can't copy this message")
     else:
@@ -256,7 +258,7 @@ def deliver_message(client: Client, message: Message,
     result = None
     try:
         # If message is forwarded from someone else, bot directly forward this message, not using as copy mode
-        if message.forward_from or message.forward_from_chat or message.forward_from_name:
+        if message.forward_from or message.forward_from_chat or message.forward_sender_name:
             as_copy = False
         else:
             as_copy = True
@@ -285,13 +287,13 @@ def deliver_message(client: Client, message: Message,
                 else:
                     # If message is edited, check to see if the bot knows which message is corresponding
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
-                    if origin_mid and message.text:
+                    if chat_id != glovar.host_id and origin_mid and message.text:
                         result = client.edit_message_text(
                             chat_id=chat_id,
                             message_id=origin_mid,
                             text=message.text
                         )
-                    # Not a text message, so bot resend the message
+                    # Guest's edited message / Can't find origin message / Not a text message, so bot resend the message
                     else:
                         result = forward(
                             self=message,
@@ -301,7 +303,7 @@ def deliver_message(client: Client, message: Message,
                         )
             except FloodWait as e:
                 flood_wait = True
-                sleep(e.x + 1)
+                wait_flood(e)
             except UserIsBlocked:
                 # If the other user blocked the bot, send a failure report to who sent the message
                 deliver_fail(client, message.from_user.id, message_id)
@@ -339,6 +341,7 @@ def get_guest(message: Message) -> (int, int):
 
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
+    # Recall messages in a chat
     text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
     try:
         init_id(cid)
