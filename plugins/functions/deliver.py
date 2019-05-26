@@ -187,6 +187,9 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         if result and isinstance(result, Message) and not result.edit_date:
             text = (f"用户 ID：{code(cid)}\n"
                     f"昵称：{name_mention(message.from_user)}\n")
+            if message.edit_date:
+                text += f"类别：{code('已编辑')}\n"
+
             forward_mid = result.message_id
             thread(send_message, (client, hid, text, forward_mid))
             # Record the message's id
@@ -299,7 +302,7 @@ def deliver_message(client: Client, message: Message,
                             self=message,
                             chat_id=chat_id,
                             as_copy=as_copy,
-                            reply_to_message_id=reply_mid
+                            reply_to_message_id=origin_mid
                         )
             except FloodWait as e:
                 flood_wait = True
