@@ -84,15 +84,16 @@ def exchange_emergency(_, message):
     try:
         # Read basic information
         data = receive_text_data(message)
-        sender = data["from"]
-        receivers = data["to"]
-        action = data["action"]
-        action_type = data["type"]
-        data = data["data"]
-        if "EMERGENCY" in receivers:
-            if sender == "EMERGENCY":
-                if action == "backup":
-                    if action_type == "hide":
-                        glovar.should_hide = data
+        if data:
+            sender = data["from"]
+            receivers = data["to"]
+            action = data["action"]
+            action_type = data["type"]
+            data = data["data"]
+            if "EMERGENCY" in receivers:
+                if sender == "EMERGENCY":
+                    if action == "backup":
+                        if action_type == "hide":
+                            glovar.should_hide = data
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
