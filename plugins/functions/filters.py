@@ -27,6 +27,19 @@ from .. import glovar
 logger = logging.getLogger(__name__)
 
 
+def is_hide_channel(_, message: Message) -> bool:
+    # Check if the message is sent from the hide channel
+    try:
+        if message.chat:
+            cid = message.chat.id
+            if cid == glovar.hide_channel_id:
+                return True
+    except Exception as e:
+        logger.warning(f"Is hide channel error: {e}", exc_info=True)
+
+    return False
+
+
 def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the update is in the host chat
     try:
@@ -69,6 +82,12 @@ def is_test_group(_, message: Message) -> bool:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 
     return False
+
+
+hide_channel = Filters.create(
+    name="Hide Channel",
+    func=is_hide_channel
+)
 
 
 host_chat = Filters.create(

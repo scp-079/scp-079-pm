@@ -21,13 +21,30 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
+from ..functions.channel import receive_text_data
 from ..functions.etc import bold, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
-from ..functions.filters import host_chat, limited_user
+from ..functions.filters import hide_channel, host_chat, limited_user
 from ..functions.ids import add_id, count_id
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
+def count(client: Client, message: Message):
+    try:
+        # Count user's messages in 5 seconds
+        cid = message.from_user.id
+        counts = count_id(cid)
+        if counts == 20:
+            add_id(cid, 0, "flood")
+            text = (f"您发送的消息过于频繁，请 {bold('15')} 分钟后重试\n"
+                    f"期间机器人将对您的消息不做任何转发和应答")
+            thread(send_message, (client, cid, text))
+    except Exception as e:
+        logger.warning(f"Count error: {e}", exc_info=True)
 
 
 @Client.on_message(Filters.private & Filters.incoming & host_chat
@@ -61,17 +78,21 @@ def deliver_to_host(client: Client, message: Message):
         logger.warning(f"Deliver to host error: {e}", exc_info=True)
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
-def count(client: Client, message: Message):
+@Client.on_message(Filters.incoming & Filters.channel & hide_channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def exchange_emergency(_, message):
     try:
-        # Count user's messages in 5 seconds
-        cid = message.from_user.id
-        counts = count_id(cid)
-        if counts == 20:
-            add_id(cid, 0, "flood")
-            text = (f"您发送的消息过于频繁，请 {bold('15')} 分钟后重试\n"
-                    f"期间机器人将对您的消息不做任何转发和应答")
-            thread(send_message, (client, cid, text))
+        # Read basic information
+        data = receive_text_data(message)
+        sender = data["from"]
+        receivers = data["to"]
+        action = data["action"]
+        action_type = data["type"]
+        data = data["data"]
+        if "EMERGENCY" in receivers:
+            if sender == "EMERGENCY":
+                if action == "backup":
+                    if action_type == "hide":
+                        glovar.should_hide = data
     except Exception as e:
-        logger.warning(f"Count error: {e}", exc_info=True)
+        logger.warning(f"Exchange emergency error: {e}", exc_info=True)
