@@ -18,7 +18,7 @@
 
 import logging
 
-from pyrogram import Client, Filters
+from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.etc import bold, thread
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.private & Filters.incoming & host_chat
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def deliver_to_guest(client, message):
+def deliver_to_guest(client: Client, message: Message):
     try:
         hid = message.chat.id
         mid = message.message_id
@@ -54,7 +54,7 @@ def deliver_to_guest(client, message):
 
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
-def deliver_to_host(client, message):
+def deliver_to_host(client: Client, message: Message):
     try:
         thread(deliver_guest_message, (client, message))
     except Exception as e:
@@ -63,7 +63,7 @@ def deliver_to_host(client, message):
 
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
-def count(client, message):
+def count(client: Client, message: Message):
     try:
         # Count user's messages in 5 seconds
         cid = message.from_user.id

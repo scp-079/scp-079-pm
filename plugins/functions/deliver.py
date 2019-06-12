@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 def clear_data(data_type: str) -> str:
     # Clear stored data
+    text = ""
     try:
         if data_type == "messages":
             glovar.message_ids = {}
@@ -45,16 +46,16 @@ def clear_data(data_type: str) -> str:
                 "h2g": {}
             }
             save("reply_ids")
-            text = f"已清空：{code('消息 ID')}\n"
+            text += f"已清空：{code('消息 ID')}\n"
         else:
             glovar.blacklist_ids = set()
             save("blacklist_ids")
-            text = f"已清空：{code('黑名单')}\n"
+            text += f"已清空：{code('黑名单')}\n"
     except Exception as e:
         logger.warning(f"Clear data error: {e}", exc_info=True)
-        text = (f"未清空：{code('出现错误')}\n"
-                f"错误：\n\n"
-                f"{code_block(e)}\n")
+        text += (f"未清空：{code('出现错误')}\n"
+                 f"错误：\n\n"
+                 f"{code_block(e)}\n")
 
     return text
 
@@ -345,7 +346,7 @@ def get_guest(message: Message) -> (int, int):
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
     # Recall messages in a chat
-    text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
+    text = f"对话 ID：{user_mention(cid)}\n"
     try:
         init_id(cid)
         # Recall single message

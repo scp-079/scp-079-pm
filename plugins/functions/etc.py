@@ -21,7 +21,7 @@ from json import dumps, loads
 from random import uniform
 from threading import Thread
 from time import sleep
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from pyrogram import InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
@@ -30,7 +30,7 @@ from pyrogram.errors import FloodWait
 logger = logging.getLogger(__name__)
 
 
-def bold(text) -> str:
+def bold(text: Any) -> str:
     # Get a bold text
     try:
         text = str(text)
@@ -58,7 +58,7 @@ def button_data(action: str, action_type: str = None, data: Union[int, str] = No
     return result
 
 
-def code(text) -> str:
+def code(text: Any) -> str:
     # Get a code text
     try:
         text = str(text)
@@ -70,7 +70,7 @@ def code(text) -> str:
     return ""
 
 
-def code_block(text) -> str:
+def code_block(text: Any) -> str:
     # Get a code block text
     try:
         text = str(text)
@@ -80,24 +80,6 @@ def code_block(text) -> str:
         logger.warning(f"Code block error: {e}", exc_info=True)
 
     return ""
-
-
-def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
-    # See https://scp-079.org/exchange/
-    text = ""
-    try:
-        data = {
-            "from": sender,
-            "to": receivers,
-            "action": action,
-            "type": action_type,
-            "data": data
-        }
-        text = code_block(dumps(data, indent=4))
-    except Exception as e:
-        logger.warning(f"Format data error: {e}", exc_info=True)
-
-    return text
 
 
 def general_link(text: Union[int, str], link: str) -> str:
@@ -130,6 +112,19 @@ def get_callback_data(message: Message) -> List[dict]:
         logger.warning(f"Get callback data error: {e}", exc_info=True)
 
     return callback_data_list
+
+
+def get_command_type(message: Message) -> str:
+    # Get the command type "a" in "/command a"
+    result = ""
+    try:
+        text = get_text(message)
+        command_list = list(filter(None, text.split(" ")))
+        result = text[len(command_list[0]):].strip()
+    except Exception as e:
+        logging.warning(f"Get command type error: {e}", exc_info=True)
+
+    return result
 
 
 def get_text(message: Message) -> str:

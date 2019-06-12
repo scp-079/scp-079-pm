@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from json import dumps, loads
 from typing import List, Union
 
-from pyrogram import Client
+from pyrogram import Client, Message
 
 from .. import glovar
-from .etc import format_data, thread
+from .etc import code_block, get_text, thread
 from .telegram import send_message
 
 # Enable logging
@@ -48,6 +49,37 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
+def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+    # See https://scp-079.org/exchange/
+    text = ""
+    try:
+        data = {
+            "from": sender,
+            "to": receivers,
+            "action": action,
+            "type": action_type,
+            "data": data
+        }
+        text = code_block(dumps(data, indent=4))
+    except Exception as e:
+        logger.warning(f"Format data error: {e}", exc_info=True)
+
+    return text
+
+
+def receive_text_data(message: Message) -> dict:
+    # Receive text's data from exchange channel
+    data = {}
+    try:
+        text = get_text(message)
+        if text:
+            data = loads(text)
+    except Exception as e:
+        logger.warning(f"Receive data error: {e}")
+
+    return data
+
+
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,
                data: Union[dict, int, str]) -> bool:
     # Use this function to share data in exchange channel
@@ -68,7 +100,9 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             data=data
         )
         result = send_message(client, channel_id, text)
+        # Sending failed due to channel issue
         if result is False:
+            # Use hide channel instead
             exchange_to_hide(client)
             thread(share_data, (client, receivers, action, action_type, data))
 

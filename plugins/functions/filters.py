@@ -35,9 +35,10 @@ def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
         else:
             message = update
 
-        cid = message.chat.id
-        if cid == glovar.host_id:
-            return True
+        if message.chat:
+            cid = message.chat.id
+            if cid == glovar.host_id:
+                return True
     except Exception as e:
         logger.warning(f"Is host chat error: {e}", exc_info=True)
 
@@ -47,9 +48,10 @@ def is_host_chat(_, update: Union[CallbackQuery, Message]) -> bool:
 def is_limited_user(_, message: Message) -> bool:
     # Check if the message is sent by a limited user
     try:
-        cid = message.chat.id
-        if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
-            return True
+        if message.chat:
+            cid = message.chat.id
+            if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
+                return True
     except Exception as e:
         logger.warning(f"Is limited user error: {e}", exc_info=True)
 
@@ -59,9 +61,10 @@ def is_limited_user(_, message: Message) -> bool:
 def is_test_group(_, message: Message) -> bool:
     # Check if the message is sent from the test group
     try:
-        cid = message.chat.id
-        if cid == glovar.test_group_id:
-            return True
+        if message.chat:
+            cid = message.chat.id
+            if cid == glovar.test_group_id:
+                return True
     except Exception as e:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 

@@ -18,11 +18,11 @@
 
 import logging
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
-from ..functions.etc import bold, button_data, code, code_block, general_link, get_callback_data, get_text
+from ..functions.etc import bold, button_data, code, code_block, general_link, get_callback_data, get_command_type
 from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["block"], glovar.prefix))
-def block(client, message):
+def block(client: Client, message: Message):
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -67,13 +67,12 @@ def block(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["clear"], glovar.prefix))
-def clear(client, message):
+def clear(client: Client, message: Message):
     try:
         hid = message.from_user.id
         mid = message.message_id
-        message_text = get_text(message)
-        command_list = list(filter(None, message_text.split(" ")))
-        if len(command_list) == 1:
+        command_type = get_command_type(message)
+        if not command_type:
             text = "请选择要清空的数据\n"
             data_reply = button_data("clear", "messages", 0)
             data_blacklist = button_data("clear", "blacklist", 0)
@@ -91,11 +90,11 @@ def clear(client, message):
                     ]
                 ]
             )
-        elif len(command_list) == 2 and command_list[1] in {"blacklist", "messages"}:
-            text = clear_data(command_list[1])
+        elif command_type in {"blacklist", "messages"}:
+            text = clear_data(command_type)
             markup = None
         else:
-            text = f"未操作：{code('格式有误')}"
+            text = f"未操作：{code('选项有误')}"
             markup = None
 
         thread(send_message, (client, hid, text, mid, markup))
@@ -105,7 +104,7 @@ def clear(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["direct"], glovar.prefix))
-def direct_chat(client, message):
+def direct_chat(client: Client, message: Message):
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -130,7 +129,7 @@ def direct_chat(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["leave"], glovar.prefix))
-def leave_chat(client, message):
+def leave_chat(client: Client, message: Message):
     try:
         hid = message.from_user.id
         cid = glovar.direct_chat
@@ -149,7 +148,7 @@ def leave_chat(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["now"], glovar.prefix))
-def now_chat(client, message):
+def now_chat(client: Client, message: Message):
     try:
         hid = message.from_user.id
         cid = glovar.direct_chat
@@ -166,7 +165,7 @@ def now_chat(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["ping"], glovar.prefix))
-def ping(client, message):
+def ping(client: Client, message: Message):
     try:
         hid = message.from_user.id
         text = code("Pong!")
@@ -177,16 +176,15 @@ def ping(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["recall"], glovar.prefix))
-def recall(client, message):
+def recall(client: Client, message: Message):
     try:
         hid = message.from_user.id
         mid = message.message_id
         recall_mid, cid = get_guest(message)
         if cid:
-            message_text = get_text(message)
-            command_list = list(filter(None, message_text.split(" ")))
+            command_type = get_command_type(message)
             text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
-            if len(command_list) == 1:
+            if not command_type:
                 text += f"请选择要撤回全部消息的类别：\n"
                 data_host = button_data("recall", "host", str(cid))
                 data_all = button_data("recall", "all", str(cid))
@@ -204,9 +202,9 @@ def recall(client, message):
                         ]
                     ]
                 )
-            elif len(command_list) == 2 and command_list[1] in {"all", "host", "single"}:
+            elif command_type in {"all", "host", "single"}:
                 # If the host want to recall single message, bot should found which message to recall
-                if command_list[1] == "single" and not recall_mid:
+                if command_type == "single" and not recall_mid:
                     # Get the message's id from message's inline button's data
                     callback_data_list = get_callback_data(message.reply_to_message)
                     if (callback_data_list
@@ -223,7 +221,7 @@ def recall(client, message):
                         thread(send_message, (client, hid, text, mid, markup))
                         return
 
-                text = recall_messages(client, cid, command_list[1], recall_mid)
+                text = recall_messages(client, cid, command_type, recall_mid)
                 markup = None
             else:
                 text += (f"状态：{code('未撤回')}\n"
@@ -240,7 +238,7 @@ def recall(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private
                    & Filters.command(["start"], glovar.prefix))
-def start(client, message):
+def start(client: Client, message: Message):
     try:
         uid = message.from_user.id
         if uid == glovar.host_id:
@@ -261,11 +259,12 @@ def start(client, message):
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["unblock"], glovar.prefix))
-def unblock(client, message):
+def unblock(client: Client, message: Message):
     try:
         hid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
+        command_type = get_command_type(message)
         if cid:
             if cid in glovar.blacklist_ids:
                 remove_id(cid, 0, "blacklist")
@@ -277,9 +276,9 @@ def unblock(client, message):
                         f"原因：{code('该用户不在黑名单中')}\n")
 
             thread(send_message, (client, hid, text, mid))
-        elif len(message.command) == 2:
+        elif command_type:
             try:
-                cid = int(message.command[1])
+                cid = int(command_type)
             except Exception as e:
                 text = (f"格式有误\n"
                         f"{code_block(e)}\n")
@@ -299,7 +298,7 @@ def unblock(client, message):
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
-def version(client, message):
+def version(client: Client, message: Message):
     try:
         cid = message.chat.id
         aid = message.from_user.id

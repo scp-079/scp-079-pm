@@ -19,7 +19,7 @@
 import logging
 import json
 
-from pyrogram import Client
+from pyrogram import Client, CallbackQuery
 
 from .. import glovar
 from ..functions.etc import thread
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_callback_query()
-def answer(client, callback_query):
+def answer(client: Client, callback_query: CallbackQuery):
     try:
         uid = callback_query.from_user.id
         hid = glovar.host_id
