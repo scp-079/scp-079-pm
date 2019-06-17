@@ -51,6 +51,7 @@ def count(client: Client, message: Message):
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def deliver_to_guest(client: Client, message: Message):
     try:
+        logger.warning(message)
         hid = message.chat.id
         mid = message.message_id
         _, cid = get_guest(message)
