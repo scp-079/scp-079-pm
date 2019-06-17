@@ -95,11 +95,12 @@ def forward(
             send_media = partial(
                 self._client.send_cached_media,
                 chat_id=chat_id,
-                disable_notification=disable_notification
+                disable_notification=disable_notification,
+                reply_to_message_id=reply_to_message_id
             )
 
             if self.photo:
-                file_id = self.photo.sizes[-1].file_id
+                file_id = self.photo.file_id
             elif self.audio:
                 file_id = self.audio.file_id
             elif self.document:
