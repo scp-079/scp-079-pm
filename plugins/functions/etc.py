@@ -144,10 +144,15 @@ def get_text(message: Message) -> str:
 
 def name_mention(user: User) -> str:
     # Get a mention text with user's name
-    name = user.first_name
-    uid = user.id
+    text = ""
+    try:
+        name = user.first_name
+        uid = user.id
+        text = f"[{name}](tg://user?id={uid})"
+    except Exception as e:
+        logger.warning(f"Name mention error: {e}", exc_info=True)
 
-    return f"[{name}](tg://user?id={uid})"
+    return text
 
 
 def thread(target: Callable, args: tuple) -> bool:
