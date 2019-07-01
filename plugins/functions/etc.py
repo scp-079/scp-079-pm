@@ -160,9 +160,10 @@ def name_mention(user: User) -> str:
     # Get a mention text with user's name
     text = ""
     try:
-        name = get_full_name(user)
-        uid = user.id
-        text = f"[{name}](tg://user?id={uid})"
+        if user:
+            name = get_full_name(user)
+            uid = user.id
+            text = f"[{name}](tg://user?id={uid})"
     except Exception as e:
         logger.warning(f"Name mention error: {e}", exc_info=True)
 
