@@ -127,6 +127,20 @@ def get_command_type(message: Message) -> str:
     return result
 
 
+def get_full_name(user: User) -> str:
+    # Get user's full name
+    text = ""
+    try:
+        if user and not user.is_deleted:
+            text = user.first_name
+            if user.last_name:
+                text += f" {user.last_name}"
+    except Exception as e:
+        logger.warning(f"Get full name error: {e}", exc_info=True)
+
+    return text
+
+
 def get_text(message: Message) -> str:
     # Get message's text
     text = ""
@@ -146,7 +160,7 @@ def name_mention(user: User) -> str:
     # Get a mention text with user's name
     text = ""
     try:
-        name = user.first_name
+        name = get_full_name(user)
         uid = user.id
         text = f"[{name}](tg://user?id={uid})"
     except Exception as e:
