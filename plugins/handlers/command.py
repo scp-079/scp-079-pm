@@ -26,7 +26,7 @@ from ..functions.etc import bold, button_data, code, code_block, general_link, g
 from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, edit_message_reply_markup, send_message
+from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -51,14 +51,13 @@ def block(client: Client, message: Message):
 
                 remove_id(cid, mid, "chat_all")
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已拉黑')}\n"
-                        f"解除黑名单：/unblock\n")
+                        f"状态：{code('已拉黑')}\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('无需操作')}\n"
-                        f"原因：{code('该用户已在黑名单中')}\n"
-                        f"解除黑名单：/unblock\n")
+                        f"原因：{code('该用户已在黑名单中')}\n")
 
+            text += f"解除黑名单：{general_link('/unblock', get_start(client, f'unblock_{cid}'))}\n"
             thread(send_message, (client, hid, text, mid))
         else:
             text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息\n"
@@ -121,7 +120,7 @@ def direct_chat(client: Client, message: Message):
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
                         f"原因：{code('该用户在黑名单中')}\n"
-                        f"解除黑名单：/unblock\n")
+                        f"解除黑名单：{general_link('/unblock', get_start(client, f'unblock_{cid}'))}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
@@ -246,18 +245,38 @@ def recall(client: Client, message: Message):
 def start(client: Client, message: Message):
     try:
         uid = message.from_user.id
-        if uid == glovar.host_id:
-            text = (f"您的传送信使已准备就绪\n"
-                    f"请勿停用机器人，否则无法收到他人的消息\n"
-                    f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息\n")
-        elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
-            text = (f"欢迎使用\n"
-                    f"如您需要私聊 {code(glovar.host_name)}，您可以直接在此发送消息并等待回复\n"
-                    f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立\n")
-        else:
-            text = ""
+        mid = message.message_id
+        command_type = get_command_type(message)
+        if uid == glovar.host_id and command_type and "_" in command_type:
+            para_list = command_type.split("_")
+            if len(para_list) == 2:
+                para_action = para_list[0]
+                para_data = para_list[1]
+                if para_action == "unblock":
+                    cid = int(para_data)
+                    if cid in glovar.blacklist_ids:
+                        remove_id(cid, 0, "blacklist")
+                        text = (f"用户 ID：{user_mention(cid)}\n"
+                                f"状态：{code('已解禁')}\n")
+                    else:
+                        text = (f"用户 ID：{user_mention(cid)}\n"
+                                f"状态：{code('操作失败')}\n"
+                                f"原因：{code('该用户不在黑名单中')}\n")
 
-        thread(send_message, (client, uid, text))
+                    thread(send_message, (client, uid, text, mid))
+        else:
+            if uid == glovar.host_id:
+                text = (f"您的传送信使已准备就绪\n"
+                        f"请勿停用机器人，否则无法收到他人的消息\n"
+                        f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息\n")
+            elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
+                text = (f"欢迎使用\n"
+                        f"如您需要私聊 {code(glovar.host_name)}，您可以直接在此发送消息并等待回复\n"
+                        f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立\n")
+            else:
+                text = ""
+
+            thread(send_message, (client, uid, text))
     except Exception as e:
         logger.warning(f"Start error: {e}", exc_info=True)
 

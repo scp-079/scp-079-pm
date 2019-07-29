@@ -19,7 +19,7 @@
 import logging
 from typing import Iterable, Optional, Union
 
-from pyrogram import Client, InlineKeyboardMarkup, Message
+from pyrogram import Client, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 
 from .etc import wait_flood
@@ -118,6 +118,37 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
                 logger.warning(f"Delete message in for loop error: {e}", exc_info=True)
     except Exception as e:
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_me(client: Client) -> Optional[User]:
+    # Get myself
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.get_me()
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get me error: {e}", exc_info=True)
+
+    return result
+
+
+def get_start(client: Client, para: str) -> str:
+    # Get start link with parameter
+    result = ""
+    try:
+        me = get_me(client)
+        if me and me.username:
+            result += f"https://t.me/{me.username}?start={para}"
+    except Exception as e:
+        logger.warning(f"Get start error: {e}", exc_info=True)
 
     return result
 
