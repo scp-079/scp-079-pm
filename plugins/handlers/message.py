@@ -59,10 +59,13 @@ def deliver_to_guest(client: Client, message: Message):
         elif glovar.direct_chat:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
         else:
-            if not glovar.direct_chat:
+            if not message.forward_date:
                 text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
             else:
-                text = "如需在当前直接对话中另外回复某人，请回复某条包含该用户 ID 的汇报消息"
+                text = ("如需将消息转发给某人，请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人\n"
+                        "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
+                        "而无需回复带该用户 ID 的汇报消息\n"
+                        "如欲退出与该用户的直接对话，请发送：/leave 指令")
 
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
