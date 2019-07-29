@@ -309,9 +309,15 @@ def unblock(client: Client, message: Message):
                 thread(send_message, (client, hid, text, mid))
                 return
 
-            remove_id(cid, 0, "blacklist")
-            text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('已解禁')}\n")
+            if cid in glovar.blacklist_ids:
+                remove_id(cid, 0, "blacklist")
+                text = (f"用户 ID：{user_mention(cid)}\n"
+                        f"状态：{code('已解禁')}\n")
+            else:
+                text = (f"用户 ID：{user_mention(cid)}\n"
+                        f"状态：{code('操作失败')}\n"
+                        f"原因：{code('该用户不在黑名单中')}\n")
+
             thread(send_message, (client, hid, text, mid))
         else:
             text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"

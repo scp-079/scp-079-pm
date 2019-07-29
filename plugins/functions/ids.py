@@ -85,9 +85,8 @@ def remove_id(cid, mid, ctx):
     try:
         if init_id(cid):
             if ctx == "blacklist":
-                if cid in glovar.blacklist_ids:
-                    glovar.blacklist_ids.remove(cid)
-                    save("blacklist_ids")
+                glovar.blacklist_ids.discard(cid)
+                save("blacklist_ids")
             # Remove all ids the host sent to guest chat
             elif ctx == "chat_host":
                 for mid in glovar.message_ids[cid]["host"]:
