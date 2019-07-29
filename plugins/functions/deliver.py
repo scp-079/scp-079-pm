@@ -68,17 +68,14 @@ def forward(
     remove_caption: bool = False,
     reply_to_message_id: int = None
 ) -> "Message":
-    # Redefine the forward method of "Message", see:
-    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2543
+    # Redefine the "forward" bound method of "Message", see:
+    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2558
     if as_copy:
         if self.service:
             raise ValueError("Unable to copy service messages")
 
         if self.game and not self._client.is_bot:
             raise ValueError("Users cannot send messages with Game media type")
-
-        # TODO: Improve markdown parser. Currently html appears to be more stable, thus we use it here because users
-        #       can"t choose.
 
         if self.text:
             return self._client.send_message(
@@ -175,7 +172,6 @@ def forward(
             from_chat_id=self.chat.id,
             message_ids=self.message_id,
             disable_notification=disable_notification,
-            reply_to_message_id=reply_to_message_id
         )
 
 

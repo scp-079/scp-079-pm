@@ -85,22 +85,21 @@ def is_test_group(_, message: Message) -> bool:
 
 
 hide_channel = Filters.create(
-    name="Hide Channel",
-    func=is_hide_channel
+    func=is_hide_channel,
+    name="Hide Channel"
 )
 
-
 host_chat = Filters.create(
-    name="Host Chat",
-    func=is_host_chat
+    func=is_host_chat,
+    name="Host Chat"
 )
 
 limited_user = Filters.create(
-    name="Limited User",
-    func=is_limited_user
+    func=is_limited_user,
+    name="Limited User"
 )
 
 test_group = Filters.create(
-    name="Test Group",
-    func=is_test_group
+    func=is_test_group,
+    name="Test Group"
 )

@@ -24,14 +24,14 @@ See [this article](https://scp-079.org/pm/).
 ## Requirements
 
 - Python 3.6 or higher
-- `requirements.txt` : APScheduler pyrogram[fast]
+- pip: `pip install -r requirements.txt` or `pip install -U APScheduler pyrogram[fast]`
 
 ## Files
 
 - plugins
     - functions
         - `channel.py` : Send messages to channel
-        - `deliver.py` : I am a postman
+        - `deliver.py` : I am a delivery boy
         - `etc.py` : Miscellaneous
         - `file.py` : Save files
         - `filters.py` : Some filters
