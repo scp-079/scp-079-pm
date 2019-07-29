@@ -264,6 +264,10 @@ def deliver_message(client: Client, message: Message,
         else:
             as_copy = True
 
+        # Temporary for animated stickers
+        if not (message.text or message.media):
+            as_copy = False
+
         # Check to see if the bot knows which message shall be replied to
         reply_mid = None
         if message.reply_to_message:
