@@ -27,6 +27,7 @@ from ..functions.etc import thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, send_message
+from ..functions.user import unblock_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -254,16 +255,7 @@ def start(client: Client, message: Message):
                 para_data = para_list[1]
                 if para_action == "unblock":
                     cid = int(para_data)
-                    if cid in glovar.blacklist_ids:
-                        remove_id(cid, 0, "blacklist")
-                        text = (f"用户 ID：{user_mention(cid)}\n"
-                                f"状态：{code('已解禁')}\n")
-                    else:
-                        text = (f"用户 ID：{user_mention(cid)}\n"
-                                f"状态：{code('操作失败')}\n"
-                                f"原因：{code('该用户不在黑名单中')}\n")
-
-                    thread(send_message, (client, uid, text, mid))
+                    unblock_user(client, uid, cid, mid)
         else:
             if uid == glovar.host_id:
                 text = (f"您的传送信使已准备就绪\n"
@@ -290,16 +282,7 @@ def unblock(client: Client, message: Message):
         _, cid = get_guest(message)
         command_type = get_command_type(message)
         if cid:
-            if cid in glovar.blacklist_ids:
-                remove_id(cid, 0, "blacklist")
-                text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已解禁')}\n")
-            else:
-                text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户不在黑名单中')}\n")
-
-            thread(send_message, (client, hid, text, mid))
+            unblock_user(client, hid, cid, mid)
         elif command_type:
             try:
                 cid = int(command_type)
@@ -309,16 +292,7 @@ def unblock(client: Client, message: Message):
                 thread(send_message, (client, hid, text, mid))
                 return
 
-            if cid in glovar.blacklist_ids:
-                remove_id(cid, 0, "blacklist")
-                text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已解禁')}\n")
-            else:
-                text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户不在黑名单中')}\n")
-
-            thread(send_message, (client, hid, text, mid))
+            unblock_user(client, hid, cid, mid)
         else:
             text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
