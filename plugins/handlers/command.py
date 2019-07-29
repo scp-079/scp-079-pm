@@ -51,11 +51,13 @@ def block(client: Client, message: Message):
 
                 remove_id(cid, mid, "chat_all")
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已拉黑')}\n")
+                        f"状态：{code('已拉黑')}\n"
+                        f"解除黑名单：/unblock\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('无需操作')}\n"
-                        f"原因：{code('该用户已在黑名单中')}\n")
+                        f"原因：{code('该用户已在黑名单中')}\n"
+                        f"解除黑名单：/unblock\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
@@ -113,11 +115,13 @@ def direct_chat(client: Client, message: Message):
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
                 text = (f"用户 ID：{user_mention(cid)}\n"
-                        f"状态：{code('已开始与该用户的直接对话')}\n")
+                        f"状态：{code('已开始与该用户的直接对话')}\n"
+                        f"退出对话：/leave\n")
             else:
                 text = (f"用户 ID：{user_mention(cid)}\n"
                         f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户在黑名单中')}\n")
+                        f"原因：{code('该用户在黑名单中')}\n"
+                        f"解除黑名单：/unblock\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
@@ -154,7 +158,8 @@ def now_chat(client: Client, message: Message):
         cid = glovar.direct_chat
         if cid:
             text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('正在与该用户直接对话')}\n")
+                    f"状态：{code('正在与该用户直接对话')}\n"
+                    f"退出对话：/leave\n")
         else:
             text = f"状态：{code('当前无直接对话')}\n"
 
