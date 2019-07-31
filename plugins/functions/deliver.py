@@ -87,7 +87,7 @@ def forward(
                 reply_to_message_id=reply_to_message_id
             )
         elif self.media:
-            caption = self.caption.html if self.caption and not remove_caption else None
+            caption = self.caption.html if self.caption and not remove_caption else ""
 
             send_media = partial(
                 self._client.send_cached_media,

@@ -3,7 +3,7 @@ tmp/
 .idea/
 log
 config.ini
-*.session
+*.session*
 
 # Below copied from https://github.com/github/gitignore/blob/master/Python.gitignore
 

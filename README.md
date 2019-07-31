@@ -30,7 +30,7 @@ See [this article](https://scp-079.org/pm/).
 
 - plugins
     - functions
-        - `channel.py` : Send messages to channel
+        - `channel.py` : Functions about channel
         - `deliver.py` : I am a delivery boy
         - `etc.py` : Miscellaneous
         - `file.py` : Save files
