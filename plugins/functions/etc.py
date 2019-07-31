@@ -164,7 +164,7 @@ def name_mention(user: User) -> str:
         if user:
             name = get_full_name(user)
             uid = user.id
-            text = f"[{name}](tg://user?id={uid})"
+            text = general_link(f"{name}", f"tg://user?id={uid}")
     except Exception as e:
         logger.warning(f"Name mention error: {e}", exc_info=True)
 
@@ -188,7 +188,7 @@ def user_mention(uid: int) -> str:
     # Get a mention text
     text = ""
     try:
-        text = f"[{uid}](tg://user?id={uid})"
+        text = general_link(f"{uid}", f"tg://user?id={uid}")
     except Exception as e:
         logger.warning(f"User mention error: {e}", exc_info=True)
 
