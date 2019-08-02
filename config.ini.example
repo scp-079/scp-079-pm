@@ -19,6 +19,7 @@ bot_token = [DATA EXPUNGED]
 prefix = /!
 
 [channels]
+critical_channel_id = 0
 exchange_channel_id = 0
 hide_channel_id = 0
 test_group_id = 0

@@ -160,25 +160,23 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
     result = None
     try:
         if text.strip():
-            text_list = [text[i:i + 4096] for i in range(0, len(text), 4096)]
-            for text_unit in text_list:
-                flood_wait = True
-                while flood_wait:
-                    flood_wait = False
-                    try:
-                        result = client.send_message(
-                            chat_id=cid,
-                            text=text_unit,
-                            parse_mode="html",
-                            disable_web_page_preview=True,
-                            reply_to_message_id=mid,
-                            reply_markup=markup
-                        )
-                    except FloodWait as e:
-                        flood_wait = True
-                        wait_flood(e)
-                    except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
-                        return False
+            flood_wait = True
+            while flood_wait:
+                flood_wait = False
+                try:
+                    result = client.send_message(
+                        chat_id=cid,
+                        text=text,
+                        parse_mode="html",
+                        disable_web_page_preview=True,
+                        reply_to_message_id=mid,
+                        reply_markup=markup
+                    )
+                except FloodWait as e:
+                    flood_wait = True
+                    wait_flood(e)
+                except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                    return False
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
