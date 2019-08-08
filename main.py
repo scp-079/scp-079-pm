@@ -54,5 +54,6 @@ scheduler.add_job(clear_flood, "interval", minutes=15)
 scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
 scheduler.start()
 
+# test MIRROR
 # Hold
 app.idle()
