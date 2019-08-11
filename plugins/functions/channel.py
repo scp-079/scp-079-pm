@@ -85,31 +85,32 @@ def receive_text_data(message: Message) -> dict:
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,
                data: Union[dict, int, str]) -> bool:
-    # Use this function to share data in exchange channel
+    # Use this function to share data in the exchange channel
     try:
         if glovar.sender in receivers:
             receivers.remove(glovar.sender)
 
-        if glovar.should_hide:
-            channel_id = glovar.hide_channel_id
-        else:
-            channel_id = glovar.exchange_channel_id
+        if receivers:
+            if glovar.should_hide:
+                channel_id = glovar.hide_channel_id
+            else:
+                channel_id = glovar.exchange_channel_id
 
-        text = format_data(
-            sender=glovar.sender,
-            receivers=receivers,
-            action=action,
-            action_type=action_type,
-            data=data
-        )
-        result = send_message(client, channel_id, text)
-        # Sending failed due to channel issue
-        if result is False:
-            # Use hide channel instead
-            exchange_to_hide(client)
-            thread(share_data, (client, receivers, action, action_type, data))
+            text = format_data(
+                sender=glovar.sender,
+                receivers=receivers,
+                action=action,
+                action_type=action_type,
+                data=data
+            )
+            result = send_message(client, channel_id, text)
+            # Sending failed due to channel issue
+            if result is False:
+                # Use hide channel instead
+                exchange_to_hide(client)
+                thread(share_data, (client, receivers, action, action_type, data))
 
-        return True
+            return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)
 
