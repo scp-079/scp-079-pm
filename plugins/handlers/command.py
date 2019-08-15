@@ -114,7 +114,7 @@ def direct_chat(client: Client, message: Message):
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
-                text = (f"用户 ID：{user_mention(cid)}\n"
+                text = (f"用户 ID： {user_mention(cid)}\n"
                         f"状态：{code('已开始与该用户的直接对话')}\n"
                         f"退出对话：/leave\n")
             else:
