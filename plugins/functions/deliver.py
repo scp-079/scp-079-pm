@@ -78,7 +78,6 @@ def forward(
             raise ValueError("Users cannot send messages with Game media type")
 
         if self.text:
-            print(self.text.html)
             return self._client.send_message(
                 chat_id,
                 text=self.text.html,
