@@ -198,6 +198,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
             add_id(cid, mid, "guest")
             reply_id(mid, forward_mid, cid, "guest")
             reply_id(forward_mid, mid, cid, "host")
+
             return True
     except Exception as e:
         logger.warning(f"Deliver guest message error: {e}", exc_info=True)
@@ -334,14 +335,14 @@ def get_guest(message: Message) -> (int, int):
         r_message = message.reply_to_message
         message_text = get_text(r_message)
         if r_message:
-            # Check if the replied message is a valid report message
-            if (r_message.from_user.is_self
-                    and "ID：" in message_text):
-                cid = int(message_text.partition("\n")[0].split("ID：")[1])
-            # Else check to see if bot knows which message is corresponding
-            elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
+            # Check to see if bot knows which message is corresponding
+            if glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
                 mid = glovar.reply_ids["h2g"][r_message.message_id][0]
                 cid = glovar.reply_ids["h2g"][r_message.message_id][1]
+            # Else check if the replied message is a valid report message
+            elif (r_message.from_user.is_self
+                    and "ID：" in message_text):
+                cid = int(message_text.partition("\n")[0].split("ID：")[1])
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
