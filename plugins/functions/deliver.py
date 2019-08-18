@@ -336,9 +336,8 @@ def get_guest(message: Message) -> (int, int):
         if r_message:
             # Check if the replied message is a valid report message
             if (r_message.from_user.is_self
-                    and "ID" in message_text
-                    and len(message_text.split("\n")) > 1):
-                cid = int(message_text.partition("\n")[0].partition("ID")[2][1:])
+                    and "ID：" in message_text):
+                cid = int(message_text.partition("\n")[0].split("ID：")[1])
             # Else check to see if bot knows which message is corresponding
             elif glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
                 mid = glovar.reply_ids["h2g"][r_message.message_id][0]
