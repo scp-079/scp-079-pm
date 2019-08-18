@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_text, name_mention, thread, user_mention, wait_flood
+from .etc import button_data, code, code_block, get_text, get_full_name, name_mention, thread, wait_flood
 from .file import save
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
@@ -183,8 +183,12 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
         mid = message.message_id
         result = deliver_message(client, message, hid, mid, "g2h")
         if result and isinstance(result, Message) and not result.edit_date:
-            text = (f"用户 ID：{code(cid)}\n"
-                    f"昵称：{name_mention(message.from_user)}\n")
+            text = f"用户 ID：{code(cid)}\n"
+            if message.from_user.username:
+                text += f"昵称：{name_mention(message.from_user)}\n"
+            else:
+                text += f"昵称：{code(get_full_name(message.from_user))}\n"
+
             if message.edit_date:
                 text += f"类别：{code('已编辑')}\n"
 
@@ -209,7 +213,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
             if result and isinstance(result, Message) and not result.edit_date:
-                text = (f"发送至 ID：{user_mention(cid)}\n"
+                text = (f"发送至 ID：{code(cid)}\n"
                         f"状态：{code('已发送')}\n")
                 forward_mid = result.message_id
                 data = button_data("recall", "single", forward_mid)
@@ -230,7 +234,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                 reply_id(forward_mid, mid, cid, "guest")
                 return True
         else:
-            text = (f"发送至 ID：{user_mention(cid)}\n"
+            text = (f"发送至 ID：{code(cid)}\n"
                     f"状态：{code('发送失败')}\n"
                     f"原因：{code('该用户在黑名单中')}\n")
             thread(send_message, (client, hid, text, mid))
@@ -347,7 +351,7 @@ def get_guest(message: Message) -> (int, int):
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
     # Recall messages in a chat
-    text = f"对话 ID：{user_mention(cid)}\n"
+    text = f"对话 ID：{code(cid)}\n"
     try:
         init_id(cid)
         # Recall single message

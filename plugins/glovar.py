@@ -34,6 +34,7 @@ all_commands: List[str] = [
     "clear",
     "direct",
     "leave",
+    "mention",
     "now",
     "ping",
     "recall",
@@ -46,7 +47,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.4.0"
+version: str = "0.4.1"
 
 direct_chat: int = 0
 

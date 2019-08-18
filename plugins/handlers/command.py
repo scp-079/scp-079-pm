@@ -51,10 +51,10 @@ def block(client: Client, message: Message):
                     thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
 
                 remove_id(cid, mid, "chat_all")
-                text = (f"用户 ID：{user_mention(cid)}\n"
+                text = (f"用户 ID：{code(cid)}\n"
                         f"状态：{code('已拉黑')}\n")
             else:
-                text = (f"用户 ID：{user_mention(cid)}\n"
+                text = (f"用户 ID：{code(cid)}\n"
                         f"状态：{code('无需操作')}\n"
                         f"原因：{code('该用户已在黑名单中')}\n")
 
@@ -114,11 +114,11 @@ def direct_chat(client: Client, message: Message):
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
-                text = (f"用户 ID：{user_mention(cid)}\n"
+                text = (f"用户 ID：{code(cid)}\n"
                         f"状态：{code('已开始与该用户的直接对话')}\n"
                         f"退出对话：/leave\n")
             else:
-                text = (f"用户 ID：{user_mention(cid)}\n"
+                text = (f"用户 ID：{code(cid)}\n"
                         f"状态：{code('操作失败')}\n"
                         f"原因：{code('该用户在黑名单中')}\n"
                         f"解除黑名单：{general_link('/unblock', get_start(client, f'unblock_{cid}'))}\n")
@@ -139,7 +139,7 @@ def leave_chat(client: Client, message: Message):
         cid = glovar.direct_chat
         if cid:
             glovar.direct_chat = 0
-            text = (f"用户 ID：{user_mention(cid)}\n"
+            text = (f"用户 ID：{code(cid)}\n"
                     f"状态：{code('已退出与该用户的直接对话')}\n")
         else:
             text = (f"状态：{code('操作失败')}\n"
@@ -151,19 +151,50 @@ def leave_chat(client: Client, message: Message):
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
+                   & Filters.command(["mention"], glovar.prefix))
+def mention(client: Client, message: Message):
+    try:
+        hid = message.from_user.id
+        mid = message.message_id
+        _, cid = get_guest(message)
+        command_type = get_command_type(message)
+        if cid:
+            cid = cid
+        elif command_type:
+            try:
+                cid = int(command_type)
+            except Exception as e:
+                text = (f"格式有误：" + "-" * 24 + "\n\n"
+                        f"{code_block(e)}\n")
+                thread(send_message, (client, hid, text, mid))
+                return
+
+        if cid:
+            text = f"查询 ID：{user_mention(cid)}\n"
+        else:
+            text = (f"状态：{code('未查询')}\n"
+                    f"原因：{code('格式有误')}\n")
+
+        thread(send_message, (client, hid, text, mid))
+    except Exception as e:
+        logger.warning(f"Mention error: {e}", exc_info=True)
+
+
+@Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["now"], glovar.prefix))
 def now_chat(client: Client, message: Message):
     try:
         hid = message.from_user.id
+        mid = message.message_id
         cid = glovar.direct_chat
         if cid:
-            text = (f"用户 ID：{user_mention(cid)}\n"
+            text = (f"用户 ID：{code(cid)}\n"
                     f"状态：{code('正在与该用户直接对话')}\n"
                     f"退出对话：/leave\n")
         else:
             text = f"状态：{code('当前无直接对话')}\n"
 
-        thread(send_message, (client, hid, text))
+        thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Now chat error: {e}", exc_info=True)
 
@@ -287,7 +318,7 @@ def unblock(client: Client, message: Message):
             try:
                 cid = int(command_type)
             except Exception as e:
-                text = (f"格式有误\n"
+                text = (f"格式有误：" + "-" * 24 + "\n\n"
                         f"{code_block(e)}\n")
                 thread(send_message, (client, hid, text, mid))
                 return
