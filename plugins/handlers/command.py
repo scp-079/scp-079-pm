@@ -170,7 +170,7 @@ def mention(client: Client, message: Message):
                 return
 
         if cid:
-            text = f"查询用户：{user_mention(cid)}\n"
+            text = f"查询 ID：{user_mention(cid)}\n"
         else:
             text = (f"状态：{code('未查询')}\n"
                     f"原因：{code('格式有误')}\n")
