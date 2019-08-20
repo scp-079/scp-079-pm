@@ -133,6 +133,7 @@ def reply_id(a: int, b: int, cid: int, ctx: str):
             glovar.reply_ids["h2g"][a] = (b, cid)
 
         save("reply_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Reply {ctx} id error: {e}", exc_info=True)

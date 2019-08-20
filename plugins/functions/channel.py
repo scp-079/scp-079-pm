@@ -45,6 +45,7 @@ def exchange_to_hide(client: Client) -> bool:
                 f"发现状况：{code('数据交换频道失效')}\n"
                 f"自动处理：{code('启用 1 号协议')}\n")
         thread(send_message, (client, glovar.critical_channel_id, text))
+
         return True
     except Exception as e:
         logger.warning(f"Exchange to hide error: {e}", exc_info=True)

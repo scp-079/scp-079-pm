@@ -41,6 +41,7 @@ def unblock_user(client: Client, hid: int, cid: int, mid: int) -> bool:
                     f"原因：{code('该用户不在黑名单中')}\n")
 
         thread(send_message, (client, hid, text, mid))
+
         return True
     except Exception as e:
         logger.warning(f"Unblock user error: {e}", exc_info=True)

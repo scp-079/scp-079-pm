@@ -79,6 +79,7 @@ def update_status(client: Client) -> bool:
             action_type="status",
             data="awake"
         )
+
         return True
     except Exception as e:
         logger.warning(f"Update status error: {e}")
