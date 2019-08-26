@@ -22,6 +22,7 @@ from json import loads
 from pyrogram import Message
 
 from .etc import get_text
+
 # Enable logging
 logger = logging.getLogger(__name__)
 
