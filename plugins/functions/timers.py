@@ -32,6 +32,7 @@ def clear_counts() -> bool:
     # Clear the user's message count every 5 seconds
     try:
         glovar.flood_ids["counts"] = {}
+
         return True
     except Exception as e:
         logger.warning(f"Clear counts error: {e}", exc_info=True)
@@ -43,6 +44,7 @@ def clear_flood() -> bool:
     # Clear the user's flood status every 15 minutes
     try:
         glovar.flood_ids["users"] = set()
+
         return True
     except Exception as e:
         logger.warning(f"Clear flood users error: {e}", exc_info=True)

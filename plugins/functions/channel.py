@@ -17,13 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from json import dumps, loads
+from json import dumps
 from typing import List, Union
 
-from pyrogram import Client, Message
+from pyrogram import Client
 
 from .. import glovar
-from .etc import code, code_block, get_text, thread
+from .etc import code, code_block, thread
 from .telegram import send_message
 
 # Enable logging
@@ -69,19 +69,6 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
         logger.warning(f"Format data error: {e}", exc_info=True)
 
     return text
-
-
-def receive_text_data(message: Message) -> dict:
-    # Receive text's data from exchange channel
-    data = {}
-    try:
-        text = get_text(message)
-        if text:
-            data = loads(text)
-    except Exception as e:
-        logger.warning(f"Receive data error: {e}")
-
-    return data
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,

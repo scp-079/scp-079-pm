@@ -194,6 +194,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 
             forward_mid = result.message_id
             thread(send_message, (client, hid, text, forward_mid))
+
             # Record the message's id
             add_id(cid, mid, "guest")
             reply_id(mid, forward_mid, cid, "guest")
@@ -229,10 +230,12 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                     ]
                 )
                 thread(send_message, (client, hid, text, mid, markup))
+
                 # Record the message's id
                 add_id(cid, forward_mid, "host")
                 reply_id(mid, forward_mid, cid, "host")
                 reply_id(forward_mid, mid, cid, "guest")
+
                 return True
         else:
             text = (f"发送至 ID：{code(cid)}\n"
@@ -251,6 +254,7 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
         text = (f"状态：{code('发送失败')}\n"
                 f"原因：{code('对方已停用机器人')}\n")
         thread(send_message, (client, cid, text, mid))
+
         return True
     except Exception as e:
         logger.warning(f"Deliver fail error: {e}", exc_info=True)

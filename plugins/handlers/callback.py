@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_callback_query()
 def answer(client: Client, callback_query: CallbackQuery):
+    # Answer the callback query
     try:
         uid = callback_query.from_user.id
         hid = glovar.host_id

@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["block"], glovar.prefix))
 def block(client: Client, message: Message):
+    # Block a user
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -70,6 +71,7 @@ def block(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["clear"], glovar.prefix))
 def clear(client: Client, message: Message):
+    # Clear stored data
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -107,6 +109,7 @@ def clear(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["direct"], glovar.prefix))
 def direct_chat(client: Client, message: Message):
+    # Start a direct chat
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -134,6 +137,7 @@ def direct_chat(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["leave"], glovar.prefix))
 def leave_chat(client: Client, message: Message):
+    # Leave the direct chat
     try:
         hid = message.from_user.id
         cid = glovar.direct_chat
@@ -153,6 +157,7 @@ def leave_chat(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["mention"], glovar.prefix))
 def mention(client: Client, message: Message):
+    # Force mention a user
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -183,6 +188,7 @@ def mention(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["now"], glovar.prefix))
 def now_chat(client: Client, message: Message):
+    # Check direct chat status
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -202,6 +208,7 @@ def now_chat(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["ping"], glovar.prefix))
 def ping(client: Client, message: Message):
+    # Ping
     try:
         hid = message.from_user.id
         text = code("Pong!")
@@ -213,6 +220,7 @@ def ping(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["recall"], glovar.prefix))
 def recall(client: Client, message: Message):
+    # Recall messages
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -275,6 +283,7 @@ def recall(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private
                    & Filters.command(["start"], glovar.prefix))
 def start(client: Client, message: Message):
+    # Send welcome message
     try:
         uid = message.from_user.id
         mid = message.message_id
@@ -307,6 +316,7 @@ def start(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["unblock"], glovar.prefix))
 def unblock(client: Client, message: Message):
+    # Unblock a user
     try:
         hid = message.from_user.id
         mid = message.message_id
@@ -334,6 +344,7 @@ def unblock(client: Client, message: Message):
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
 def version(client: Client, message: Message):
+    # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id

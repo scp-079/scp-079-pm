@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 # SCP-079-PM - Everyone can have their own Telegram private chat bot
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
@@ -20,32 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from json import loads
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from pyrogram import Client
+from pyrogram import Message
 
-from plugins import glovar
-from plugins.functions.timers import clear_counts, clear_flood, reset_data, update_status
-
+from .etc import get_text
 # Enable logging
 logger = logging.getLogger(__name__)
 
-# Start
-app = Client(
-    session_name="bot",
-    bot_token=glovar.bot_token
-)
-app.start()
 
-# Timer
-scheduler = BackgroundScheduler()
-if glovar.exchange_channel_id:
-    scheduler.add_job(update_status, "cron", [app], minute=30)
+def receive_text_data(message: Message) -> dict:
+    # Receive text's data from exchange channel
+    data = {}
+    try:
+        text = get_text(message)
+        if text:
+            data = loads(text)
+    except Exception as e:
+        logger.warning(f"Receive data error: {e}")
 
-scheduler.add_job(clear_counts, 'interval', seconds=5)
-scheduler.add_job(clear_flood, "interval", minutes=15)
-scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
-scheduler.start()
-
-# Hold
-app.idle()
+    return data

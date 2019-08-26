@@ -21,11 +21,11 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.channel import receive_text_data
 from ..functions.etc import bold, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
 from ..functions.filters import hide_channel, host_chat, limited_user
 from ..functions.ids import add_id, count_id
+from ..functions.receive import receive_text_data
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
 def count(client: Client, message: Message):
+    # Count messages sent by guest
     try:
         # Count user's messages in 5 seconds
         cid = message.from_user.id
@@ -50,6 +51,7 @@ def count(client: Client, message: Message):
 @Client.on_message(Filters.private & Filters.incoming & host_chat
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def deliver_to_guest(client: Client, message: Message):
+    # Deliver messages to guest
     try:
         hid = message.chat.id
         mid = message.message_id
@@ -75,6 +77,7 @@ def deliver_to_guest(client: Client, message: Message):
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
 def deliver_to_host(client: Client, message: Message):
+    # Deliver messages to host
     try:
         thread(deliver_guest_message, (client, message))
     except Exception as e:
@@ -82,21 +85,21 @@ def deliver_to_host(client: Client, message: Message):
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
-def exchange_emergency(_, message):
+                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+def exchange_emergency(_: Client, message: Message):
+    # Sent emergency channel transfer request
     try:
         # Read basic information
         data = receive_text_data(message)
         if data:
-            sender = data["from"]
             receivers = data["to"]
             action = data["action"]
             action_type = data["type"]
             data = data["data"]
             if "EMERGENCY" in receivers:
-                if sender == "EMERGENCY":
-                    if action == "backup":
-                        if action_type == "hide":
+                if action == "backup":
+                    if action_type == "hide":
+                        if data is True:
                             glovar.should_hide = data
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)

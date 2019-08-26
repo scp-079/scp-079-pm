@@ -177,6 +177,7 @@ def thread(target: Callable, args: tuple) -> bool:
         t = Thread(target=target, args=args)
         t.daemon = True
         t.start()
+
         return True
     except Exception as e:
         logger.warning(f"Thread error: {e}", exc_info=True)
@@ -199,6 +200,7 @@ def wait_flood(e: FloodWait) -> bool:
     # Wait flood secs
     try:
         sleep(e.x + uniform(0.5, 1.0))
+
         return True
     except Exception as e:
         logger.warning(f"Wait flood error: {e}", exc_info=True)
