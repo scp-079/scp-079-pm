@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_callback_query()
-def answer(client: Client, callback_query: CallbackQuery):
+def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
         uid = callback_query.from_user.id
@@ -53,5 +53,9 @@ def answer(client: Client, callback_query: CallbackQuery):
                 thread(edit_message_text, (client, hid, mid, text, markup))
 
             thread(answer_callback, (client, callback_query.id, ""))
+
+        return True
     except Exception as e:
         logger.warning(f"Answer callback error: {e}", exc_info=True)
+
+    return False

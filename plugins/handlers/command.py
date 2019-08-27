@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["block"], glovar.prefix))
-def block(client: Client, message: Message):
+def block(client: Client, message: Message) -> bool:
     # Block a user
     try:
         hid = message.from_user.id
@@ -64,13 +64,17 @@ def block(client: Client, message: Message):
         else:
             text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Block error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["clear"], glovar.prefix))
-def clear(client: Client, message: Message):
+def clear(client: Client, message: Message) -> bool:
     # Clear stored data
     try:
         hid = message.from_user.id
@@ -102,13 +106,17 @@ def clear(client: Client, message: Message):
             markup = None
 
         thread(send_message, (client, hid, text, mid, markup))
+
+        return True
     except Exception as e:
         logger.warning(f"Clear error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["direct"], glovar.prefix))
-def direct_chat(client: Client, message: Message):
+def direct_chat(client: Client, message: Message) -> bool:
     # Start a direct chat
     try:
         hid = message.from_user.id
@@ -130,13 +138,17 @@ def direct_chat(client: Client, message: Message):
         else:
             text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Direct chat error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["leave"], glovar.prefix))
-def leave_chat(client: Client, message: Message):
+def leave_chat(client: Client, message: Message) -> bool:
     # Leave the direct chat
     try:
         hid = message.from_user.id
@@ -150,13 +162,17 @@ def leave_chat(client: Client, message: Message):
                     f"原因：{code('当前无直接对话')}\n")
 
         thread(send_message, (client, hid, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Leave chat error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["mention"], glovar.prefix))
-def mention(client: Client, message: Message):
+def mention(client: Client, message: Message) -> bool:
     # Force mention a user
     try:
         hid = message.from_user.id
@@ -172,7 +188,7 @@ def mention(client: Client, message: Message):
                 text = (f"格式有误：" + "-" * 24 + "\n\n"
                         f"{code_block(e)}\n")
                 thread(send_message, (client, hid, text, mid))
-                return
+                return True
 
         if cid:
             text = f"查询 ID：{user_mention(cid)}\n"
@@ -181,13 +197,17 @@ def mention(client: Client, message: Message):
                     f"原因：{code('格式有误')}\n")
 
         thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Mention error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["now"], glovar.prefix))
-def now_chat(client: Client, message: Message):
+def now_chat(client: Client, message: Message) -> bool:
     # Check direct chat status
     try:
         hid = message.from_user.id
@@ -201,25 +221,33 @@ def now_chat(client: Client, message: Message):
             text = f"状态：{code('当前无直接对话')}\n"
 
         thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Now chat error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["ping"], glovar.prefix))
-def ping(client: Client, message: Message):
+def ping(client: Client, message: Message) -> bool:
     # Ping
     try:
         hid = message.from_user.id
         text = code("Pong!")
         thread(send_message, (client, hid, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Ping error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["recall"], glovar.prefix))
-def recall(client: Client, message: Message):
+def recall(client: Client, message: Message) -> bool:
     # Recall messages
     try:
         hid = message.from_user.id
@@ -263,7 +291,7 @@ def recall(client: Client, message: Message):
                                  f"原因：{code('回复有误')}\n")
                         markup = None
                         thread(send_message, (client, hid, text, mid, markup))
-                        return
+                        return True
 
                 text = recall_messages(client, cid, command_type, recall_mid)
                 markup = None
@@ -276,13 +304,17 @@ def recall(client: Client, message: Message):
         else:
             text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Recall error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private
                    & Filters.command(["start"], glovar.prefix))
-def start(client: Client, message: Message):
+def start(client: Client, message: Message) -> bool:
     # Send welcome message
     try:
         uid = message.from_user.id
@@ -309,13 +341,17 @@ def start(client: Client, message: Message):
                 text = ""
 
             thread(send_message, (client, uid, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Start error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.private & host_chat
                    & Filters.command(["unblock"], glovar.prefix))
-def unblock(client: Client, message: Message):
+def unblock(client: Client, message: Message) -> bool:
     # Unblock a user
     try:
         hid = message.from_user.id
@@ -331,19 +367,23 @@ def unblock(client: Client, message: Message):
                 text = (f"格式有误：" + "-" * 24 + "\n\n"
                         f"{code_block(e)}\n")
                 thread(send_message, (client, hid, text, mid))
-                return
+                return True
 
             unblock_user(client, hid, cid, mid)
         else:
             text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"
             thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Unblock error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & test_group
                    & Filters.command(["version"], glovar.prefix))
-def version(client: Client, message: Message):
+def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
@@ -352,5 +392,9 @@ def version(client: Client, message: Message):
         text = (f"管理员：{user_mention(aid)}\n\n"
                 f"版本：{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)
+
+    return False

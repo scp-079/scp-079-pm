@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
-def count(client: Client, message: Message):
+def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     try:
         # Count user's messages in 5 seconds
@@ -44,13 +44,17 @@ def count(client: Client, message: Message):
             text = (f"您发送的消息过于频繁，请 {bold('15')} 分钟后重试\n"
                     f"期间机器人将对您的消息不做任何转发和应答")
             thread(send_message, (client, cid, text))
+
+        return True
     except Exception as e:
         logger.warning(f"Count error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.private & Filters.incoming & host_chat
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
-def deliver_to_guest(client: Client, message: Message):
+def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
     try:
         hid = message.chat.id
@@ -70,23 +74,31 @@ def deliver_to_guest(client: Client, message: Message):
                         "如欲退出与该用户的直接对话，请发送：/leave 指令")
 
             thread(send_message, (client, hid, text, mid))
+
+        return True
     except Exception as e:
         logger.warning(f"Deliver to guest error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
-def deliver_to_host(client: Client, message: Message):
+def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
     try:
         thread(deliver_guest_message, (client, message))
+
+        return True
     except Exception as e:
         logger.warning(f"Deliver to host error: {e}", exc_info=True)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
-def exchange_emergency(_: Client, message: Message):
+def exchange_emergency(_: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
@@ -104,5 +116,9 @@ def exchange_emergency(_: Client, message: Message):
                             glovar.should_hide = data
                         elif data is False and sender == "MANAGE":
                             glovar.should_hide = data
+
+        return True
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
+
+    return False
