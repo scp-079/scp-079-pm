@@ -53,7 +53,8 @@ def exchange_to_hide(client: Client) -> bool:
     return False
 
 
-def format_data(sender: str, receivers: List[str], action: str, action_type: str, data=None) -> str:
+def format_data(sender: str, receivers: List[str], action: str, action_type: str,
+                data: Union[bool, dict, int, str] = None) -> str:
     # See https://scp-079.org/exchange/
     text = ""
     try:
@@ -72,7 +73,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,
-               data: Union[dict, int, str]) -> bool:
+               data: Union[bool, dict, int, str]) -> bool:
     # Use this function to share data in the exchange channel
     try:
         if glovar.sender in receivers:
