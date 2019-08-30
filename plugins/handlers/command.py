@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
 from ..functions.etc import bold, button_data, code, code_block, general_link, get_callback_data, get_command_type
-from ..functions.etc import thread, user_mention
+from ..functions.etc import get_int, thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, send_message
@@ -182,13 +182,7 @@ def mention(client: Client, message: Message) -> bool:
         if cid:
             cid = cid
         elif command_type:
-            try:
-                cid = int(command_type)
-            except Exception as e:
-                text = (f"格式有误：" + "-" * 24 + "\n\n"
-                        f"{code_block(e)}\n")
-                thread(send_message, (client, hid, text, mid))
-                return True
+            cid = get_int(command_type)
 
         if cid:
             text = f"查询 ID：{user_mention(cid)}\n"
@@ -326,7 +320,7 @@ def start(client: Client, message: Message) -> bool:
                 para_action = para_list[0]
                 para_data = para_list[1]
                 if para_action == "unblock":
-                    cid = int(para_data)
+                    cid = get_int(para_data)
                     unblock_user(client, uid, cid, mid)
         else:
             if uid == glovar.host_id:
@@ -361,14 +355,9 @@ def unblock(client: Client, message: Message) -> bool:
         if cid:
             unblock_user(client, hid, cid, mid)
         elif command_type:
-            try:
-                cid = int(command_type)
-            except Exception as e:
-                text = (f"格式有误：" + "-" * 24 + "\n\n"
-                        f"{code_block(e)}\n")
-                thread(send_message, (client, hid, text, mid))
-                return True
+            cid = get_int(command_type)
 
+        if cid:
             unblock_user(client, hid, cid, mid)
         else:
             text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"

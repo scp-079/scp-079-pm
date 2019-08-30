@@ -22,7 +22,7 @@ import json
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.etc import thread
+from ..functions.etc import get_int, thread
 from ..functions.deliver import clear_data, recall_messages
 from ..functions.telegram import answer_callback, edit_message_text
 
@@ -42,7 +42,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
             callback_data = json.loads(callback_query.data)
             # If action is recall
             if callback_data["a"] == "recall":
-                cid = int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
+                cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
                 text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
                 markup = None
                 thread(edit_message_text, (client, hid, mid, text, markup))

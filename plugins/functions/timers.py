@@ -28,26 +28,29 @@ from .file import save
 logger = logging.getLogger(__name__)
 
 
-def clear_counts() -> bool:
-    # Clear the user's message count every 5 seconds
+def interval_sec_05() -> bool:
+    # Execute very 5 seconds
     try:
-        glovar.flood_ids["counts"] = {}
+        # Clear the user's flood counts
+        for uid in list(glovar.flood_ids["counts"]):
+            glovar.flood_ids["counts"][uid] = 0
 
         return True
     except Exception as e:
-        logger.warning(f"Clear counts error: {e}", exc_info=True)
+        logger.warning(f"Interval sec 05 error: {e}", exc_info=True)
 
     return False
 
 
-def clear_flood() -> bool:
-    # Clear the user's flood status every 15 minutes
+def interval_min_15() -> bool:
+    # Execute very 15 minutes
     try:
+        # Clear the user's flood status
         glovar.flood_ids["users"] = set()
 
         return True
     except Exception as e:
-        logger.warning(f"Clear flood users error: {e}", exc_info=True)
+        logger.warning(f"Interval min 15 error: {e}", exc_info=True)
 
     return False
 

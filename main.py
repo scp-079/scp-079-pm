@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import clear_counts, clear_flood, reset_data, update_status
+from plugins.functions.timers import interval_min_15, interval_sec_05, reset_data, update_status
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -42,8 +42,8 @@ scheduler = BackgroundScheduler()
 if glovar.exchange_channel_id:
     scheduler.add_job(update_status, "cron", [app], minute=30)
 
-scheduler.add_job(clear_counts, 'interval', seconds=5)
-scheduler.add_job(clear_flood, "interval", minutes=15)
+scheduler.add_job(interval_sec_05, "interval", seconds=5)
+scheduler.add_job(interval_min_15, "interval", minutes=15)
 scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
 scheduler.start()
 

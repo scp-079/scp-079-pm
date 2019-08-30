@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_text, get_full_name, name_mention, thread, wait_flood
+from .etc import button_data, code, code_block, get_int, get_text, get_full_name, name_mention, thread, wait_flood
 from .file import save
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
@@ -346,7 +346,7 @@ def get_guest(message: Message) -> (int, int):
             # Else check if the replied message is a valid report message
             elif (r_message.from_user.is_self
                     and "ID：" in message_text):
-                cid = int(message_text.partition("\n")[0].split("ID：")[1])
+                cid = get_int(message_text.partition("\n")[0].split("ID：")[1])
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
