@@ -116,7 +116,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
                         flood_wait = True
                         wait_flood(e)
             except Exception as e:
-                logger.warning(f"Delete message in for loop error: {e}", exc_info=True)
+                logger.warning(f"Delete message in {cid} for loop error: {e}", exc_info=True)
     except Exception as e:
         logger.warning(f"Delete messages in {cid} error: {e}", exc_info=True)
 
