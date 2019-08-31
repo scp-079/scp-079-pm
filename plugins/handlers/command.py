@@ -22,7 +22,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
-from ..functions.etc import bold, button_data, code, code_block, general_link, get_callback_data, get_command_type
+from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type
 from ..functions.etc import get_int, thread, user_mention
 from ..functions.filters import host_chat, test_group
 from ..functions.ids import add_id, remove_id
