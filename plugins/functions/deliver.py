@@ -26,6 +26,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked
 from .. import glovar
 from .etc import button_data, code, code_block, get_int, get_text, get_full_name, name_mention, thread, wait_flood
 from .file import save
+from .group import delete_message, get_message
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
 from .telegram import delete_messages, send_message
@@ -273,10 +274,6 @@ def deliver_message(client: Client, message: Message,
         else:
             as_copy = True
 
-        # Temporary for animated stickers
-        if not (message.text or message.media):
-            as_copy = False
-
         # Check to see if the bot knows which message shall be replied to
         reply_mid = None
         if message.reply_to_message:
@@ -301,12 +298,30 @@ def deliver_message(client: Client, message: Message,
                 else:
                     # If message is edited, check to see if the bot knows which message is corresponding
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
-                    if chat_id != glovar.host_id and origin_mid and message.text:
-                        result = client.edit_message_text(
-                            chat_id=chat_id,
-                            message_id=origin_mid,
-                            text=message.text
-                        )
+                    if chat_id != glovar.host_id and origin_mid:
+                        if message.text:
+                            result = client.edit_message_text(
+                                chat_id=chat_id,
+                                message_id=origin_mid,
+                                text=message.text
+                            )
+                        else:
+                            # Check if the old message is replied to a message
+                            old_message = get_message(client, chat_id, origin_mid)
+                            if old_message and old_message.reply_to_message:
+                                rid = old_message.reply_to_message.message_id
+                            else:
+                                rid = None
+
+                            # Send new message and delete the old one
+                            result = forward(
+                                self=message,
+                                chat_id=chat_id,
+                                as_copy=as_copy,
+                                reply_to_message_id=rid
+                            )
+                            if result:
+                                delete_message(client, chat_id, origin_mid)
                     # Guest's edited message / Can't find origin message / Not a text message, so bot resend the message
                     else:
                         result = forward(
