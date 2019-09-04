@@ -222,28 +222,28 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                         text += f"状态：{code('已重新发送并撤回旧消息')}\n"
                     else:
                         text += f"状态：{code('已发送')}\n"
-
-                    forward_mid = result.message_id
-                    data = button_data("recall", "single", forward_mid)
-                    markup = InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    "撤回",
-                                    callback_data=data
-                                )
-                            ]
-                        ]
-                    )
-
-                    # Record the message's id
-                    add_id(cid, forward_mid, "host")
-                    reply_id(mid, forward_mid, cid, "host")
-                    reply_id(forward_mid, mid, cid, "guest")
                 else:
                     text += f"状态：{code('已编辑')}\n"
-                    markup = None
 
+                forward_mid = result.message_id
+                data = button_data("recall", "single", forward_mid)
+                markup = InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                "撤回",
+                                callback_data=data
+                            )
+                        ]
+                    ]
+                )
+
+                # Record the message's id
+                add_id(cid, forward_mid, "host")
+                reply_id(mid, forward_mid, cid, "host")
+                reply_id(forward_mid, mid, cid, "guest")
+
+                # Send report message
                 thread(send_message, (client, hid, text, mid, markup))
 
                 return True
