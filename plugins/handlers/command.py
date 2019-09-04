@@ -249,7 +249,7 @@ def recall(client: Client, message: Message) -> bool:
         recall_mid, cid = get_guest(message)
         if cid:
             command_type = get_command_type(message)
-            text = f"对话 ID：[{cid}](tg://user?id={cid})\n"
+            text = f"对话 ID：{code(cid)}\n"
             if not command_type:
                 text += f"请选择要撤回全部消息的类别：\n"
                 data_host = button_data("recall", "host", str(cid))
