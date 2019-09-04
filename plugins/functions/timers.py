@@ -74,6 +74,18 @@ def reset_data() -> bool:
     return False
 
 
+def reset_direct() -> bool:
+    # Reset direct chat every day
+    try:
+        glovar.direct_chat = 0
+
+        return True
+    except Exception as e:
+        logger.warning(f"Reset direct error: {e}", exc_info=True)
+
+    return False
+
+
 def update_status(client: Client) -> bool:
     # Update running status to BACKUP
     try:

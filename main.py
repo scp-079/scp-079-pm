@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import interval_min_15, interval_sec_05, reset_data, update_status
+from plugins.functions.timers import interval_min_15, interval_sec_05, reset_data, reset_direct, update_status
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -44,6 +44,7 @@ if glovar.exchange_channel_id:
 
 scheduler.add_job(interval_sec_05, "interval", seconds=5)
 scheduler.add_job(interval_min_15, "interval", minutes=15)
+scheduler.add_job(reset_direct, "cron", hour=18)
 scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
 scheduler.start()
 
