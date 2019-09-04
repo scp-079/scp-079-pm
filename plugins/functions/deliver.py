@@ -215,27 +215,36 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         mid = message.message_id
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
-            if result and isinstance(result, Message) and not result.edit_date:
-                text = (f"发送至 ID：{code(cid)}\n"
-                        f"状态：{code('已发送')}\n")
-                forward_mid = result.message_id
-                data = button_data("recall", "single", forward_mid)
-                markup = InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton(
-                                "撤回",
-                                callback_data=data
-                            )
-                        ]
-                    ]
-                )
-                thread(send_message, (client, hid, text, mid, markup))
+            if result and isinstance(result, Message):
+                text = f"发送至 ID：{code(cid)}\n"
+                if not result.edit_date:
+                    if message.edit_date:
+                        text += f"状态：{code('已重新发送并撤回旧消息')}\n"
+                    else:
+                        text += f"状态：{code('已发送')}\n"
 
-                # Record the message's id
-                add_id(cid, forward_mid, "host")
-                reply_id(mid, forward_mid, cid, "host")
-                reply_id(forward_mid, mid, cid, "guest")
+                    forward_mid = result.message_id
+                    data = button_data("recall", "single", forward_mid)
+                    markup = InlineKeyboardMarkup(
+                        [
+                            [
+                                InlineKeyboardButton(
+                                    "撤回",
+                                    callback_data=data
+                                )
+                            ]
+                        ]
+                    )
+
+                    # Record the message's id
+                    add_id(cid, forward_mid, "host")
+                    reply_id(mid, forward_mid, cid, "host")
+                    reply_id(forward_mid, mid, cid, "guest")
+                else:
+                    text += f"状态：{code('已编辑')}\n"
+                    markup = None
+
+                thread(send_message, (client, hid, text, mid, markup))
 
                 return True
         else:
