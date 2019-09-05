@@ -142,7 +142,7 @@ def get_full_name(user: User) -> str:
     return text
 
 
-def get_int(text: str) -> int:
+def get_int(text: str) -> Optional[int]:
     # Get a int from a string
     result = None
     try:
