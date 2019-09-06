@@ -27,6 +27,17 @@ from .. import glovar
 logger = logging.getLogger(__name__)
 
 
+def is_from_user(_, message: Message) -> bool:
+    # Check if the message is sent from a user
+    try:
+        if message.from_user:
+            return True
+    except Exception as e:
+        logger.warning(f"Is from user error: {e}", exc_info=True)
+
+    return False
+
+
 def is_hide_channel(_, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
@@ -82,6 +93,12 @@ def is_test_group(_, message: Message) -> bool:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 
     return False
+
+
+from_user = Filters.create(
+    func=is_from_user,
+    name="From User"
+)
 
 
 hide_channel = Filters.create(

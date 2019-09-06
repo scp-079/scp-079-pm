@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.etc import bold, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
-from ..functions.filters import hide_channel, host_chat, limited_user
+from ..functions.filters import from_user, hide_channel, host_chat, limited_user
 from ..functions.ids import add_id, count_id
 from ..functions.receive import receive_text_data
 
@@ -31,7 +31,7 @@ from ..functions.receive import receive_text_data
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
+@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
@@ -52,7 +52,7 @@ def count(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & host_chat
+@Client.on_message(Filters.private & Filters.incoming & from_user & host_chat
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
@@ -82,7 +82,7 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~host_chat & ~limited_user
+@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
 def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
