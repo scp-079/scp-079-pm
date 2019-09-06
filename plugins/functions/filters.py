@@ -100,7 +100,6 @@ from_user = Filters.create(
     name="From User"
 )
 
-
 hide_channel = Filters.create(
     func=is_hide_channel,
     name="Hide Channel"
