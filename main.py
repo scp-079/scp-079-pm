@@ -30,12 +30,11 @@ from plugins.functions.timers import interval_min_15, interval_sec_05, reset_dat
 # Enable logging
 logger = logging.getLogger(__name__)
 
-# Start
+# Config session
 app = Client(
     session_name="bot",
     bot_token=glovar.bot_token
 )
-app.start()
 
 # Timer
 scheduler = BackgroundScheduler()
