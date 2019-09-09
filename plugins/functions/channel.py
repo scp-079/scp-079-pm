@@ -94,7 +94,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             )
             result = send_message(client, channel_id, text)
             # Sending failed due to channel issue
-            if result is False:
+            if result is False and not glovar.should_hide:
                 # Use hide channel instead
                 exchange_to_hide(client)
                 thread(share_data, (client, receivers, action, action_type, data))
