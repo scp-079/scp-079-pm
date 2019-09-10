@@ -157,11 +157,9 @@ def get_text(message: Message) -> str:
     # Get message's text
     text = ""
     try:
-        if message.text or message.caption:
-            if message.text:
-                text += message.text
-            else:
-                text += message.caption
+        the_text = message.text or message.caption
+        if the_text:
+            text += the_text
     except Exception as e:
         logger.warning(f"Get text error: {e}", exc_info=True)
 
