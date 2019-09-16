@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import bold, thread
+from ..functions.etc import code, bold, general_link, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
 from ..functions.filters import from_user, hide_channel, host_chat, limited_user
 from ..functions.ids import add_id, count_id
@@ -98,7 +98,7 @@ def deliver_to_host(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.channel & hide_channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
-def exchange_emergency(_: Client, message: Message) -> bool:
+def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
@@ -116,6 +116,11 @@ def exchange_emergency(_: Client, message: Message) -> bool:
                             glovar.should_hide = data
                         elif data is False and sender == "MANAGE":
                             glovar.should_hide = data
+
+                        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
+                                f"执行操作：{code('频道转移')}\n"
+                                f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
+                        thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:

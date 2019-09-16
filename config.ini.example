@@ -20,6 +20,7 @@ prefix = /!
 
 [channels]
 critical_channel_id = 0
+debug_channel_id = 0
 exchange_channel_id = 0
 hide_channel_id = 0
 test_group_id = 0
@@ -27,4 +28,6 @@ test_group_id = 0
 [custom]
 host_id = [DATA EXPUNGED]
 host_name = [DATA EXPUNGED]
+project_link = [DATA EXPUNGED]
+project_name = [DATA EXPUNGED]
 reset_day = [DATA EXPUNGED]

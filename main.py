@@ -38,11 +38,11 @@ app = Client(
 
 # Timer
 scheduler = BackgroundScheduler()
+scheduler.add_job(interval_sec_05, "interval", seconds=5)
+scheduler.add_job(interval_min_15, "interval", minutes=15)
 if glovar.exchange_channel_id:
     scheduler.add_job(update_status, "cron", [app], minute=30)
 
-scheduler.add_job(interval_sec_05, "interval", seconds=5)
-scheduler.add_job(interval_min_15, "interval", minutes=15)
 scheduler.add_job(reset_direct, "cron", hour=18)
 scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
 scheduler.start()

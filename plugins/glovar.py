@@ -66,6 +66,7 @@ prefix_str: str = "/!"
 
 # [channels]
 critical_channel_id: int = 0
+debug_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
 test_group_id: int = 0
@@ -73,6 +74,8 @@ test_group_id: int = 0
 # [custom]
 host_id: int = 0
 host_name: str = ""
+project_link: str = ""
+project_name: str = ""
 reset_day: str = ""
 
 try:
@@ -83,12 +86,15 @@ try:
     prefix = list(config["basic"].get("prefix", prefix_str))
     # [channels]
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
+    debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
     host_id = int(config["custom"].get("host_id", host_id))
     host_name = config["custom"].get("host_name", host_name)
+    project_link = config["custom"].get("project_link", project_link)
+    project_name = config["custom"].get("project_name", project_name)
     reset_day = config["custom"].get("reset_day", reset_day)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
