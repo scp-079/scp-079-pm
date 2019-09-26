@@ -70,7 +70,7 @@ def forward(
     reply_to_message_id: int = None
 ) -> "Message":
     # Redefine the "forward" bound method of "Message", see:
-    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2558
+    # https://github.com/pyrogram/pyrogram/blob/develop/pyrogram/client/types/messages_and_media/message.py#L2570
     if as_copy:
         if self.service:
             raise ValueError("Unable to copy service messages")
@@ -99,20 +99,28 @@ def forward(
 
             if self.photo:
                 file_id = self.photo.file_id
+                file_ref = self.photo.file_ref
             elif self.audio:
                 file_id = self.audio.file_id
+                file_ref = self.audio.file_ref
             elif self.document:
                 file_id = self.document.file_id
+                file_ref = self.document.file_ref
             elif self.video:
                 file_id = self.video.file_id
+                file_ref = self.video.file_ref
             elif self.animation:
                 file_id = self.animation.file_id
+                file_ref = self.animation.file_ref
             elif self.voice:
                 file_id = self.voice.file_id
+                file_ref = self.voice.file_ref
             elif self.sticker:
                 file_id = self.sticker.file_id
+                file_ref = self.sticker.file_ref
             elif self.video_note:
                 file_id = self.video_note.file_id
+                file_ref = self.video_note.file_ref
             elif self.contact:
                 return self._client.send_contact(
                     chat_id,
@@ -162,9 +170,9 @@ def forward(
                 raise ValueError("Unknown media type")
 
             if self.sticker or self.video_note:  # Sticker and VideoNote should have no caption
-                return send_media(file_id=file_id)
+                return send_media(file_id=file_id, file_ref=file_ref)
             else:
-                return send_media(file_id=file_id, caption=caption, parse_mode="html")
+                return send_media(file_id=file_id, file_ref=file_ref, caption=caption, parse_mode="html")
         else:
             raise ValueError("Can't copy this message")
     else:
@@ -172,7 +180,7 @@ def forward(
             chat_id=chat_id,
             from_chat_id=self.chat.id,
             message_ids=self.message_id,
-            disable_notification=disable_notification,
+            disable_notification=disable_notification
         )
 
 

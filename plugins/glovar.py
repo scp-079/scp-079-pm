@@ -33,30 +33,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Init
-
-all_commands: List[str] = [
-    "block",
-    "clear",
-    "direct",
-    "leave",
-    "mention",
-    "now",
-    "ping",
-    "recall",
-    "start",
-    "unblock",
-    "version"
-]
-
-sender: str = "PM"
-
-should_hide: bool = False
-
-version: str = "0.4.1"
-
-direct_chat: int = 0
-
 # Read data from config.ini
 
 # [basic]
@@ -72,11 +48,13 @@ hide_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
+backup: Union[str, bool] = ""
 host_id: int = 0
 host_name: str = ""
 project_link: str = ""
 project_name: str = ""
 reset_day: str = ""
+zh_cn: Union[str, bool] = ""
 
 try:
     config = RawConfigParser()
@@ -91,11 +69,15 @@ try:
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
+    backup = config["custom"].get("backup", backup)
+    backup = eval(backup)
     host_id = int(config["custom"].get("host_id", host_id))
     host_name = config["custom"].get("host_name", host_name)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     reset_day = config["custom"].get("reset_day", reset_day)
+    zh_cn = config["custom"].get("zh_cn", zh_cn)
+    zh_cn = eval(zh_cn)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
 
@@ -104,9 +86,44 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
         or host_id == 0
         or host_name in {"", "[DATA EXPUNGED]"}
-        or reset_day in {"", "[DATA EXPUNGED]"}):
+        or reset_day in {"", "[DATA EXPUNGED]"}
+        or zh_cn not in {False, True}):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
+
+# Init
+
+all_commands: List[str] = [
+    "block",
+    "clear",
+    "direct",
+    "leave",
+    "mention",
+    "now",
+    "ping",
+    "recall",
+    "start",
+    "status",
+    "unblock",
+    "version"
+]
+
+flood_ids: Dict[str, Union[Dict[int, int], set]] = {
+    "users": set(),
+    "counts": {}
+}
+# flood_ids = {
+#     "users": {12345678},
+#     "counts": {12345678: 0}
+# }
+
+sender: str = "PM"
+
+should_hide: bool = False
+
+version: str = "0.4.2"
+
+direct_chat: int = 0
 
 # Load data from pickle
 
@@ -124,15 +141,6 @@ for path in ["data", "tmp"]:
 
 blacklist_ids: Set[int] = set()
 # blacklist_ids = {12345678}
-
-flood_ids: Dict[str, Union[Dict[int, int], set]] = {
-    "users": set(),
-    "counts": {}
-}
-# flood_ids = {
-#     "users": {12345678},
-#     "counts": {12345678: 0}
-# }
 
 message_ids: Dict[int, Dict[str, Set[int]]] = {}
 # message_ids = {
@@ -155,8 +163,12 @@ reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
 #     }
 # }
 
-# Load ids data
-file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids"]
+# Init data variables
+
+status: str = ""
+
+# Load data
+file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids", "status"]
 for file in file_list:
     try:
         try:

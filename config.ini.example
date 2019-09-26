@@ -26,8 +26,10 @@ hide_channel_id = 0
 test_group_id = 0
 
 [custom]
+backup = False
 host_id = [DATA EXPUNGED]
 host_name = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]
 reset_day = [DATA EXPUNGED]
+zh_cn = [DATA EXPUNGED]
