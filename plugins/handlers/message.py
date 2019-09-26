@@ -31,8 +31,7 @@ from ..functions.receive import receive_text_data
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=1)
+@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user, group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     try:
