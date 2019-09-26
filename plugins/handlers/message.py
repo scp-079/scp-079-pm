@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.etc import code, bold, general_link, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
-from ..functions.filters import from_user, hide_channel, host_chat, limited_user
+from ..functions.filters import from_user, hide_channel, host_chat, is_limited_user, limited_user
 from ..functions.ids import add_id, count_id
 from ..functions.receive import receive_text_data
 
@@ -55,6 +55,7 @@ def count(client: Client, message: Message) -> bool:
                    & ~Filters.command(glovar.all_commands, glovar.prefix))
 def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
+    glovar.locks["message"].acquire()
     try:
         hid = message.chat.id
         mid = message.message_id
@@ -77,6 +78,8 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Deliver to guest error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
@@ -85,12 +88,19 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
                    & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
 def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
+    glovar.locks["message"].acquire()
     try:
+        # Check the limit status
+        if is_limited_user(None, message):
+            return True
+        
         thread(deliver_guest_message, (client, message))
 
         return True
     except Exception as e:
         logger.warning(f"Deliver to host error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 

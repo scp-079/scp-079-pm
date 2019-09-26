@@ -22,6 +22,7 @@ from configparser import RawConfigParser
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
+from threading import Lock
 from typing import List, Dict, Set, Tuple, Union
 
 # Enable logging
@@ -125,6 +126,10 @@ flood_ids: Dict[str, Union[Dict[int, int], set]] = {
 #     "users": {12345678},
 #     "counts": {12345678: 0}
 # }
+
+locks: Dict[str, Lock] = {
+    "message": Lock()
+}
 
 sender: str = "PM"
 

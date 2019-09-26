@@ -310,6 +310,7 @@ def recall(client: Client, message: Message) -> bool:
                    & Filters.command(["start"], glovar.prefix))
 def start(client: Client, message: Message) -> bool:
     # Send welcome message
+    glovar.locks["message"].acquire()
     try:
         uid = message.from_user.id
         mid = message.message_id
@@ -339,6 +340,8 @@ def start(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Start error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
