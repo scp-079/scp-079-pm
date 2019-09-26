@@ -27,6 +27,9 @@ test_group_id = 0
 
 [custom]
 backup = False
+flood_ban = [DATA EXPUNGED]
+flood_limit = [DATA EXPUNGED]
+flood_time = [DATA EXPUNGED]
 host_id = [DATA EXPUNGED]
 host_name = [DATA EXPUNGED]
 project_link = [DATA EXPUNGED]

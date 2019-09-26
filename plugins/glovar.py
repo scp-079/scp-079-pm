@@ -49,6 +49,9 @@ test_group_id: int = 0
 
 # [custom]
 backup: Union[str, bool] = ""
+flood_ban: int = 0
+flood_limit: int = 0
+flood_time: int = 0
 host_id: int = 0
 host_name: str = ""
 project_link: str = ""
@@ -71,6 +74,9 @@ try:
     # [custom]
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
+    flood_ban = int(config["custom"].get("flood_ban", flood_ban))
+    flood_limit = int(config["custom"].get("flood_limit", flood_limit))
+    flood_time = int(config["custom"].get("flood_time", flood_time))
     host_id = int(config["custom"].get("host_id", host_id))
     host_name = config["custom"].get("host_name", host_name)
     project_link = config["custom"].get("project_link", project_link)
@@ -84,6 +90,9 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+        or flood_ban == 0
+        or flood_limit == 0
+        or flood_time == 0
         or host_id == 0
         or host_name in {"", "[DATA EXPUNGED]"}
         or reset_day in {"", "[DATA EXPUNGED]"}
@@ -121,7 +130,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.4.2"
+version: str = "0.4.3"
 
 direct_chat: int = 0
 

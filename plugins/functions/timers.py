@@ -28,8 +28,8 @@ from .file import save
 logger = logging.getLogger(__name__)
 
 
-def interval_sec_05() -> bool:
-    # Execute very 5 seconds
+def interval_sec() -> bool:
+    # Execute very N seconds
     try:
         # Clear the user's flood counts
         for uid in list(glovar.flood_ids["counts"]):
@@ -37,20 +37,20 @@ def interval_sec_05() -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Interval sec 05 error: {e}", exc_info=True)
+        logger.warning(f"Interval sec error: {e}", exc_info=True)
 
     return False
 
 
-def interval_min_15() -> bool:
-    # Execute very 15 minutes
+def interval_min() -> bool:
+    # Execute very N minutes
     try:
         # Clear the user's flood status
         glovar.flood_ids["users"] = set()
 
         return True
     except Exception as e:
-        logger.warning(f"Interval min 15 error: {e}", exc_info=True)
+        logger.warning(f"Interval min error: {e}", exc_info=True)
 
     return False
 
@@ -86,7 +86,7 @@ def reset_direct() -> bool:
     return False
 
 
-def update_status(client: Client) -> bool:
+def update_status(client: Client, the_type: str) -> bool:
     # Update running status to BACKUP
     try:
         share_data(
@@ -94,11 +94,14 @@ def update_status(client: Client) -> bool:
             receivers=["BACKUP"],
             action="backup",
             action_type="status",
-            data="awake"
+            data={
+                "type": the_type,
+                "backup": glovar.backup
+            }
         )
 
         return True
     except Exception as e:
-        logger.warning(f"Update status error: {e}")
+        logger.warning(f"Update status error: {e}", exc_info=True)
 
     return False

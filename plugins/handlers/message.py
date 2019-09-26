@@ -39,9 +39,9 @@ def count(client: Client, message: Message) -> bool:
         # Count user's messages in 5 seconds
         cid = message.from_user.id
         counts = count_id(cid)
-        if counts == 10:
+        if counts == glovar.flood_limit:
             add_id(cid, 0, "flood")
-            text = (f"您发送的消息过于频繁，请 {bold('15')} 分钟后重试\n"
+            text = (f"您发送的消息过于频繁，请 {bold(glovar.flood_ban)} 分钟后重试\n"
                     f"期间机器人将对您的消息不做任何转发和应答")
             thread(send_message, (client, cid, text))
 
