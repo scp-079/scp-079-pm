@@ -37,11 +37,11 @@ def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     try:
         # Count user's messages
-        cid = message.from_user.id
-        counts = count_id(cid)
+        counts = count_id(message)
 
         # Check the flood status
         if counts >= glovar.flood_limit:
+            cid = message.from_user.id
             add_id(cid, 0, "flood")
             text = lang("description_flood").format(bold(glovar.flood_ban))
             thread(send_message, (client, cid, text))

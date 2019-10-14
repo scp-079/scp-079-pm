@@ -67,7 +67,7 @@ def block(client: Client, message: Message) -> bool:
             text += f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n"
             thread(send_message, (client, hid, text, mid))
         else:
-            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
@@ -111,7 +111,7 @@ def clear(client: Client, message: Message) -> bool:
             text = clear_data(command_type)
             markup = None
         else:
-            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
 
@@ -151,7 +151,7 @@ def direct_chat(client: Client, message: Message) -> bool:
 
             thread(send_message, (client, hid, text, mid))
         else:
-            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
@@ -325,7 +325,7 @@ def recall(client: Client, message: Message) -> bool:
 
             thread(send_message, (client, hid, text, mid, markup))
         else:
-            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
@@ -362,7 +362,7 @@ def start(client: Client, message: Message) -> bool:
                 text = lang("start_host").format(link_text)
             elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
                 link_text = general_link(lang("description"), "https://scp-079.org/pm/")
-                text = lang("start_guest").format(glovar.host_name, link_text)
+                text = lang("start_guest").format(code(glovar.host_name), link_text)
             else:
                 text = ""
 
@@ -394,7 +394,7 @@ def unblock(client: Client, message: Message) -> bool:
         if cid:
             unblock_user(client, hid, cid, mid)
         else:
-            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
