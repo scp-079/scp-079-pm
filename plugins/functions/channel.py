@@ -23,8 +23,9 @@ from typing import List, Union
 from pyrogram import Client
 
 from .. import glovar
-from .etc import code, code_block, thread
-from .telegram import send_message
+from .etc import code, code_block, lang, thread
+from .file import crypt_file, data_to_file, delete_file, get_new_path
+from .telegram import send_document, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -41,9 +42,11 @@ def exchange_to_hide(client: Client) -> bool:
             action_type="hide",
             data=True
         )
-        text = (f"项目编号：{code(glovar.sender)}\n"
-                f"发现状况：{code('数据交换频道失效')}\n"
-                f"自动处理：{code('启用 1 号协议')}\n")
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
+                f"{lang('issue')}{lang('colon')}{code(lang('exchange_invalid'))}\n"
+                f"{lang('auto_fix')}{lang('colon')}{code(lang('protocol_1'))}\n")
         thread(send_message, (client, glovar.critical_channel_id, text))
 
         return True
@@ -73,18 +76,43 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
 
 
 def share_data(client: Client, receivers: List[str], action: str, action_type: str,
-               data: Union[bool, dict, int, str]) -> bool:
-    # Use this function to share data in the exchange channel
+               data: Union[bool, dict, int, str] = None, file: str = None, encrypt: bool = True) -> bool:
+    # Use this function to share data in the channel
     try:
         if glovar.sender in receivers:
             receivers.remove(glovar.sender)
 
-        if receivers:
-            if glovar.should_hide:
-                channel_id = glovar.hide_channel_id
-            else:
-                channel_id = glovar.exchange_channel_id
+        if not receivers:
+            return True
 
+        if glovar.should_hide:
+            channel_id = glovar.hide_channel_id
+        else:
+            channel_id = glovar.exchange_channel_id
+
+        if file:
+            text = format_data(
+                sender=glovar.sender,
+                receivers=receivers,
+                action=action,
+                action_type=action_type,
+                data=data
+            )
+            if encrypt:
+                # Encrypt the file, save to the tmp directory
+                file_path = get_new_path()
+                crypt_file("encrypt", file, file_path)
+            else:
+                # Send directly
+                file_path = file
+
+            result = send_document(client, channel_id, file_path, None, text)
+            # Delete the tmp file
+            if result:
+                for f in {file, file_path}:
+                    if "tmp/" in f:
+                        thread(delete_file, (f,))
+        else:
             text = format_data(
                 sender=glovar.sender,
                 receivers=receivers,
@@ -93,13 +121,14 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                 data=data
             )
             result = send_message(client, channel_id, text)
-            # Sending failed due to channel issue
-            if result is False and not glovar.should_hide:
-                # Use hide channel instead
-                exchange_to_hide(client)
-                thread(share_data, (client, receivers, action, action_type, data))
 
-            return True
+        # Sending failed due to channel issue
+        if result is False and not glovar.should_hide:
+            # Use hide channel instead
+            exchange_to_hide(client)
+            thread(share_data, (client, receivers, action, action_type, data, file, encrypt))
+
+        return True
     except Exception as e:
         logger.warning(f"Share data error: {e}", exc_info=True)
 

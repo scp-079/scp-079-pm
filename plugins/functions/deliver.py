@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_int, get_text, get_full_name, name_mention, thread, wait_flood
+from .etc import button_data, code, code_block, get_int, get_text, get_full_name, lang, name_mention, thread, wait_flood
 from .file import save
 from .group import delete_message, get_message
 from .ids import init_id, remove_id
@@ -42,21 +42,21 @@ def clear_data(data_type: str) -> str:
         if data_type == "messages":
             glovar.message_ids = {}
             save("message_ids")
+
             glovar.reply_ids = {
                 "g2h": {},
                 "h2g": {}
             }
             save("reply_ids")
-            text += f"已清空：{code('消息 ID')}\n"
+
+            text += f"{lang('status_cleared')}{lang('colon')}{code(lang('message_id'))}\n"
         else:
             glovar.blacklist_ids = set()
             save("blacklist_ids")
-            text += f"已清空：{code('黑名单')}\n"
+
+            text += f"{lang('status_cleared')}{lang('colon')}{code(lang('blacklist'))}\n"
     except Exception as e:
         logger.warning(f"Clear data error: {e}", exc_info=True)
-        text += (f"未清空：{code('出现错误')}\n"
-                 f"错误：\n\n"
-                 f"{code_block(e)}\n")
 
     return text
 

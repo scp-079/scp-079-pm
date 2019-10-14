@@ -27,6 +27,8 @@ from typing import Any, Callable, List, Optional, Union
 from pyrogram import InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
 
+from .. import glovar
+
 # Enable logging
 logger = logging.getLogger(__name__)
 
@@ -157,6 +159,9 @@ def get_text(message: Message) -> str:
     # Get message's text
     text = ""
     try:
+        if not message:
+            return ""
+
         the_text = message.text or message.caption
         if the_text:
             text += the_text
@@ -164,6 +169,17 @@ def get_text(message: Message) -> str:
         logger.warning(f"Get text error: {e}", exc_info=True)
 
     return text
+
+
+def lang(text: str) -> str:
+    # Get the text
+    result = ""
+    try:
+        result = glovar.lang.get(text, text)
+    except Exception as e:
+        logger.warning(f"Lang error: {e}", exc_info=True)
+
+    return result
 
 
 def name_mention(user: User) -> str:

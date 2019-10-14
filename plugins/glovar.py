@@ -101,6 +101,47 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
 
+# Languages
+lang: Dict[str, str] = {
+    # Admin
+    "admin": (zh_cn and "管理员") or "Admin",
+    "admin_group": (zh_cn and "群管理") or "Group Admin",
+    "admin_project": (zh_cn and "项目管理员") or "Project Admin",
+    # Basic
+    "action": (zh_cn and "执行操作") or "Action",
+    "clear": (zh_cn and "清空数据") or "Clear Data",
+    "colon": (zh_cn and "：") or ": ",
+    "description": (zh_cn and "说明") or "Description",
+    "disabled": (zh_cn and "禁用") or "Disabled",
+    "enabled": (zh_cn and "启用") or "Enabled",
+    "name": (zh_cn and "名称") or "Name",
+    "reason": (zh_cn and "原因") or "Reason",
+    "reset": (zh_cn and "重置数据") or "Reset Data",
+    "rollback": (zh_cn and "数据回滚") or "Rollback",
+    "score": (zh_cn and "评分") or "Score",
+    "status_failed": (zh_cn and "未执行") or "Failed",
+    "version": (zh_cn and "版本") or "Version",
+    # Command
+    "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
+    "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
+    "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
+    "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
+    # Debug
+    "triggered_by": (zh_cn and "触发消息") or "Triggered By",
+    # Emergency
+    "issue": (zh_cn and "发现状况") or "Issue",
+    "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
+    "auto_fix": (zh_cn and "自动处理") or "Auto Fix",
+    "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
+    "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
+    "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
+    # Data
+    "blacklist": (zh_cn and "黑名单") or "Blacklist",
+    "message_id": (zh_cn and "消息 ID") or "Message ID",
+    # Status
+    "status_cleared": (zh_cn and "已清空") or "Cleared",
+}
+
 # Init
 
 all_commands: List[str] = [
