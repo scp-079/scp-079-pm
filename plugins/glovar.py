@@ -60,6 +60,9 @@ project_name: str = ""
 reset_day: str = ""
 zh_cn: Union[str, bool] = ""
 
+# [encrypt]
+password: str = ""
+
 try:
     config = RawConfigParser()
     config.read("config.ini")
@@ -85,6 +88,8 @@ try:
     reset_day = config["custom"].get("reset_day", reset_day)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
+    # [encrypt]
+    password = config["encrypt"].get("password", password)
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}")
 

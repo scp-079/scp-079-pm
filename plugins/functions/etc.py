@@ -19,7 +19,8 @@
 import logging
 from html import escape
 from json import dumps, loads
-from random import uniform
+from random import choice, uniform
+from string import ascii_letters, digits
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, List, Optional, Union
@@ -186,12 +187,25 @@ def name_mention(user: User) -> str:
     # Get a mention text with user's name
     text = ""
     try:
-        if user:
-            name = get_full_name(user)
-            uid = user.id
-            text = general_link(f"{name}", f"tg://user?id={uid}")
+        if not user:
+            return ""
+
+        name = get_full_name(user)
+        uid = user.id
+        text = general_link(f"{name}", f"tg://user?id={uid}")
     except Exception as e:
         logger.warning(f"Name mention error: {e}", exc_info=True)
+
+    return text
+
+
+def random_str(i: int) -> str:
+    # Get a random string
+    text = ""
+    try:
+        text = "".join(choice(ascii_letters + digits) for _ in range(i))
+    except Exception as e:
+        logger.warning(f"Random str error: {e}", exc_info=True)
 
     return text
 
