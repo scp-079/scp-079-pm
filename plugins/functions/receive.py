@@ -17,14 +17,79 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import pickle
 from json import loads
+from typing import Any
 
-from pyrogram import Message
+from pyrogram import Client, Message
 
-from .etc import get_text
+from .. import glovar
+from .etc import code, general_link,  get_text, lang
+from .etc import thread, user_mention
+from .file import crypt_file, delete_file, get_new_path, get_downloaded_path, save
+from .telegram import send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
+    # Receive file's data from exchange channel
+    data = None
+    try:
+        if not message.document:
+            return None
+
+        file_id = message.document.file_id
+        file_ref = message.document.file_ref
+        path = get_downloaded_path(client, file_id, file_ref)
+
+        if not path:
+            return None
+
+        if decrypt:
+            # Decrypt the file, save to the tmp directory
+            path_decrypted = get_new_path()
+            crypt_file("decrypt", path, path_decrypted)
+            path_final = path_decrypted
+        else:
+            # Read the file directly
+            path_decrypted = ""
+            path_final = path
+
+        with open(path_final, "rb") as f:
+            data = pickle.load(f)
+
+        for f in {path, path_decrypted}:
+            thread(delete_file, (f,))
+    except Exception as e:
+        logger.warning(f"Receive file error: {e}", exc_info=True)
+
+    return data
+
+
+def receive_rollback(client: Client, message: Message, data: dict) -> bool:
+    # Receive rollback data
+    try:
+        # Basic data
+        aid = data["admin_id"]
+        the_type = data["type"]
+        the_data = receive_file_data(client, message)
+
+        if the_data:
+            exec(f"glovar.{the_type} = the_data")
+            save(the_type)
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('admin_project')}{lang('colon')}{user_mention(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('rollback'))}\n"
+                f"{lang('more')}{lang('colon')}{code(the_type)}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
+    except Exception as e:
+        logger.warning(f"Receive rollback error: {e}", exc_info=True)
+
+    return False
 
 
 def receive_text_data(message: Message) -> dict:

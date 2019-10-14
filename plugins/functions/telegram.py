@@ -49,6 +49,24 @@ def answer_callback(client: Client, query_id: str, text: str) -> Optional[bool]:
     return result
 
 
+def download_media(client: Client, file_id: str, file_ref: str, file_path: str):
+    # Download a media file
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.download_media(message=file_id, file_ref=file_ref, file_name=file_path)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Download media {file_id} to {file_path} error: {e}", exc_info=True)
+
+    return result
+
+
 def edit_message_reply_markup(client: Client, cid: int, mid: int,
                               markup: InlineKeyboardMarkup) -> Optional[Union[bool, Message]]:
     # Edit the message's reply markup
@@ -77,22 +95,24 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     # Edit the message's text
     result = None
     try:
-        if text.strip():
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.edit_message_text(
-                        chat_id=cid,
-                        message_id=mid,
-                        text=text,
-                        parse_mode="html",
-                        disable_web_page_preview=True,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
+        if not text.strip():
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.edit_message_text(
+                    chat_id=cid,
+                    message_id=mid,
+                    text=text,
+                    parse_mode="html",
+                    disable_web_page_preview=True,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
     except Exception as e:
         logger.warning(f"Edit message in {cid} error: {e}", exc_info=True)
 
@@ -172,29 +192,60 @@ def get_start(client: Client, para: str) -> str:
     return result
 
 
+def send_document(client: Client, cid: int, document: str, file_ref: str = None, caption: str = "", mid: int = None,
+                  markup: InlineKeyboardMarkup = None) -> Optional[Union[bool, Message]]:
+    # Send a document to a chat
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.send_document(
+                    chat_id=cid,
+                    document=document,
+                    file_ref=file_ref,
+                    caption=caption,
+                    parse_mode="html",
+                    reply_to_message_id=mid,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return False
+    except Exception as e:
+        logger.warning(f"Send document to {cid} error: {e}", exec_info=True)
+
+    return result
+
+
 def send_message(client: Client, cid: int, text: str, mid: int = None,
                  markup: InlineKeyboardMarkup = None) -> Optional[Union[bool, Message]]:
     # Send a message to a chat
     result = None
     try:
-        if text.strip():
-            flood_wait = True
-            while flood_wait:
-                flood_wait = False
-                try:
-                    result = client.send_message(
-                        chat_id=cid,
-                        text=text,
-                        parse_mode="html",
-                        disable_web_page_preview=True,
-                        reply_to_message_id=mid,
-                        reply_markup=markup
-                    )
-                except FloodWait as e:
-                    flood_wait = True
-                    wait_flood(e)
-                except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
-                    return False
+        if not text.strip():
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.send_message(
+                    chat_id=cid,
+                    text=text,
+                    parse_mode="html",
+                    disable_web_page_preview=True,
+                    reply_to_message_id=mid,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return False
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
