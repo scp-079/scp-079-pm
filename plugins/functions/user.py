@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client
 
 from .. import glovar
-from .etc import code, thread, user_mention
+from .etc import code, lang, thread, user_mention
 from .ids import remove_id
 from .telegram import send_message
 
@@ -30,15 +30,16 @@ logger = logging.getLogger(__name__)
 
 
 def unblock_user(client: Client, hid: int, cid: int, mid: int) -> bool:
+    # Unblock a user
     try:
         if cid in glovar.blacklist_ids:
             remove_id(cid, 0, "blacklist")
-            text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('已解禁')}\n")
+            text = (f"{lang('user_id')}{lang('colon')}{user_mention(cid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_unblocked'))}\n")
         else:
-            text = (f"用户 ID：{user_mention(cid)}\n"
-                    f"状态：{code('操作失败')}\n"
-                    f"原因：{code('该用户不在黑名单中')}\n")
+            text = (f"{lang('user_id')}{lang('colon')}{user_mention(cid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")
 
         thread(send_message, (client, hid, text, mid))
 

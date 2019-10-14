@@ -161,6 +161,7 @@ lang: Dict[str, str] = {
     # Special
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
     "reason_blacklist": (zh_cn and "该用户在黑名单中") or "The User is in the Blacklist",
+    "reason_not_blocked": (zh_cn and "该用户不在黑名单中") or "The User is Not Blocked",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
@@ -174,6 +175,7 @@ lang: Dict[str, str] = {
     "status_recalled_all_host": (zh_cn and "已撤回由您发送的全部消息") or "Recalled All Messages from You",
     "status_recalled_none": (zh_cn and "没有可撤回的消息") or "Recalled No Messages",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
+    "status_unblocked": (zh_cn and "已解禁") or "Unblocked",
 }
 
 # Init

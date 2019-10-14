@@ -122,11 +122,13 @@ def save(file: str) -> bool:
 def save_thread(file: str) -> bool:
     # Save function's thread
     try:
-        if glovar:
-            with open(f"data/.{file}", "wb") as f:
-                dump(eval(f"glovar.{file}"), f)
+        if not glovar:
+            return True
 
-            copyfile(f"data/.{file}", f"data/{file}")
+        with open(f"data/.{file}", "wb") as f:
+            dump(eval(f"glovar.{file}"), f)
+
+        copyfile(f"data/.{file}", f"data/{file}")
 
         return True
     except Exception as e:
