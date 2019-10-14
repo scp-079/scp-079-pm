@@ -109,25 +109,25 @@ lang: Dict[str, str] = {
     "admin_project": (zh_cn and "项目管理员") or "Project Admin",
     # Basic
     "action": (zh_cn and "执行操作") or "Action",
-    "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
     "description": (zh_cn and "说明") or "Description",
     "disabled": (zh_cn and "禁用") or "Disabled",
     "enabled": (zh_cn and "启用") or "Enabled",
-    "name": (zh_cn and "名称") or "Name",
+    "error": (zh_cn and "错误") or "Error",
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
     "rollback": (zh_cn and "数据回滚") or "Rollback",
-    "score": (zh_cn and "评分") or "Score",
     "status_failed": (zh_cn and "未执行") or "Failed",
+    "type": (zh_cn and "类别") or "Type",
     "version": (zh_cn and "版本") or "Version",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
     "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
     "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
-    # Debug
-    "triggered_by": (zh_cn and "触发消息") or "Triggered By",
+    # Data
+    "blacklist": (zh_cn and "黑名单") or "Blacklist",
+    "message_id": (zh_cn and "消息 ID") or "Message ID",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -135,11 +135,39 @@ lang: Dict[str, str] = {
     "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
     "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
     "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
-    # Data
-    "blacklist": (zh_cn and "黑名单") or "Blacklist",
-    "message_id": (zh_cn and "消息 ID") or "Message ID",
+    # Record
+    "project": (zh_cn and "项目编号") or "Project",
+    "project_origin": (zh_cn and "原始项目") or "Original Project",
+    "status": (zh_cn and "状态") or "Status",
+    "user_id": (zh_cn and "用户 ID") or "User ID",
+    "level": (zh_cn and "操作等级") or "Level",
+    "rule": (zh_cn and "规则") or "Rule",
+    "message_type": (zh_cn and "消息类别") or "Message Type",
+    "message_game": (zh_cn and "游戏标识") or "Game Short Name",
+    "message_lang": (zh_cn and "消息语言") or "Message Language",
+    "message_len": (zh_cn and "消息长度") or "Message Length",
+    "message_freq": (zh_cn and "消息频率") or "Message Frequency",
+    "user_score": (zh_cn and "用户得分") or "User Score",
+    "user_bio": (zh_cn and "用户简介") or "User Bio",
+    "user_name": (zh_cn and "用户昵称") or "User Name",
+    "from_name": (zh_cn and "来源名称") or "Forward Name",
+    "more": (zh_cn and "附加信息") or "Extra Info",
+    # Special
+    "chat_id": (zh_cn and "对话 ID") or "Chat ID",
+    "reason_blacklist": (zh_cn and "该用户在黑名单中") or "The User is in the Blacklist",
+    "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
+    "recall": (zh_cn and "撤回") or "Recall",
+    "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     # Status
     "status_cleared": (zh_cn and "已清空") or "Cleared",
+    "status_delivered": (zh_cn and "已发送") or "Delivered",
+    "status_edited": (zh_cn and "已编辑") or "Edited",
+    "status_error": (zh_cn and "出现错误") or "Error Occurred",
+    "status_recalled": (zh_cn and "已撤回") or "Recalled",
+    "status_recalled_all": (zh_cn and "已撤回全部消息") or "Recalled All Messages",
+    "status_recalled_all_host": (zh_cn and "已撤回由您发送的全部消息") or "Recalled All Messages from You",
+    "status_recalled_none": (zh_cn and "没有可撤回的消息") or "Recalled No Messages",
+    "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
 }
 
 # Init

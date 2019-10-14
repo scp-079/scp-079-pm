@@ -187,29 +187,35 @@ def forward(
 def deliver_guest_message(client: Client, message: Message) -> bool:
     # Deliver guest message to host chat
     try:
+        # Basic data
         hid = glovar.host_id
         cid = message.chat.id
         mid = message.message_id
+
+        # Deliver the message
         result = deliver_message(client, message, hid, mid, "g2h")
-        if result and isinstance(result, Message) and not result.edit_date:
-            text = f"用户 ID：{code(cid)}\n"
-            if message.from_user.username:
-                text += f"昵称：{name_mention(message.from_user)}\n"
-            else:
-                text += f"昵称：{code(get_full_name(message.from_user))}\n"
+        if not result or not isinstance(result, Message) or result.edit_date:
+            return False
 
-            if message.edit_date:
-                text += f"类别：{code('已编辑')}\n"
+        text = f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
 
-            forward_mid = result.message_id
-            thread(send_message, (client, hid, text, forward_mid))
+        if message.from_user.username:
+            text += f"{lang('user_name')}{lang('colon')}{name_mention(message.from_user)}\n"
+        else:
+            text += f"{lang('user_name')}{lang('colon')}{code(get_full_name(message.from_user))}\n"
 
-            # Record the message's id
-            add_id(cid, mid, "guest")
-            reply_id(mid, forward_mid, cid, "guest")
-            reply_id(forward_mid, mid, cid, "host")
+        if message.edit_date:
+            text += f"{lang('type')}{lang('colon')}{code(lang('status_edited'))}\n"
 
-            return True
+        forward_mid = result.message_id
+        thread(send_message, (client, hid, text, forward_mid))
+
+        # Record the message's id
+        add_id(cid, mid, "guest")
+        reply_id(mid, forward_mid, cid, "guest")
+        reply_id(forward_mid, mid, cid, "host")
+
+        return True
     except Exception as e:
         logger.warning(f"Deliver guest message error: {e}", exc_info=True)
 
@@ -219,46 +225,54 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
     # Deliver host message to guest chat
     try:
+        # Basic data
         hid = glovar.host_id
         mid = message.message_id
+
+        # Check the blacklist status
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
-            if result and isinstance(result, Message):
-                text = f"发送至 ID：{code(cid)}\n"
-                if not result.edit_date:
-                    if message.edit_date:
-                        text += f"状态：{code('已重新发送并撤回旧消息')}\n"
-                    else:
-                        text += f"状态：{code('已发送')}\n"
+            if not result or not isinstance(result, Message):
+                return False
+
+            # Text
+            text = f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
+
+            if not result.edit_date:
+                if message.edit_date:
+                    text += f"{lang('status')}{lang('colon')}{code(lang('status_resent'))}\n"
                 else:
-                    text += f"状态：{code('已编辑')}\n"
+                    text += f"{lang('status')}{lang('colon')}{code(lang('status_delivered'))}\n"
+            else:
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_edited'))}\n"
 
-                forward_mid = result.message_id
-                data = button_data("recall", "single", forward_mid)
-                markup = InlineKeyboardMarkup(
+            # Markup
+            forward_mid = result.message_id
+            data = button_data("recall", "single", forward_mid)
+            markup = InlineKeyboardMarkup(
+                [
                     [
-                        [
-                            InlineKeyboardButton(
-                                "撤回",
-                                callback_data=data
-                            )
-                        ]
+                        InlineKeyboardButton(
+                            text=lang("recall"),
+                            callback_data=data
+                        )
                     ]
-                )
+                ]
+            )
 
-                # Record the message's id
-                add_id(cid, forward_mid, "host")
-                reply_id(mid, forward_mid, cid, "host")
-                reply_id(forward_mid, mid, cid, "guest")
+            # Record the message's id
+            add_id(cid, forward_mid, "host")
+            reply_id(mid, forward_mid, cid, "host")
+            reply_id(forward_mid, mid, cid, "guest")
 
-                # Send report message
-                thread(send_message, (client, hid, text, mid, markup))
+            # Send report message
+            thread(send_message, (client, hid, text, mid, markup))
 
-                return True
+            return True
         else:
-            text = (f"发送至 ID：{code(cid)}\n"
-                    f"状态：{code('发送失败')}\n"
-                    f"原因：{code('该用户在黑名单中')}\n")
+            text = (f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
             thread(send_message, (client, hid, text, mid))
     except Exception as e:
         logger.warning(f"Deliver host message error: {e}", exc_info=True)
@@ -269,8 +283,8 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
 def deliver_fail(client: Client, cid: int, mid: int) -> bool:
     # Send a report message when deliver failed
     try:
-        text = (f"状态：{code('发送失败')}\n"
-                f"原因：{code('对方已停用机器人')}\n")
+        text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                f"{lang('reason')}{lang('colon')}{code(lang('reason_stopped'))}\n")
         thread(send_message, (client, cid, text, mid))
 
         return True
@@ -280,8 +294,8 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
     return False
 
 
-def deliver_message(client: Client, message: Message,
-                    chat_id: int, message_id: int, reply_type: str) -> Optional[Message]:
+def deliver_message(client: Client, message: Message, chat_id: int, message_id: int,
+                    reply_type: str) -> Optional[Message]:
     # Deliver a message to guest or host
     result = None
     try:
@@ -297,6 +311,7 @@ def deliver_message(client: Client, message: Message,
             reply_mid = message.reply_to_message.message_id
             reply_mid = glovar.reply_ids[reply_type].get(reply_mid, (None, None))[0]
 
+        # Deliver the message
         flood_wait = True
         while flood_wait:
             flood_wait = False
@@ -312,8 +327,10 @@ def deliver_message(client: Client, message: Message,
                         )
                     else:
                         result = message.forward(chat_id=chat_id)
+
+                # If message is edited
                 else:
-                    # If message is edited, check to see if the bot knows which message is corresponding
+                    # Check to see if the bot knows which message is corresponding
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
                     if chat_id != glovar.host_id and origin_mid:
                         if message.text:
@@ -339,6 +356,7 @@ def deliver_message(client: Client, message: Message,
                             )
                             if result:
                                 delete_message(client, chat_id, origin_mid)
+
                     # Guest's edited message / Can't find origin message / Not a text message, so bot resend the message
                     else:
                         result = forward(
@@ -370,15 +388,18 @@ def get_guest(message: Message) -> (int, int):
     try:
         r_message = message.reply_to_message
         message_text = get_text(r_message)
-        if r_message:
-            # Check to see if bot knows which message is corresponding
-            if glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
-                mid = glovar.reply_ids["h2g"][r_message.message_id][0]
-                cid = glovar.reply_ids["h2g"][r_message.message_id][1]
-            # Else check if the replied message is a valid report message
-            elif (r_message.from_user.is_self
-                    and "ID：" in message_text):
-                cid = get_int(message_text.partition("\n")[0].split("ID：")[1])
+
+        if not r_message:
+            return 0, 0
+
+        # Check to see if bot knows which message is corresponding
+        if glovar.reply_ids["h2g"].get(r_message.message_id, (None, None))[0]:
+            mid = glovar.reply_ids["h2g"][r_message.message_id][0]
+            cid = glovar.reply_ids["h2g"][r_message.message_id][1]
+
+        # Else check if the replied message is a valid report message
+        elif r_message.from_user.is_self and f"ID{lang('colon')}" in message_text:
+            cid = get_int(message_text.partition("\n")[0].split(f"ID{lang('colon')}")[1])
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
@@ -387,22 +408,26 @@ def get_guest(message: Message) -> (int, int):
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
     # Recall messages in a chat
-    text = f"对话 ID：{code(cid)}\n"
+    text = f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
     try:
-        init_id(cid)
+        if not init_id(cid):
+            return text
+
         # Recall single message
         if recall_type == "single":
             thread(delete_messages, (client, cid, [recall_mid]))
             remove_id(cid, recall_mid, "host")
-            text += f"状态：{code('已撤回')}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled'))}\n"
+
         # Recall all host's messages
         elif recall_type == "host":
             if glovar.message_ids[cid]["host"]:
                 thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
                 remove_id(cid, 0, "chat_host")
-                text += f"状态：{code('已撤回由您发送的全部消息')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_all_host'))}\n"
             else:
-                text += f"状态：{code('没有可撤回的消息')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_none'))}\n"
+
         # Recall all messages in a guest's chat
         else:
             if glovar.message_ids[cid]["host"] or glovar.message_ids[cid]["guest"]:
@@ -413,13 +438,13 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
                     thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                 remove_id(cid, 0, "chat_all")
-                text += f"状态：{code('已撤回全部消息')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_all'))}\n"
             else:
-                text += f"状态：{code('没有可撤回的消息')}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_none'))}\n"
     except Exception as e:
         logger.warning(f"Recall message error: {e}", exc_info=True)
-        text += (f"状态：{code('出现错误')}\n"
-                 f"错误：\n\n"
+        text += (f"{lang('status')}{lang('colon')}{code(lang('status_error'))}\n"
+                 f"{lang('error')}{lang('colon')}" + "-" * 24 + "\n\n"
                  f"{code_block(e)}\n")
 
     return text
