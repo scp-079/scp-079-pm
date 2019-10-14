@@ -34,25 +34,30 @@ logger = logging.getLogger(__name__)
 def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
+        # Basic data
         uid = callback_query.from_user.id
         hid = glovar.host_id
-        # Check permission
-        if uid == hid:
-            mid = callback_query.message.message_id
-            callback_data = json.loads(callback_query.data)
-            # If action is recall
-            if callback_data["a"] == "recall":
-                cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
-                text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
-                markup = None
-                thread(edit_message_text, (client, hid, mid, text, markup))
-            # Clear all stored data
-            elif callback_data["a"] == "clear":
-                text = clear_data(callback_data["t"])
-                markup = None
-                thread(edit_message_text, (client, hid, mid, text, markup))
+        mid = callback_query.message.message_id
+        callback_data = json.loads(callback_query.data)
 
-            thread(answer_callback, (client, callback_query.id, ""))
+        # Check permission
+        if not uid == hid:
+            return True
+
+        # Recall messages
+        if callback_data["a"] == "recall":
+            cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
+            text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
+            markup = None
+            thread(edit_message_text, (client, hid, mid, text, markup))
+
+        # Clear all stored data
+        elif callback_data["a"] == "clear":
+            text = clear_data(callback_data["t"])
+            markup = None
+            thread(edit_message_text, (client, hid, mid, text, markup))
+
+        thread(answer_callback, (client, callback_query.id, ""))
 
         return True
     except Exception as e:
