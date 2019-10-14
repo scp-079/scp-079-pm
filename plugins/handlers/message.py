@@ -21,11 +21,12 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import code, bold, general_link, thread
+from ..functions.etc import code, bold, general_link, lang, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
-from ..functions.filters import from_user, hide_channel, host_chat, is_limited_user, limited_user
+from ..functions.filters import exchange_channel, from_user, hide_channel, host_chat, is_limited_user, limited_user
 from ..functions.ids import add_id, count_id
-from ..functions.receive import receive_text_data
+from ..functions.receive import receive_rollback, receive_text_data
+from ..functions.timers import backup_files
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -35,13 +36,14 @@ logger = logging.getLogger(__name__)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     try:
-        # Count user's messages in 5 seconds
+        # Count user's messages
         cid = message.from_user.id
         counts = count_id(cid)
-        if counts == glovar.flood_limit:
+
+        # Check the flood status
+        if counts >= glovar.flood_limit:
             add_id(cid, 0, "flood")
-            text = (f"您发送的消息过于频繁，请 {bold(glovar.flood_ban)} 分钟后重试\n"
-                    f"期间机器人将对您的消息不做任何转发和应答")
+            text = lang("description_flood").format(bold(glovar.flood_ban))
             thread(send_message, (client, cid, text))
 
         return True
@@ -57,21 +59,21 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
     glovar.locks["message"].acquire()
     try:
+        # Basic data
         hid = message.chat.id
         mid = message.message_id
         _, cid = get_guest(message)
+
+        # Deliver the message to guest
         if cid:
             thread(deliver_host_message, (client, message, cid))
         elif glovar.direct_chat:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
         else:
             if not message.forward_date:
-                text = "如需回复某人，请回复某条包含该用户 ID 的汇报消息"
+                text = lang("description_reply")
             else:
-                text = ("如需将消息转发给某人，请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人\n"
-                        "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
-                        "而无需回复带该用户 ID 的汇报消息\n"
-                        "如欲退出与该用户的直接对话，请发送：/leave 指令")
+                text = lang("description_direct")
 
             thread(send_message, (client, hid, text, mid))
 
@@ -94,7 +96,7 @@ def deliver_to_host(client: Client, message: Message) -> bool:
         if is_limited_user(None, message):
             return True
         
-        thread(deliver_guest_message, (client, message))
+        deliver_guest_message(client, message)
 
         return True
     except Exception as e:
@@ -112,27 +114,73 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     try:
         # Read basic information
         data = receive_text_data(message)
-        if data:
-            sender = data["from"]
-            receivers = data["to"]
-            action = data["action"]
-            action_type = data["type"]
-            data = data["data"]
-            if "EMERGENCY" in receivers:
-                if action == "backup":
-                    if action_type == "hide":
-                        if data is True:
-                            glovar.should_hide = data
-                        elif data is False and sender == "MANAGE":
-                            glovar.should_hide = data
+        if not data:
+            return True
 
-                        text = (f"项目编号：{general_link(glovar.project_name, glovar.project_link)}\n"
-                                f"执行操作：{code('频道转移')}\n"
-                                f"应急频道：{code((lambda x: '启用' if x else '禁用')(glovar.should_hide))}\n")
-                        thread(send_message, (client, glovar.debug_channel_id, text))
+        sender = data["from"]
+        receivers = data["to"]
+        action = data["action"]
+        action_type = data["type"]
+        data = data["data"]
+
+        if "EMERGENCY" not in receivers:
+            return True
+
+        if action != "backup":
+            return True
+
+        if action_type != "hide":
+            return True
+
+        if data is True:
+            glovar.should_hide = data
+        elif data is False and sender == "MANAGE":
+            glovar.should_hide = data
+
+        project_text = general_link(glovar.project_name, glovar.project_link)
+        hide_text = (lambda x: lang("enabled") if x else "disabled")(glovar.should_hide)
+        text = (f"{lang('project')}{lang('colon')}{project_text}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('transfer_channel'))}\n"
+                f"{lang('emergency_channel')}{lang('colon')}{code(hide_text)}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+def process_data(client: Client, message: Message) -> bool:
+    # Process the data in exchange channel
+    try:
+        data = receive_text_data(message)
+        if not data:
+            return True
+
+        sender = data["from"]
+        receivers = data["to"]
+        action = data["action"]
+        action_type = data["type"]
+        data = data["data"]
+        # This will look awkward,
+        # seems like it can be simplified,
+        # but this is to ensure that the permissions are clear,
+        # so it is intentionally written like this
+        if glovar.sender in receivers:
+
+            if sender == "MANAGE":
+
+                if action == "backup":
+                    if action_type == "now":
+                        thread(backup_files, (client,))
+                    elif action_type == "rollback":
+                        receive_rollback(client, message, data)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Process data error: {e}", exc_info=True)
 
     return False

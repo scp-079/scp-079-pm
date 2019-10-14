@@ -57,21 +57,7 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def interval_sec() -> bool:
-    # Execute very N seconds
-    try:
-        # Clear the user's flood counts
-        for uid in list(glovar.flood_ids["counts"]):
-            glovar.flood_ids["counts"][uid] = 0
-
-        return True
-    except Exception as e:
-        logger.warning(f"Interval sec error: {e}", exc_info=True)
-
-    return False
-
-
-def interval_min() -> bool:
+def interval_min_n() -> bool:
     # Execute very N minutes
     try:
         # Clear the user's flood status

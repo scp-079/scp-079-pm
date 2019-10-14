@@ -160,6 +160,24 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
+    "description_direct": ((zh_cn and ("如需将消息转发给某人，"
+                                       "请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人\n"
+                                       "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
+                                       "而无需回复带该用户 ID 的汇报消息\n"
+                                       "如欲退出与该用户的直接对话，请发送：/leave 指令\n")
+                            or ("To forward a message to someone, "
+                                "reply with a report message containing the user ID with the /direct command "
+                                "and forward the message to the robot\n"
+                                "Note: A direct conversation with the user will be initiated "
+                                "and any messages you send to the bot will be sent to the user "
+                                "without having to reply to the report message with that user ID\n"
+                                "To quit a direct conversation with this user, please send: /leave command\n"))),
+    "description_flood": ((zh_cn and ("您发送的消息过于频繁，请 {} 分钟后重试\n"
+                                      "期间机器人将对您的消息不做任何转发和应答\n"))
+                          or ("You sent messages too frequently. Please try again in {} minutes\n"
+                              "During this time the bot will not forward and respond to your messages\n")),
+    "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
+                          or "To reply to someone, please reply to a report message containing the user's ID"),
     "reason_blacklist": (zh_cn and "该用户在黑名单中") or "The User is in the Blacklist",
     "reason_not_blocked": (zh_cn and "该用户不在黑名单中") or "The User is Not Blocked",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
@@ -195,24 +213,29 @@ all_commands: List[str] = [
     "version"
 ]
 
-flood_ids: Dict[str, Union[Dict[int, int], set]] = {
+flood_ids: Dict[str, Union[Dict[int, List[float]], Set[int]]] = {
     "users": set(),
     "counts": {}
 }
 # flood_ids = {
 #     "users": {12345678},
-#     "counts": {12345678: 0}
+#     "counts": {
+#           12345678: [1512345678.1234567]
+#      }
 # }
 
 locks: Dict[str, Lock] = {
     "message": Lock()
 }
 
+media_group_ids: Set[int] = set()
+# media_group_ids = {12556677123456789}
+
 sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.4.3"
+version: str = "0.4.5"
 
 direct_chat: int = 0
 

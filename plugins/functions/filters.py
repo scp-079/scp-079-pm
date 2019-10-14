@@ -27,6 +27,22 @@ from .. import glovar
 logger = logging.getLogger(__name__)
 
 
+def is_exchange_channel(_, message: Message) -> bool:
+    # Check if the message is sent from the exchange channel
+    try:
+        if message.chat:
+            cid = message.chat.id
+            if glovar.should_hide:
+                if cid == glovar.hide_channel_id:
+                    return True
+            elif cid == glovar.exchange_channel_id:
+                return True
+    except Exception as e:
+        logger.warning(f"Is exchange channel error: {e}", exc_info=True)
+
+    return False
+
+
 def is_from_user(_, message: Message) -> bool:
     # Check if the message is sent from a user
     try:
@@ -94,6 +110,11 @@ def is_test_group(_, message: Message) -> bool:
 
     return False
 
+
+exchange_channel = Filters.create(
+    func=is_exchange_channel,
+    name="Exchange Channel"
+)
 
 from_user = Filters.create(
     func=is_from_user,

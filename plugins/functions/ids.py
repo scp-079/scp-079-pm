@@ -17,6 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from time import time
+
+from pyrogram import Message
 
 from .. import glovar
 from ..functions.file import save
@@ -51,14 +54,35 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
     return False
 
 
-def count_id(cid: int) -> int:
+def count_id(message: Message) -> int:
     # Count user's messages, plus one, return the total number
     try:
+        if not message.from_user:
+            return 0
+
+        # Basic data
+        cid = message.chat.id
+
+        # Init ID
         if not init_id(cid):
             return 0
 
-        glovar.flood_ids["counts"][cid] += 1
-        return glovar.flood_ids["counts"][cid]
+        # Do not count the media group message
+        if message.media_group_id and message.media_group_id in glovar.media_group_ids:
+            return 0
+
+        if message.media_group_id:
+            glovar.media_group_ids.add(message.media_group_id)
+
+        # Delete old ID
+        the_time = time()
+        now = (message.date and message.date + the_time - int(the_time)) or the_time
+        glovar.flood_ids["counts"][cid].append(now)
+        for t in list(glovar.flood_ids["counts"][cid]):
+            if now - t > glovar.flood_time:
+                glovar.flood_ids["counts"][cid].remove(t)
+
+        return len(glovar.flood_ids["counts"][cid])
     except Exception as e:
         logger.warning(f"Count id error: {e}", exc_info=True)
 
@@ -69,7 +93,7 @@ def init_id(cid: int) -> bool:
     # Initiate the guest user's status
     try:
         if glovar.flood_ids["counts"].get(cid) is None:
-            glovar.flood_ids["counts"][cid] = 0
+            glovar.flood_ids["counts"][cid] = []
 
         if glovar.message_ids.get(cid) is None:
             glovar.message_ids[cid] = {
