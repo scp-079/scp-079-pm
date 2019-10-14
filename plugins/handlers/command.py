@@ -22,8 +22,8 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
-from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type
-from ..functions.etc import get_int, thread, user_mention
+from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type, get_int, lang
+from ..functions.etc import thread, user_mention
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, send_message
@@ -38,31 +38,37 @@ logger = logging.getLogger(__name__)
 def block(client: Client, message: Message) -> bool:
     # Block a user
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
+        cid = cid or get_int(get_command_type(message))
+
+        # Block the user
         if cid:
             if cid not in glovar.blacklist_ids:
                 add_id(cid, 0, "blacklist")
                 # When add someone to blacklist, delete all messages in this guest's chat
-                if glovar.message_ids[cid]["host"]:
+                if glovar.message_ids.get(cid) and glovar.message_ids[cid]["host"]:
                     thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
 
-                if glovar.message_ids[cid]["guest"]:
+                if glovar.message_ids.get(cid) and glovar.message_ids[cid]["guest"]:
                     thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
 
                 remove_id(cid, mid, "chat_all")
-                text = (f"用户 ID：{code(cid)}\n"
-                        f"状态：{code('已拉黑')}\n")
+                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_blocked'))}\n")
             else:
-                text = (f"用户 ID：{code(cid)}\n"
-                        f"状态：{code('无需操作')}\n"
-                        f"原因：{code('该用户已在黑名单中')}\n")
+                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
 
-            text += f"解除黑名单：{general_link('/unblock', get_start(client, f'unblock_{cid}'))}\n"
+            unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
+            text += f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n"
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需拉黑某人，请回复某条包含该用户 ID 的汇报消息\n"
+            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -77,22 +83,25 @@ def block(client: Client, message: Message) -> bool:
 def clear(client: Client, message: Message) -> bool:
     # Clear stored data
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
+
+        # Check the command
         if not command_type:
-            text = "请选择要清空的数据\n"
+            text = f"{lang('description_choose_clear')}\n"
             data_reply = button_data("clear", "messages", 0)
             data_blacklist = button_data("clear", "blacklist", 0)
             markup = InlineKeyboardMarkup(
                 [
                     [
                         InlineKeyboardButton(
-                            "消息 ID",
+                            text=lang("message_id"),
                             callback_data=data_reply
                         ),
                         InlineKeyboardButton(
-                            "黑名单",
+                            text=lang("blacklist"),
                             callback_data=data_blacklist
                         )
                     ]
@@ -102,9 +111,11 @@ def clear(client: Client, message: Message) -> bool:
             text = clear_data(command_type)
             markup = None
         else:
-            text = f"未操作：{code('选项有误')}"
+            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
 
+        # Send the report message
         thread(send_message, (client, hid, text, mid, markup))
 
         return True
@@ -119,24 +130,29 @@ def clear(client: Client, message: Message) -> bool:
 def direct_chat(client: Client, message: Message) -> bool:
     # Start a direct chat
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
+
+        # Assign the direct chat
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
-                text = (f"用户 ID：{code(cid)}\n"
-                        f"状态：{code('已开始与该用户的直接对话')}\n"
-                        f"退出对话：/leave\n")
+                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_directed'))}\n"
+                        f"{lang('leave_chat')}{lang('colon')}/leave\n")
             else:
-                text = (f"用户 ID：{code(cid)}\n"
-                        f"状态：{code('操作失败')}\n"
-                        f"原因：{code('该用户在黑名单中')}\n"
-                        f"解除黑名单：{general_link('/unblock', get_start(client, f'unblock_{cid}'))}\n")
+                unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
+                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n"
+                        f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
-            text = "如需与某人直接对话，请回复某条包含该用户 ID 的汇报消息\n"
+            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -155,11 +171,11 @@ def leave_chat(client: Client, message: Message) -> bool:
         cid = glovar.direct_chat
         if cid:
             glovar.direct_chat = 0
-            text = (f"用户 ID：{code(cid)}\n"
-                    f"状态：{code('已退出与该用户的直接对话')}\n")
+            text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_left'))}\n")
         else:
-            text = (f"状态：{code('操作失败')}\n"
-                    f"原因：{code('当前无直接对话')}\n")
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         thread(send_message, (client, hid, text))
 
@@ -175,20 +191,24 @@ def leave_chat(client: Client, message: Message) -> bool:
 def mention(client: Client, message: Message) -> bool:
     # Force mention a user
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
         command_type = get_command_type(message)
+
+        # Get the user's ID
         if cid:
             cid = cid
         elif command_type:
             cid = get_int(command_type)
 
+        # Mention the user
         if cid:
-            text = f"查询 ID：{user_mention(cid)}\n"
+            text = f"{lang('mention_id')}{lang('colon')}{user_mention(cid)}\n"
         else:
-            text = (f"状态：{code('未查询')}\n"
-                    f"原因：{code('格式有误')}\n")
+            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         thread(send_message, (client, hid, text, mid))
 
@@ -204,15 +224,18 @@ def mention(client: Client, message: Message) -> bool:
 def now_chat(client: Client, message: Message) -> bool:
     # Check direct chat status
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         cid = glovar.direct_chat
+
+        # Check direct chat
         if cid:
-            text = (f"用户 ID：{code(cid)}\n"
-                    f"状态：{code('正在与该用户直接对话')}\n"
-                    f"退出对话：/leave\n")
+            text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_directing'))}\n"
+                    f"{lang('leave_chat')}{lang('colon')}/leave\n")
         else:
-            text = f"状态：{code('当前无直接对话')}\n"
+            text = f"{lang('status')}{lang('colon')}{code(lang('reason_no_direct'))}\n"
 
         thread(send_message, (client, hid, text, mid))
 
@@ -244,25 +267,31 @@ def ping(client: Client, message: Message) -> bool:
 def recall(client: Client, message: Message) -> bool:
     # Recall messages
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
         recall_mid, cid = get_guest(message)
+        command_type = get_command_type(message)
+
+        # Check the chat ID
         if cid:
-            command_type = get_command_type(message)
-            text = f"对话 ID：{code(cid)}\n"
+            # Base text
+            text = f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+
+            # Check the command
             if not command_type:
-                text += f"请选择要撤回全部消息的类别：\n"
+                text += f"{lang('description_choose_recall')}\n"
                 data_host = button_data("recall", "host", str(cid))
                 data_all = button_data("recall", "all", str(cid))
                 markup = InlineKeyboardMarkup(
                     [
                         [
                             InlineKeyboardButton(
-                                "由您发送的消息",
+                                text=lang("message_host"),
                                 callback_data=data_host
                             ),
                             InlineKeyboardButton(
-                                "全部对话消息",
+                                text=lang("message_all"),
                                 callback_data=data_all
                             )
                         ]
@@ -281,8 +310,8 @@ def recall(client: Client, message: Message) -> bool:
                         thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
                     # If the data cannot be found, send a error message
                     else:
-                        text += (f"状态：{code('未撤回')}\n"
-                                 f"原因：{code('回复有误')}\n")
+                        text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                                 f"{lang('reason')}{lang('colon')}{code(lang('command_origin'))}\n")
                         markup = None
                         thread(send_message, (client, hid, text, mid, markup))
                         return True
@@ -290,13 +319,14 @@ def recall(client: Client, message: Message) -> bool:
                 text = recall_messages(client, cid, command_type, recall_mid)
                 markup = None
             else:
-                text += (f"状态：{code('未撤回')}\n"
-                         f"原因：{code('格式有误')}\n")
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
                 markup = None
 
             thread(send_message, (client, hid, text, mid, markup))
         else:
-            text = "如需撤回某对话的全部消息，请回复某条包含该用户 ID 的汇报消息\n"
+            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -312,9 +342,12 @@ def start(client: Client, message: Message) -> bool:
     # Send welcome message
     glovar.locks["message"].acquire()
     try:
+        # Basic data
         uid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
+
+        # Check the command
         if uid == glovar.host_id and command_type and "_" in command_type:
             para_list = command_type.split("_")
             if len(para_list) == 2:
@@ -325,13 +358,11 @@ def start(client: Client, message: Message) -> bool:
                     unblock_user(client, uid, cid, mid)
         else:
             if uid == glovar.host_id:
-                text = (f"您的传送信使已准备就绪\n"
-                        f"请勿停用机器人，否则无法收到他人的消息\n"
-                        f"关注{general_link('此页面', 'https://scp-079.org/pm/')}可及时获取更新信息\n")
+                link_text = general_link(lang("this_page"), "https://scp-079.org/pm/")
+                text = lang("start_host").format(link_text)
             elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
-                text = (f"欢迎使用\n"
-                        f"如您需要私聊 {code(glovar.host_name)}，您可以直接在此发送消息并等待回复\n"
-                        f"若您也想拥有自己的私聊机器人，请参照{general_link('说明', 'https://scp-079.org/pm/')}建立\n")
+                link_text = general_link(lang("description"), "https://scp-079.org/pm/")
+                text = lang("start_guest").format(glovar.host_name, link_text)
             else:
                 text = ""
 
@@ -363,7 +394,8 @@ def unblock(client: Client, message: Message) -> bool:
         if cid:
             unblock_user(client, hid, cid, mid)
         else:
-            text = "如需解禁某人，请回复某条包含该用户 ID 的汇报消息\n"
+            text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -381,8 +413,8 @@ def version(client: Client, message: Message) -> bool:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"管理员：{user_mention(aid)}\n\n"
-                f"版本：{bold(glovar.version)}\n")
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n\n"
+                f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 
         return True

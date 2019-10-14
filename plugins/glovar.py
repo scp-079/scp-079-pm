@@ -160,6 +160,8 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
+    "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
+    "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
     "description_direct": ((zh_cn and ("如需将消息转发给某人，"
                                        "请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人\n"
                                        "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
@@ -178,16 +180,41 @@ lang: Dict[str, str] = {
                               "During this time the bot will not forward and respond to your messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
+    "leave_chat": (zh_cn and "退出对话") or "Leave the Chat",
+    "mention_id": (zh_cn and "查询 ID") or "Mention ID",
+    "message_all": (zh_cn and "全部对话消息") or "All Messages",
+    "message_host": (zh_cn and "由您发送的消息") or "All Messages Sent by You",
     "reason_blacklist": (zh_cn and "该用户在黑名单中") or "The User is in the Blacklist",
+    "reason_blocked": (zh_cn and "该用户已在黑名单中") or "The User is Already Blocked",
+    "reason_no_direct": (zh_cn and "当前无直接对话") or "No Direct Chat",
     "reason_not_blocked": (zh_cn and "该用户不在黑名单中") or "The User is Not Blocked",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
+    "start_guest": ((zh_cn and ("欢迎使用\n"
+                                "如您需要私聊 {}，您可以直接在此发送消息并等待回复\n"
+                                "若您也想拥有自己的私聊机器人，请参照 {} 建立\n"))
+                    or ("Welcome\n"
+                        "If you need a private chat with {}, "
+                        "you can send a message directly here and wait for a reply\n"
+                        "If you want to have your own private chat bot, please refer to {}\n")),
+    "start_host": ((zh_cn and ("您的传送信使已准备就绪\n"
+                               "请勿停用机器人，否则无法收到他人的消息\n"
+                               "关注 {} 可及时获取更新信息\n"))
+                   or ("Your delivery messenger is ready\n"
+                       "Don't disable the bot, otherwise you won't be able to receive messages from others\n"
+                       "Follow {} for updates\n")),
+    "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
+    "unblock_user": (zh_cn and "解除黑名单") or "Unblock the User",
     # Status
+    "status_blocked": (zh_cn and "已拉黑") or "Blocked",
     "status_cleared": (zh_cn and "已清空") or "Cleared",
     "status_delivered": (zh_cn and "已发送") or "Delivered",
+    "status_directed": (zh_cn and "已开始与该用户的直接对话") or "Started the Direct Chat with the User",
+    "status_directing": (zh_cn and "正在与该用户直接对话") or "In the Direct Chat with the User",
     "status_edited": (zh_cn and "已编辑") or "Edited",
     "status_error": (zh_cn and "出现错误") or "Error Occurred",
+    "status_left": (zh_cn and "已退出与该用户的直接对话") or "Left the Direct Chat",
     "status_recalled": (zh_cn and "已撤回") or "Recalled",
     "status_recalled_all": (zh_cn and "已撤回全部消息") or "Recalled All Messages",
     "status_recalled_all_host": (zh_cn and "已撤回由您发送的全部消息") or "Recalled All Messages from You",
