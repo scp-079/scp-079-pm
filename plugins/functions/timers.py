@@ -17,15 +17,44 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from time import sleep
 
 from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data
+from .etc import code, general_link, lang, thread
 from .file import save
+from .telegram import send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def backup_files(client: Client) -> bool:
+    # Backup data files to BACKUP
+    try:
+        for file in glovar.file_list:
+            # Check
+            if not eval(f"glovar.{file}"):
+                continue
+
+            # Share
+            share_data(
+                client=client,
+                receivers=["BACKUP"],
+                action="backup",
+                action_type="data",
+                data=file,
+                file=f"data/{file}"
+            )
+            sleep(5)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Backup error: {e}", exc_info=True)
+
+    return False
 
 
 def interval_sec() -> bool:
@@ -55,7 +84,7 @@ def interval_min() -> bool:
     return False
 
 
-def reset_data() -> bool:
+def reset_data(client: Client) -> bool:
     # Reset user data every month
     try:
         glovar.message_ids = {}
@@ -66,6 +95,11 @@ def reset_data() -> bool:
             "h2g": {}
         }
         save("reply_ids")
+
+        # Send debug message
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('reset'))}\n")
+        glovar.debug_channel_id and thread(send_message, (client, glovar.debug_channel_id, text))
 
         return True
     except Exception as e:

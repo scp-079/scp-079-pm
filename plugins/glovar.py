@@ -50,6 +50,7 @@ test_group_id: int = 0
 
 # [custom]
 backup: Union[str, bool] = ""
+date_reset: str = ""
 flood_ban: int = 0
 flood_limit: int = 0
 flood_time: int = 0
@@ -57,7 +58,6 @@ host_id: int = 0
 host_name: str = ""
 project_link: str = ""
 project_name: str = ""
-reset_day: str = ""
 zh_cn: Union[str, bool] = ""
 
 # [encrypt]
@@ -78,6 +78,7 @@ try:
     # [custom]
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
+    date_reset = config["custom"].get("date_reset", date_reset)
     flood_ban = int(config["custom"].get("flood_ban", flood_ban))
     flood_limit = int(config["custom"].get("flood_limit", flood_limit))
     flood_time = int(config["custom"].get("flood_time", flood_time))
@@ -85,7 +86,6 @@ try:
     host_name = config["custom"].get("host_name", host_name)
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
-    reset_day = config["custom"].get("reset_day", reset_day)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
     # [encrypt]
@@ -96,12 +96,13 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+        or backup not in {False, True}
+        or date_reset in {"", "[DATA EXPUNGED]"}
         or flood_ban == 0
         or flood_limit == 0
         or flood_time == 0
         or host_id == 0
         or host_name in {"", "[DATA EXPUNGED]"}
-        or reset_day in {"", "[DATA EXPUNGED]"}
         or zh_cn not in {False, True}):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")

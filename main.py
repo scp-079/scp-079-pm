@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import interval_min, interval_sec, reset_data, reset_direct, update_status
+from plugins.functions.timers import backup_files, interval_min, interval_sec, reset_data, reset_direct, update_status
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -37,20 +37,17 @@ app = Client(
 )
 app.start()
 
+# Send online status
+glovar.exchange_channel_id and update_status(app, "online")
+
 # Timer
 scheduler = BackgroundScheduler()
 scheduler.add_job(interval_sec, "interval", seconds=glovar.flood_time)
 scheduler.add_job(interval_min, "interval", minutes=glovar.flood_ban)
-
-# Work with other bots
-if glovar.exchange_channel_id:
-    # Send online status
-    update_status(app, "online")
-    # Report status every hour
-    scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
-
+glovar.exchange_channel_id and scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
+glovar.exchange_channel_id and scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(reset_direct, "cron", hour=18)
-scheduler.add_job(reset_data, "cron", day=glovar.reset_day, hour=22)
+scheduler.add_job(reset_data, "cron", [app], day=glovar.date_reset, hour=22)
 scheduler.start()
 
 # Hold
