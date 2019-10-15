@@ -152,18 +152,21 @@ def direct_chat(client: Client, message: Message) -> bool:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_directed'))}\n"
-                        f"{lang('leave_chat')}{lang('colon')}/leave\n")
+                        f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                        f"{lang('action_leave')}{lang('colon')}/leave\n")
             else:
                 unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n"
                         f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
@@ -184,9 +187,11 @@ def leave_chat(client: Client, message: Message) -> bool:
         if cid:
             glovar.direct_chat = 0
             text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_left'))}\n")
+                    f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         thread(send_message, (client, hid, text))
@@ -217,9 +222,12 @@ def mention(client: Client, message: Message) -> bool:
 
         # Mention the user
         if cid:
-            text = f"{lang('mention_id')}{lang('colon')}{user_mention(cid)}\n"
+            text = (f"{lang('user_id')}{lang('colon')}{user_mention(cid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         thread(send_message, (client, hid, text, mid))

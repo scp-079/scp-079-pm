@@ -164,6 +164,9 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_block": (zh_cn and "拉黑用户") or "Block User",
+    "action_direct": (zh_cn and "直接对话") or "Direct Chat",
+    "action_leave": (zh_cn and "退出对话") or "Leave Direct Chat",
+    "action_mention": (zh_cn and "查询用户") or "Mention User",
     "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
     "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
@@ -187,7 +190,6 @@ lang: Dict[str, str] = {
                               "During this time the bot will not forward and respond to your messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
-    "leave_chat": (zh_cn and "退出对话") or "Leave the Chat",
     "mention_id": (zh_cn and "查询 ID") or "Mention ID",
     "message_all": (zh_cn and "全部对话消息") or "All Messages",
     "message_host": (zh_cn and "由您发送的消息") or "All Messages Sent by You",
@@ -211,17 +213,14 @@ lang: Dict[str, str] = {
                    or ("Your delivery messenger is ready\n"
                        "Don't disable the bot, otherwise you won't be able to receive messages from others\n"
                        "Follow {} for updates\n")),
+    "status_blocked": (zh_cn and "已拉黑") or "Blocked",
+    "status_delivered": (zh_cn and "已发送") or "Delivered",
+    "status_directing": (zh_cn and "正在与该用户直接对话") or "In the Direct Chat with the User",
+    "status_edited": (zh_cn and "已编辑") or "Edited",
+    "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     "unblock_user": (zh_cn and "解除黑名单") or "Unblock the User",
-    # Status
-    "status_blocked": (zh_cn and "已拉黑") or "Blocked",
-    "status_delivered": (zh_cn and "已发送") or "Delivered",
-    "status_directed": (zh_cn and "已开始与该用户的直接对话") or "Started the Direct Chat with the User",
-    "status_directing": (zh_cn and "正在与该用户直接对话") or "In the Direct Chat with the User",
-    "status_edited": (zh_cn and "已编辑") or "Edited",
-    "status_left": (zh_cn and "已退出与该用户的直接对话") or "Left the Direct Chat",
-    "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
 }
 
 # Init

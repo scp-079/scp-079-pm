@@ -71,11 +71,11 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
         else:
             if not message.forward_date:
-                text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                        f"{lang('description')}{lang('colon')}{lang('description_reply')}\n")
+                text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('description')}{lang('colon')}{code(lang('description_reply'))}\n")
             else:
-                text = (f"{lang('status')}{lang('colon')}{lang('status_failed')}\n"
-                        f"{lang('description')}{lang('colon')}{lang('description_direct')}\n")
+                text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                        f"{lang('description')}{lang('colon')}{code(lang('description_direct'))}\n")
 
             thread(send_message, (client, hid, text, mid))
 
