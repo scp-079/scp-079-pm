@@ -26,7 +26,7 @@ from ..functions.etc import bold, button_data, code, general_link, get_callback_
 from ..functions.etc import thread, user_mention
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, send_message
+from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, resolve_username, send_message
 from ..functions.user import unblock_user
 
 # Enable logging
@@ -211,18 +211,22 @@ def mention(client: Client, message: Message) -> bool:
         # Basic data
         hid = message.from_user.id
         mid = message.message_id
-        _, cid = get_guest(message)
+        _, uid = get_guest(message)
         command_type = get_command_type(message)
 
         # Get the user's ID
-        if cid:
-            cid = cid
+        if uid:
+            uid = uid
         elif command_type:
-            cid = get_int(command_type)
+            uid = get_int(command_type)
+            if not uid:
+                the_type, the_id = resolve_username(client, command_type)
+                if the_type == "user":
+                    uid = the_id
 
         # Mention the user
-        if cid:
-            text = (f"{lang('user_id')}{lang('colon')}{user_mention(cid)}\n"
+        if uid:
+            text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
         else:
