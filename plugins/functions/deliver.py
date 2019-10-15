@@ -37,18 +37,18 @@ logger = logging.getLogger(__name__)
 
 def clear_data(data_type: str) -> str:
     # Clear stored data
-    text = f"{lang('action')}{lang('colon')}{lang('clear')}\n"
+    text = f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
     try:
         if data_type == "blacklist":
             glovar.blacklist_ids = set()
             save("blacklist_ids")
-            text += f"{lang('type')}{lang('colon')}{lang('blacklist_ids')}\n"
+            text += f"{lang('type')}{lang('colon')}{code(lang('blacklist_ids'))}\n"
         elif data_type == "flood":
             glovar.flood_ids = {
                 "users": set(),
                 "counts": {}
             }
-            text += f"{lang('type')}{lang('colon')}{lang('flood_ids')}\n"
+            text += f"{lang('type')}{lang('colon')}{code(lang('flood_ids'))}\n"
         elif data_type == "message":
             glovar.message_ids = {}
             save("message_ids")
@@ -57,9 +57,9 @@ def clear_data(data_type: str) -> str:
                 "h2g": {}
             }
             save("reply_ids")
-            text += f"{lang('type')}{lang('colon')}{lang('message_ids')}\n"
+            text += f"{lang('type')}{lang('colon')}{code(lang('message_ids'))}\n"
 
-        text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
+        text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
     except Exception as e:
         logger.warning(f"Clear data error: {e}", exc_info=True)
 

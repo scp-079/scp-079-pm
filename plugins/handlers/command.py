@@ -93,7 +93,7 @@ def clear(client: Client, message: Message) -> bool:
 
         # Check the command
         if not command_type:
-            text = (f"{lang('action')}{lang('colon')}{lang('clear')}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
                     f"{lang('description')}{lang('colon')}{code(lang('description_choose_clear'))}\n")
             data_blacklist = button_data("clear", "blacklist", 0)
             data_flood = button_data("clear", "flood", 0)
