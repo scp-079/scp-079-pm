@@ -256,10 +256,12 @@ def now_chat(client: Client, message: Message) -> bool:
         # Check direct chat
         if cid:
             text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_directing'))}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                     f"{lang('leave_chat')}{lang('colon')}/leave\n")
         else:
-            text = f"{lang('status')}{lang('colon')}{code(lang('reason_no_direct'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         thread(send_message, (client, hid, text, mid))
 
