@@ -261,7 +261,8 @@ def now_chat(client: Client, message: Message) -> bool:
                     f"{lang('leave_chat')}{lang('colon')}/leave\n")
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         thread(send_message, (client, hid, text, mid))
 
