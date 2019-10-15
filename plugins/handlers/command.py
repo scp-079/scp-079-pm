@@ -91,17 +91,17 @@ def clear(client: Client, message: Message) -> bool:
         # Check the command
         if not command_type:
             text = f"{lang('description_choose_clear')}\n"
-            data_reply = button_data("clear", "messages", 0)
+            data_message = button_data("clear", "message", 0)
             data_blacklist = button_data("clear", "blacklist", 0)
             markup = InlineKeyboardMarkup(
                 [
                     [
                         InlineKeyboardButton(
-                            text=lang("message_id"),
-                            callback_data=data_reply
+                            text=lang("message_ids"),
+                            callback_data=data_message
                         ),
                         InlineKeyboardButton(
-                            text=lang("blacklist"),
+                            text=lang("blacklist_ids"),
                             callback_data=data_blacklist
                         )
                     ]

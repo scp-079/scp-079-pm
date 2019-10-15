@@ -37,24 +37,29 @@ logger = logging.getLogger(__name__)
 
 def clear_data(data_type: str) -> str:
     # Clear stored data
-    text = ""
+    text = f"{lang('action')}{lang('colon')}{lang('clear')}\n"
     try:
-        if data_type == "messages":
+        if data_type == "blacklist":
+            glovar.blacklist_ids = set()
+            save("blacklist_ids")
+            text += f"{lang('type')}{lang('colon')}{lang('blacklist_ids')}\n"
+        elif data_type == "flood":
+            glovar.flood_ids = {
+                "users": set(),
+                "counts": {}
+            }
+            text += f"{lang('type')}{lang('colon')}{lang('flood_ids')}\n"
+        elif data_type == "message":
             glovar.message_ids = {}
             save("message_ids")
-
             glovar.reply_ids = {
                 "g2h": {},
                 "h2g": {}
             }
             save("reply_ids")
+            text += f"{lang('type')}{lang('colon')}{lang('message_ids')}\n"
 
-            text += f"{lang('status_cleared')}{lang('colon')}{code(lang('message_id'))}\n"
-        else:
-            glovar.blacklist_ids = set()
-            save("blacklist_ids")
-
-            text += f"{lang('status_cleared')}{lang('colon')}{code(lang('blacklist'))}\n"
+        text += f"{lang('status')}{lang('colon')}{lang('status_success')}\n"
     except Exception as e:
         logger.warning(f"Clear data error: {e}", exc_info=True)
 
@@ -408,7 +413,8 @@ def get_guest(message: Message) -> (int, int):
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
     # Recall messages in a chat
-    text = f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+    text = (f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+            f"{lang('action')}{lang('colon')}{code(lang('action_recall'))}\n")
     try:
         if not init_id(cid):
             return text
@@ -417,16 +423,17 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
         if recall_type == "single":
             thread(delete_messages, (client, cid, [recall_mid]))
             remove_id(cid, recall_mid, "host")
-            text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled'))}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
 
         # Recall all host's messages
         elif recall_type == "host":
             if glovar.message_ids[cid]["host"]:
                 thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
                 remove_id(cid, 0, "chat_host")
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_all_host'))}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
             else:
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_none'))}\n"
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_recall'))}\n")
 
         # Recall all messages in a guest's chat
         else:
@@ -438,9 +445,10 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
                     thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                 remove_id(cid, 0, "chat_all")
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_all'))}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
             else:
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_recalled_none'))}\n"
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_recall'))}\n")
     except Exception as e:
         logger.warning(f"Recall message error: {e}", exc_info=True)
         text += (f"{lang('status')}{lang('colon')}{code(lang('status_error'))}\n"

@@ -115,6 +115,7 @@ lang: Dict[str, str] = {
     "admin_project": (zh_cn and "项目管理员") or "Project Admin",
     # Basic
     "action": (zh_cn and "执行操作") or "Action",
+    "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
     "description": (zh_cn and "说明") or "Description",
     "disabled": (zh_cn and "禁用") or "Disabled",
@@ -123,7 +124,9 @@ lang: Dict[str, str] = {
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
     "rollback": (zh_cn and "数据回滚") or "Rollback",
+    "status_error": (zh_cn and "出现错误") or "Error Occurred",
     "status_failed": (zh_cn and "未执行") or "Failed",
+    "status_succeed": (zh_cn and "成功执行") or "Succeed",
     "type": (zh_cn and "类别") or "Type",
     "version": (zh_cn and "版本") or "Version",
     # Command
@@ -132,8 +135,9 @@ lang: Dict[str, str] = {
     "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
     "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
     # Data
-    "blacklist": (zh_cn and "黑名单") or "Blacklist",
-    "message_id": (zh_cn and "消息 ID") or "Message ID",
+    "blacklist_ids": (zh_cn and "黑名单") or "Blacklist",
+    "flood_ids": (zh_cn and "刷屏名单") or "Flood ID",
+    "message_ids": (zh_cn and "消息 ID") or "Message ID",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
     "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
@@ -159,6 +163,8 @@ lang: Dict[str, str] = {
     "from_name": (zh_cn and "来源名称") or "Forward Name",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
+    "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
+    "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
     "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
     "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
@@ -188,6 +194,7 @@ lang: Dict[str, str] = {
     "reason_blocked": (zh_cn and "该用户已在黑名单中") or "The User is Already Blocked",
     "reason_no_direct": (zh_cn and "当前无直接对话") or "No Direct Chat",
     "reason_not_blocked": (zh_cn and "该用户不在黑名单中") or "The User is Not Blocked",
+    "reason_recall": (zh_cn and "没有可撤回的消息") or "No Messages to Recall",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
     "start_guest": ((zh_cn and ("欢迎使用\n"
@@ -208,17 +215,11 @@ lang: Dict[str, str] = {
     "unblock_user": (zh_cn and "解除黑名单") or "Unblock the User",
     # Status
     "status_blocked": (zh_cn and "已拉黑") or "Blocked",
-    "status_cleared": (zh_cn and "已清空") or "Cleared",
     "status_delivered": (zh_cn and "已发送") or "Delivered",
     "status_directed": (zh_cn and "已开始与该用户的直接对话") or "Started the Direct Chat with the User",
     "status_directing": (zh_cn and "正在与该用户直接对话") or "In the Direct Chat with the User",
     "status_edited": (zh_cn and "已编辑") or "Edited",
-    "status_error": (zh_cn and "出现错误") or "Error Occurred",
     "status_left": (zh_cn and "已退出与该用户的直接对话") or "Left the Direct Chat",
-    "status_recalled": (zh_cn and "已撤回") or "Recalled",
-    "status_recalled_all": (zh_cn and "已撤回全部消息") or "Recalled All Messages",
-    "status_recalled_all_host": (zh_cn and "已撤回由您发送的全部消息") or "Recalled All Messages from You",
-    "status_recalled_none": (zh_cn and "没有可撤回的消息") or "Recalled No Messages",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
     "status_unblocked": (zh_cn and "已解禁") or "Unblocked",
 }
@@ -229,6 +230,7 @@ all_commands: List[str] = [
     "block",
     "clear",
     "direct",
+    "forgive",
     "leave",
     "mention",
     "now",
@@ -262,7 +264,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.4.5"
+version: str = "0.4.6"
 
 direct_chat: int = 0
 

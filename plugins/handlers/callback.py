@@ -44,16 +44,16 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         if not uid == hid:
             return True
 
-        # Recall messages
-        if callback_data["a"] == "recall":
-            cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
-            text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
+        # Clear all stored data
+        if callback_data["a"] == "clear":
+            text = clear_data(callback_data["t"])
             markup = None
             thread(edit_message_text, (client, hid, mid, text, markup))
 
-        # Clear all stored data
-        elif callback_data["a"] == "clear":
-            text = clear_data(callback_data["t"])
+        # Recall messages
+        elif callback_data["a"] == "recall":
+            cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
+            text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
             markup = None
             thread(edit_message_text, (client, hid, mid, text, markup))
 

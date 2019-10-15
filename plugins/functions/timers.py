@@ -82,6 +82,9 @@ def reset_data(client: Client) -> bool:
         }
         save("reply_ids")
 
+        glovar.status = ""
+        save("status")
+
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('reset'))}\n")
