@@ -34,13 +34,17 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
         if not init_id(cid):
             return False
 
+        # Add blacklist
         if id_type == "blacklist":
             if cid not in glovar.blacklist_ids:
                 glovar.blacklist_ids.add(cid)
                 save("blacklist_ids")
+
+        # Add flood id
         elif id_type == "flood":
             if cid not in glovar.flood_ids["users"]:
                 glovar.flood_ids["users"].add(cid)
+
         # Store the message's id in guest chat, in order to recall all messages sometime
         elif id_type in {"guest", "host"}:
             if mid not in glovar.message_ids[cid][id_type]:

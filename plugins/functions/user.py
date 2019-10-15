@@ -37,7 +37,7 @@ def unblock_user(client: Client, hid: int, cid: int, mid: int) -> bool:
 
         if cid in glovar.blacklist_ids:
             remove_id(cid, 0, "blacklist")
-            text += f"{lang('status')}{lang('colon')}{code(lang('status_unblocked'))}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")

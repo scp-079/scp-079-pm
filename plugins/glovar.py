@@ -163,6 +163,7 @@ lang: Dict[str, str] = {
     "from_name": (zh_cn and "来源名称") or "Forward Name",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
+    "action_block": (zh_cn and "拉黑用户") or "Block User",
     "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
     "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
@@ -221,7 +222,6 @@ lang: Dict[str, str] = {
     "status_edited": (zh_cn and "已编辑") or "Edited",
     "status_left": (zh_cn and "已退出与该用户的直接对话") or "Left the Direct Chat",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
-    "status_unblocked": (zh_cn and "已解禁") or "Unblocked",
 }
 
 # Init

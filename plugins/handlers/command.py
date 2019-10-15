@@ -57,9 +57,11 @@ def block(client: Client, message: Message) -> bool:
 
                 remove_id(cid, mid, "chat_all")
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_blocked'))}\n")
             else:
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                        f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
 
@@ -67,7 +69,8 @@ def block(client: Client, message: Message) -> bool:
             text += f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n"
             thread(send_message, (client, hid, text, mid))
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 
