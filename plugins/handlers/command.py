@@ -303,7 +303,8 @@ def recall(client: Client, message: Message) -> bool:
         # Check the chat ID
         if cid:
             # Base text
-            text = f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+            text = (f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_recall'))}\n")
 
             # Check the command
             if not command_type:
