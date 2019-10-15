@@ -221,6 +221,7 @@ lang: Dict[str, str] = {
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     "unblock_user": (zh_cn and "解除黑名单") or "Unblock the User",
+    "user_status": (zh_cn and "对方状态") or "The User's Status"
 }
 
 # Init

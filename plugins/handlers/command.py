@@ -391,6 +391,8 @@ def start(client: Client, message: Message) -> bool:
             elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
                 link_text = general_link(lang("description"), "https://scp-079.org/pm/")
                 text = lang("start_guest").format(code(glovar.host_name), link_text)
+                if glovar.status:
+                    text += f"{lang('user_status')}{lang('colon')}{code(glovar.status)}\n"
             else:
                 text = ""
 
