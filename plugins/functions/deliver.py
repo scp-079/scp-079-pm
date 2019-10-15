@@ -59,7 +59,7 @@ def clear_data(data_type: str) -> str:
             save("reply_ids")
             text += f"{lang('type')}{lang('colon')}{lang('message_ids')}\n"
 
-        text += f"{lang('status')}{lang('colon')}{lang('status_success')}\n"
+        text += f"{lang('status')}{lang('colon')}{lang('status_succeed')}\n"
     except Exception as e:
         logger.warning(f"Clear data error: {e}", exc_info=True)
 
@@ -423,14 +423,14 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
         if recall_type == "single":
             thread(delete_messages, (client, cid, [recall_mid]))
             remove_id(cid, recall_mid, "host")
-            text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
 
         # Recall all host's messages
         elif recall_type == "host":
             if glovar.message_ids[cid]["host"]:
                 thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
                 remove_id(cid, 0, "chat_host")
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_recall'))}\n")
@@ -445,7 +445,7 @@ def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int)
                     thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                 remove_id(cid, 0, "chat_all")
-                text += f"{lang('status')}{lang('colon')}{code(lang('status_success'))}\n"
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_recall'))}\n")

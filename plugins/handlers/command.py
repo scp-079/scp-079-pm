@@ -93,19 +93,27 @@ def clear(client: Client, message: Message) -> bool:
 
         # Check the command
         if not command_type:
-            text = f"{lang('description_choose_clear')}\n"
-            data_message = button_data("clear", "message", 0)
+            text = (f"{lang('action')}{lang('colon')}{lang('clear')}\n"
+                    f"{lang('description')}{lang('colon')}{code(lang('description_choose_clear'))}\n")
             data_blacklist = button_data("clear", "blacklist", 0)
+            data_flood = button_data("clear", "flood", 0)
+            data_message = button_data("clear", "message", 0)
             markup = InlineKeyboardMarkup(
                 [
                     [
                         InlineKeyboardButton(
-                            text=lang("message_ids"),
-                            callback_data=data_message
-                        ),
-                        InlineKeyboardButton(
                             text=lang("blacklist_ids"),
                             callback_data=data_blacklist
+                        ),
+                        InlineKeyboardButton(
+                            text=lang("flood_ids"),
+                            callback_data=data_flood
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            text=lang("message_ids"),
+                            callback_data=data_message
                         )
                     ]
                 ]
@@ -114,7 +122,8 @@ def clear(client: Client, message: Message) -> bool:
             text = clear_data(command_type)
             markup = None
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{lang('clear')}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
 
