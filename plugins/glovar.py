@@ -56,6 +56,7 @@ flood_limit: int = 0
 flood_time: int = 0
 host_id: int = 0
 host_name: str = ""
+per_page: int = 0
 project_link: str = ""
 project_name: str = ""
 zh_cn: Union[str, bool] = ""
@@ -84,6 +85,7 @@ try:
     flood_time = int(config["custom"].get("flood_time", flood_time))
     host_id = int(config["custom"].get("host_id", host_id))
     host_name = config["custom"].get("host_name", host_name)
+    per_page = int(config["custom"].get("per_page", per_page))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
@@ -103,6 +105,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or flood_time == 0
         or host_id == 0
         or host_name in {"", "[DATA EXPUNGED]"}
+        or per_page == 0
         or zh_cn not in {False, True}):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
@@ -118,12 +121,12 @@ lang: Dict[str, str] = {
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
     "description": (zh_cn and "说明") or "Description",
-    "disabled": (zh_cn and "禁用") or "Disabled",
-    "enabled": (zh_cn and "启用") or "Enabled",
+    "page": (zh_cn and "第 {} 页") or "Page {}",
     "error": (zh_cn and "错误") or "Error",
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
     "rollback": (zh_cn and "数据回滚") or "Rollback",
+    "see": (zh_cn and "查看") or "See",
     "status_error": (zh_cn and "出现错误") or "Error Occurred",
     "status_failed": (zh_cn and "未执行") or "Failed",
     "status_succeed": (zh_cn and "成功执行") or "Succeed",
@@ -201,6 +204,8 @@ lang: Dict[str, str] = {
                                 "You can now send messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
+    "list_blacklist": (zh_cn and "查看黑名单") or "List Blacklist",
+    "list_flood": (zh_cn and "查看限制名单") or "List Flood",
     "mention_id": (zh_cn and "查询 ID") or "Mention ID",
     "message_all": (zh_cn and "全部对话消息") or "All Messages",
     "message_host": (zh_cn and "由您发送的消息") or "All Messages Sent by You",
@@ -241,6 +246,8 @@ all_commands: List[str] = [
     "direct",
     "forgive",
     "leave",
+    "list",
+    "ls",
     "mention",
     "now",
     "ping",
@@ -273,7 +280,7 @@ sender: str = "PM"
 
 should_hide: bool = False
 
-version: str = "0.4.6"
+version: str = "0.4.7"
 
 direct_chat: int = 0
 

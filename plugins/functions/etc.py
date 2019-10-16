@@ -25,7 +25,7 @@ from threading import Thread
 from time import sleep
 from typing import Any, Callable, List, Optional, Union
 
-from pyrogram import InlineKeyboardMarkup, Message, User
+from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 from pyrogram.errors import FloodWait
 
 from .. import glovar
@@ -154,6 +154,83 @@ def get_int(text: str) -> Optional[int]:
         logger.info(f"Get int error: {e}", exc_info=True)
 
     return result
+
+
+def get_list_page(the_list: list, action: str, action_type: str, page: int) -> (list, InlineKeyboardMarkup):
+    # Generate a list for elements and markup buttons
+    markup = None
+    try:
+        per_page = glovar.per_page
+        quo = int(len(the_list) / per_page)
+        if quo == 0:
+            return the_list, None
+
+        page_count = quo + 1
+
+        if len(the_list) % per_page == 0:
+            page_count = page_count - 1
+
+        if page != page_count:
+            the_list = the_list[(page - 1) * per_page:page * per_page]
+        else:
+            the_list = the_list[(page - 1) * per_page:len(the_list)]
+
+        if page_count == 1:
+            return the_list, markup
+
+        if page == 1:
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=lang("page").format(page),
+                            callback_data=button_data("none")
+                        ),
+                        InlineKeyboardButton(
+                            text=">>",
+                            callback_data=button_data(action, action_type, page + 1)
+                        )
+                    ]
+                ]
+            )
+        elif page == page_count:
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="<<",
+                            callback_data=button_data(action, action_type, page - 1)
+                        ),
+                        InlineKeyboardButton(
+                            text=lang("page").format(page),
+                            callback_data=button_data("none")
+                        )
+                    ]
+                ]
+            )
+        else:
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text="<<",
+                            callback_data=button_data(action, action_type, page - 1)
+                        ),
+                        InlineKeyboardButton(
+                            text=lang("page").format(page),
+                            callback_data=button_data("none")
+                        ),
+                        InlineKeyboardButton(
+                            text=">>",
+                            callback_data=button_data(action, action_type, page + 1)
+                        )
+                    ]
+                ]
+            )
+    except Exception as e:
+        logger.warning(f"Get list page error: {e}", exc_info=True)
+
+    return the_list, markup
 
 
 def get_text(message: Message) -> str:

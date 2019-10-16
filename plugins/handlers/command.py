@@ -21,13 +21,14 @@ import logging
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .. functions.deliver import clear_data, get_guest, recall_messages
+from .. functions.deliver import clear_data, get_guest, list_page_ids, recall_messages
 from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type, get_int, lang
 from ..functions.etc import thread, user_mention
 from ..functions.file import save
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
-from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, resolve_username, send_message
+from ..functions.telegram import delete_messages, edit_message_reply_markup, edit_message_text, get_start
+from ..functions.telegram import resolve_username, send_message
 from ..functions.user import forgive_user, unblock_user
 
 # Enable logging
@@ -238,6 +239,29 @@ def leave_chat(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
+                   & Filters.command(["list", "ls"], glovar.prefix))
+def list_ids(client: Client, message: Message) -> bool:
+    # List IDs
+    try:
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+        action_type = get_command_type(message)
+
+        # Get the text and markup
+        text, markup = list_page_ids(action_type, 1)
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid, markup))
+
+        return True
+    except Exception as e:
+        logger.warning(f"List ids error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
                    & Filters.command(["mention"], glovar.prefix))
 def mention(client: Client, message: Message) -> bool:
     # Force mention a user
@@ -303,6 +327,50 @@ def now_chat(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Now chat error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
+                   & Filters.command(["page"], glovar.prefix))
+def page_command(client: Client, message: Message) -> bool:
+    # Change page
+    try:
+        # Basic data
+        cid = message.chat.id
+        uid = message.from_user.id
+        mid = message.message_id
+        action = get_command_type(message)
+        r_message = message.reply_to_message
+        rid = r_message and r_message.message_id
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{user_mention(uid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n")
+
+        # Proceed
+        if action in {"previous", "next"} and r_message and r_message.from_user.is_self:
+            callback_data_list = get_callback_data(r_message)
+            i = (lambda x: 0 if x == "previous" else -1)(action)
+            if callback_data_list and callback_data_list[i]["a"] == "list":
+                action_type = callback_data_list[i]["t"]
+                page = callback_data_list[i]["d"]
+                page_text, markup = list_page_ids(action_type, page)
+                thread(edit_message_text, (client, cid, rid, page_text, markup))
+                text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_reply'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Page command error: {e}", exc_info=True)
 
     return False
 

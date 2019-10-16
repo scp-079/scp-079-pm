@@ -33,6 +33,7 @@ flood_limit = [DATA EXPUNGED]
 flood_time = [DATA EXPUNGED]
 host_id = [DATA EXPUNGED]
 host_name = [DATA EXPUNGED]
+per_page = 10
 project_link = [DATA EXPUNGED]
 project_name = [DATA EXPUNGED]
 zh_cn = [DATA EXPUNGED]

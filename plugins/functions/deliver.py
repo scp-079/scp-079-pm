@@ -24,7 +24,8 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_int, get_text, get_full_name, lang, name_mention, thread, wait_flood
+from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang, name_mention
+from .etc import thread, wait_flood
 from .file import save
 from .group import delete_message, get_message
 from .ids import init_id, remove_id
@@ -409,6 +410,38 @@ def get_guest(message: Message) -> (int, int):
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
     return mid, cid
+
+
+def list_page_ids(action_type: str, page: int) -> (str, InlineKeyboardMarkup):
+    # Generate a ids list page
+    text = ""
+    markup = None
+    try:
+        # Generate
+        if action_type in {"blacklist", "flood"}:
+            # Action text
+            text += f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
+
+            # Generate the page
+            if action_type == "blacklist":
+                the_list = glovar.blacklist_ids
+            else:
+                the_list = list(glovar.flood_ids["users"])
+
+            if the_list:
+                page_list, markup = get_list_page(the_list, "list", action_type, page)
+                text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n" +
+                         f"\n".join("\t" * 4 + code(the_id) for the_id in page_list))
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+    except Exception as e:
+        logger.warning(f"List page ids error: {e}", exc_info=True)
+
+    return text, markup
 
 
 def recall_messages(client: Client, cid: int, recall_type: str, recall_mid: int) -> str:
