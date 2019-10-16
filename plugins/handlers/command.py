@@ -52,10 +52,10 @@ def block(client: Client, message: Message) -> bool:
                 add_id(cid, 0, "blacklist")
                 # When add someone to blacklist, delete all messages in this guest's chat
                 if glovar.message_ids.get(cid) and glovar.message_ids[cid]["host"]:
-                    thread(delete_messages, (client, cid, [glovar.message_ids[cid]["host"]]))
+                    thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
 
                 if glovar.message_ids.get(cid) and glovar.message_ids[cid]["guest"]:
-                    thread(delete_messages, (client, cid, [glovar.message_ids[cid]["guest"]]))
+                    thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                 remove_id(cid, mid, "chat_all")
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
