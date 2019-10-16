@@ -125,6 +125,7 @@ lang: Dict[str, str] = {
     "error": (zh_cn and "错误") or "Error",
     "reason": (zh_cn and "原因") or "Reason",
     "reset": (zh_cn and "重置数据") or "Reset Data",
+    "result": (zh_cn and "结果") or "Result",
     "rollback": (zh_cn and "数据回滚") or "Rollback",
     "see": (zh_cn and "查看") or "See",
     "status_error": (zh_cn and "出现错误") or "Error Occurred",
