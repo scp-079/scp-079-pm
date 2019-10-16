@@ -145,6 +145,8 @@ lang: Dict[str, str] = {
     "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
     "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
     "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
+    # Group
+    "reason_none": (zh_cn and "无数据") or "No Data",
     # Record
     "project": (zh_cn and "项目编号") or "Project",
     "project_origin": (zh_cn and "原始项目") or "Original Project",
@@ -169,6 +171,8 @@ lang: Dict[str, str] = {
     "action_mention": (zh_cn and "查询用户") or "Mention User",
     "action_now": (zh_cn and "查看直接对话") or "Show Direct Chat",
     "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
+    "action_status_set": (zh_cn and "设定状态") or "Set the Status",
+    "action_status_show": (zh_cn and "查看当前状态") or "Show the Status",
     "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
     "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
@@ -214,7 +218,6 @@ lang: Dict[str, str] = {
                    or ("Your delivery messenger is ready\n"
                        "Don't disable the bot, otherwise you won't be able to receive messages from others\n"
                        "Follow {} for updates\n")),
-    "status_blocked": (zh_cn and "已拉黑") or "Blocked",
     "status_delivered": (zh_cn and "已发送") or "Delivered",
     "status_edited": (zh_cn and "已编辑") or "Edited",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",

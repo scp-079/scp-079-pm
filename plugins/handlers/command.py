@@ -24,6 +24,7 @@ from .. import glovar
 from .. functions.deliver import clear_data, get_guest, recall_messages
 from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type, get_int, lang
 from ..functions.etc import thread, user_mention
+from ..functions.file import save
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, resolve_username, send_message
@@ -58,7 +59,7 @@ def block(client: Client, message: Message) -> bool:
                 remove_id(cid, mid, "chat_all")
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
                         f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_blocked'))}\n")
+                        f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
             else:
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
                         f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
@@ -403,6 +404,39 @@ def start(client: Client, message: Message) -> bool:
         logger.warning(f"Start error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
+                   & Filters.command(["status"], glovar.prefix))
+def status(client: Client, message: Message) -> bool:
+    # Set status
+    try:
+        # Basic data
+        cid = glovar.host_id
+        mid = message.message_id
+        command_type = get_command_type(message)
+
+        # Check the command
+        if command_type:
+            glovar.status = command_type
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
+            save("status")
+        else:
+            text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
+            if glovar.status:
+                text += f"{lang('status')}{lang('colon')}{code(glovar.status)}\n"
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Status error: {e}", exc_info=True)
 
     return False
 
