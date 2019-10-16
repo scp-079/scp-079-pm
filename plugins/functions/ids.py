@@ -147,6 +147,10 @@ def remove_id(cid, mid, ctx) -> bool:
             glovar.message_ids.pop(cid, {})
             save("message_ids")
 
+        # Remove a flood user
+        elif ctx == "flood":
+            glovar.flood_ids["users"].discard(cid)
+
         # Remove a single id the host sent to guest chat
         elif ctx == "host":
             glovar.message_ids[cid]["guest"].discard(mid)

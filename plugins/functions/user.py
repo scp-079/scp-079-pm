@@ -29,20 +29,45 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
-def unblock_user(client: Client, hid: int, cid: int, mid: int) -> bool:
+def forgive_user(client: Client, uid: int, mid: int) -> bool:
+    # Forgive the flood user
+    try:
+        text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n")
+
+        if uid in glovar.flood_ids["users"]:
+            # Remove the flood status
+            remove_id(uid, 0, "flood")
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+
+            # Send the report message to the guest
+            text = f"{lang('description_forgive')}\n"
+            thread(send_message, (client, uid, text))
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('reason_not_limited'))}\n")
+
+        thread(send_message, (client, glovar.host_id, text, mid))
+    except Exception as e:
+        logger.warning(f"Forgive user error: {e}", exc_info=True)
+
+    return False
+
+
+def unblock_user(client: Client, uid: int, mid: int) -> bool:
     # Unblock a user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{user_mention(cid)}\n"
+        text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n")
 
-        if cid in glovar.blacklist_ids:
-            remove_id(cid, 0, "blacklist")
+        if uid in glovar.blacklist_ids:
+            remove_id(uid, 0, "blacklist")
             text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")
 
-        thread(send_message, (client, hid, text, mid))
+        thread(send_message, (client, glovar.host_id, text, mid))
 
         return True
     except Exception as e:

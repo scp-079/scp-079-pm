@@ -167,7 +167,9 @@ lang: Dict[str, str] = {
     # Special
     "action_block": (zh_cn and "拉黑用户") or "Block User",
     "action_direct": (zh_cn and "直接对话") or "Direct Chat",
+    "action_forgive": (zh_cn and "解除限制") or "Forgive the User",
     "action_leave": (zh_cn and "退出对话") or "Leave Direct Chat",
+    "action_limit": (zh_cn and "自动限制用户") or "Limit the User Automatically",
     "action_mention": (zh_cn and "查询用户") or "Mention User",
     "action_now": (zh_cn and "查看直接对话") or "Show Direct Chat",
     "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
@@ -193,6 +195,10 @@ lang: Dict[str, str] = {
                                       "期间机器人将对您的消息不做任何转发和应答\n"))
                           or ("You sent messages too frequently. Please try again in {} minutes\n"
                               "During this time the bot will not forward and respond to your messages\n")),
+    "description_forgive": ((zh_cn and "您已被手动解除等待的时间限制\n"
+                                       "您现在可以正常发送消息\n")
+                            or ("You have been manually lifted the waiting flood time restriction\n"
+                                "You can now send messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
     "mention_id": (zh_cn and "查询 ID") or "Mention ID",
@@ -202,6 +208,7 @@ lang: Dict[str, str] = {
     "reason_blocked": (zh_cn and "该用户已在黑名单中") or "The User is Already Blocked",
     "reason_no_direct": (zh_cn and "当前无直接对话") or "No Direct Chat",
     "reason_not_blocked": (zh_cn and "该用户不在黑名单中") or "The User is Not Blocked",
+    "reason_not_limited": (zh_cn and "该用户未被限制") or "The User is Not Limited",
     "reason_recall": (zh_cn and "没有可撤回的消息") or "No Messages to Recall",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
@@ -223,7 +230,6 @@ lang: Dict[str, str] = {
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
-    "unblock_user": (zh_cn and "解除黑名单") or "Unblock the User",
     "user_status": (zh_cn and "对方状态") or "The User's Status"
 }
 

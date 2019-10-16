@@ -28,7 +28,7 @@ from ..functions.file import save
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, get_start, resolve_username, send_message
-from ..functions.user import unblock_user
+from ..functions.user import forgive_user, unblock_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ def block(client: Client, message: Message) -> bool:
                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
 
             unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
-            text += f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n"
+            text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
             thread(send_message, (client, hid, text, mid))
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
@@ -162,7 +162,7 @@ def direct_chat(client: Client, message: Message) -> bool:
                         f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n"
-                        f"{lang('unblock_user')}{lang('colon')}{unblock_link}\n")
+                        f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n")
 
             thread(send_message, (client, hid, text, mid))
         else:
@@ -174,6 +174,39 @@ def direct_chat(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Direct chat error: {e}", exc_info=True)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
+                   & Filters.command(["forgive"], glovar.prefix))
+def forgive(client: Client, message: Message) -> bool:
+    # Forgive a user
+    try:
+        # Basic data
+        hid = message.from_user.id
+        mid = message.message_id
+        _, uid = get_guest(message)
+        command_type = get_command_type(message)
+
+        # Get the user's id
+        if uid:
+            forgive_user(client, uid, mid)
+        elif command_type:
+            uid = get_int(command_type)
+
+        # Unblock the user
+        if uid:
+            forgive_user(client, uid, mid)
+        else:
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+            thread(send_message, (client, hid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Forgive error: {e}", exc_info=True)
 
     return False
 
@@ -384,7 +417,10 @@ def start(client: Client, message: Message) -> bool:
                 para_data = para_list[1]
                 if para_action == "unblock":
                     cid = get_int(para_data)
-                    unblock_user(client, uid, cid, mid)
+                    unblock_user(client, cid, mid)
+                elif para_action == "forgive":
+                    cid = get_int(para_data)
+                    forgive_user(client, cid, mid)
         else:
             if uid == glovar.host_id:
                 link_text = general_link(lang("this_page"), "https://scp-079.org/pm/")
@@ -446,19 +482,24 @@ def status(client: Client, message: Message) -> bool:
 def unblock(client: Client, message: Message) -> bool:
     # Unblock a user
     try:
+        # Basic data
         hid = message.from_user.id
         mid = message.message_id
-        _, cid = get_guest(message)
+        _, uid = get_guest(message)
         command_type = get_command_type(message)
-        if cid:
-            unblock_user(client, hid, cid, mid)
-        elif command_type:
-            cid = get_int(command_type)
 
-        if cid:
-            unblock_user(client, hid, cid, mid)
+        # Get the user's id
+        if uid:
+            unblock_user(client, uid, mid)
+        elif command_type:
+            uid = get_int(command_type)
+
+        # Unblock the user
+        if uid:
+            unblock_user(client, uid, mid)
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text = (f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             thread(send_message, (client, hid, text, mid))
 

@@ -27,6 +27,7 @@ from ..functions.filters import exchange_channel, from_user, hide_channel, host_
 from ..functions.ids import add_id, count_id
 from ..functions.receive import receive_rollback, receive_text_data
 from ..functions.timers import backup_files
+from ..functions.telegram import get_start
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -41,10 +42,19 @@ def count(client: Client, message: Message) -> bool:
 
         # Check the flood status
         if counts >= glovar.flood_limit:
-            cid = message.from_user.id
-            add_id(cid, 0, "flood")
+            uid = message.from_user.id
+            add_id(uid, 0, "flood")
+
+            # Send the report message to the guest
             text = lang("description_flood").format(bold(glovar.flood_ban))
-            thread(send_message, (client, cid, text))
+            thread(send_message, (client, uid, text))
+
+            # Send the report message to the host
+            forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
+            text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
+                    f"{lang('action_forgive')}{lang('colon')}{forgive_link}\n")
+            thread(send_message, (client, glovar.host_id, text))
 
         return True
     except Exception as e:
