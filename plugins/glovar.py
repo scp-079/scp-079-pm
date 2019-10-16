@@ -118,6 +118,7 @@ lang: Dict[str, str] = {
     "admin_project": (zh_cn and "项目管理员") or "Project Admin",
     # Basic
     "action": (zh_cn and "执行操作") or "Action",
+    "action_page": (zh_cn and "翻页") or "Change Page",
     "clear": (zh_cn and "清空数据") or "Clear Data",
     "colon": (zh_cn and "：") or ": ",
     "description": (zh_cn and "说明") or "Description",
