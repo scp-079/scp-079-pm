@@ -27,10 +27,10 @@ from typing import List, Dict, Set, Tuple, Union
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.WARNING,
-    filename='log',
-    filemode='w'
+    filename="log",
+    filemode="w"
 )
 logger = logging.getLogger(__name__)
 
