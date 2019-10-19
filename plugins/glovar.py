@@ -282,6 +282,14 @@ sender: str = "PM"
 
 should_hide: bool = False
 
+usernames: Dict[str, Dict[str, Union[int, str]]] = {}
+# usernames = {
+#     "SCP_079": {
+#         "peer_type": "channel",
+#         "peer_id": -1001196128009
+#     }
+# }
+
 version: str = "0.4.7"
 
 direct_chat: int = 0

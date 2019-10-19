@@ -24,6 +24,7 @@ from pyrogram.api.types import InputPeerUser, InputPeerChannel
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
+from .. import glovar
 from .etc import get_int, wait_flood
 
 # Enable logging
@@ -111,7 +112,7 @@ def edit_message_reply_markup(client: Client, cid: int, mid: int,
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Edit message reply markup error: {e}", exc_info=True)
+        logger.warning(f"Edit message {mid} reply markup in {cid} error: {e}", exc_info=True)
 
     return result
 
@@ -140,7 +141,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Edit message in {cid} error: {e}", exc_info=True)
+        logger.warning(f"Edit message {mid} in {cid} error: {e}", exc_info=True)
 
     return result
 
@@ -176,7 +177,7 @@ def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List
                 flood_wait = True
                 wait_flood(e)
     except Exception as e:
-        logger.warning(f"Get messages error: {e}", exc_info=True)
+        logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
 
     return result
 
@@ -209,28 +210,40 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, I
             except (PeerIdInvalid, UsernameInvalid, UsernameNotOccupied):
                 return False
     except Exception as e:
-        logger.warning(f"Resolve peer error: {e}", exc_info=True)
+        logger.warning(f"Resolve peer {pid} error: {e}", exc_info=True)
 
     return result
 
 
-def resolve_username(client: Client, username: str) -> (str, int):
+def resolve_username(client: Client, username: str, cache: bool = True) -> (str, int):
     # Resolve peer by username
     peer_type = ""
     peer_id = 0
     try:
-        if username:
-            result = resolve_peer(client, username)
-            if result:
-                if isinstance(result, InputPeerChannel):
-                    peer_type = "channel"
-                    peer_id = result.channel_id
-                    peer_id = get_int(f"-100{peer_id}")
-                elif isinstance(result, InputPeerUser):
-                    peer_type = "user"
-                    peer_id = result.user_id
+        username = username.strip("@")
+        if not username:
+            return "", 0
+
+        result = glovar.usernames.get(username)
+        if result and cache:
+            return result["peer_type"], result["peer_id"]
+
+        result = resolve_peer(client, username)
+        if result:
+            if isinstance(result, InputPeerChannel):
+                peer_type = "channel"
+                peer_id = result.channel_id
+                peer_id = get_int(f"-100{peer_id}")
+            elif isinstance(result, InputPeerUser):
+                peer_type = "user"
+                peer_id = result.user_id
+
+        glovar.usernames[username] = {
+            "peer_type": peer_type,
+            "peer_id": peer_id
+        }
     except Exception as e:
-        logger.warning(f"Resolve username error: {e}", exc_info=True)
+        logger.warning(f"Resolve username {username} error: {e}", exc_info=True)
 
     return peer_type, peer_id
 
@@ -259,7 +272,7 @@ def send_document(client: Client, cid: int, document: str, file_ref: str = None,
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
     except Exception as e:
-        logger.warning(f"Send document to {cid} error: {e}", exec_info=True)
+        logger.warning(f"Send document {document} to {cid} error: {e}", exec_info=True)
 
     return result
 

@@ -278,7 +278,7 @@ def mention(client: Client, message: Message) -> bool:
         elif command_type:
             uid = get_int(command_type)
             if not uid:
-                the_type, the_id = resolve_username(client, command_type)
+                the_type, the_id = resolve_username(client, command_type, False)
                 if the_type == "user":
                     uid = the_id
 
