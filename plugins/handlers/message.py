@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 @Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user, group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
+    glovar.locks["count"].acquire()
     try:
         # Count user's messages
         counts = count_id(message)
@@ -59,6 +60,8 @@ def count(client: Client, message: Message) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Count error: {e}", exc_info=True)
+    finally:
+        glovar.locks["count"].release()
 
     return False
 
