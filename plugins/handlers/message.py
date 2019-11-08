@@ -33,7 +33,8 @@ from ..functions.telegram import get_start
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user, group=1)
+@Client.on_message(Filters.private & Filters.incoming
+                   & from_user & ~host_chat & ~limited_user, group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     glovar.locks["count"].acquire()
@@ -42,20 +43,22 @@ def count(client: Client, message: Message) -> bool:
         counts = count_id(message)
 
         # Check the flood status
-        if counts >= glovar.flood_limit:
-            uid = message.from_user.id
-            add_id(uid, 0, "flood")
+        if counts < glovar.flood_limit:
+            return True
 
-            # Send the report message to the guest
-            text = lang("description_flood").format(bold(glovar.flood_ban))
-            thread(send_message, (client, uid, text))
+        uid = message.from_user.id
+        add_id(uid, 0, "flood")
 
-            # Send the report message to the host
-            forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
-            text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
-                    f"{lang('action_forgive')}{lang('colon')}{forgive_link}\n")
-            thread(send_message, (client, glovar.host_id, text))
+        # Send the report message to the guest
+        text = lang("description_flood").format(bold(glovar.flood_ban))
+        thread(send_message, (client, uid, text))
+
+        # Send the report message to the host
+        forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
+        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
+                f"{lang('action_forgive')}{lang('colon')}{forgive_link}\n")
+        thread(send_message, (client, glovar.host_id, text))
 
         return True
     except Exception as e:
@@ -66,8 +69,8 @@ def count(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & from_user & host_chat
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & from_user & host_chat)
 def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
     glovar.locks["message"].acquire()
@@ -101,8 +104,8 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & from_user & ~host_chat & ~limited_user
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=0)
+@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & from_user & ~host_chat & ~limited_user, group=0)
 def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
     glovar.locks["message"].acquire()
@@ -122,13 +125,14 @@ def deliver_to_host(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
         # Read basic information
         data = receive_text_data(message)
+
         if not data:
             return True
 
@@ -166,12 +170,13 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
     try:
         data = receive_text_data(message)
+
         if not data:
             return True
 
@@ -180,6 +185,7 @@ def process_data(client: Client, message: Message) -> bool:
         action = data["action"]
         action_type = data["type"]
         data = data["data"]
+
         # This will look awkward,
         # seems like it can be simplified,
         # but this is to ensure that the permissions are clear,

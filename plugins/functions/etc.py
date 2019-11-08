@@ -104,17 +104,21 @@ def get_callback_data(message: Message) -> List[dict]:
     # Get a message's inline button's callback data
     callback_data_list = []
     try:
-        if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
-            reply_markup = message.reply_markup
-            if reply_markup.inline_keyboard:
-                inline_keyboard = reply_markup.inline_keyboard
-                if inline_keyboard:
-                    for button_row in inline_keyboard:
-                        for button in button_row:
-                            if button.callback_data:
-                                callback_data = button.callback_data
-                                callback_data = loads(callback_data)
-                                callback_data_list.append(callback_data)
+        reply_markup = message.reply_markup
+
+        if (not reply_markup
+                or not isinstance(reply_markup, InlineKeyboardMarkup)
+                or not reply_markup.inline_keyboard):
+            return []
+
+        for button_row in reply_markup.inline_keyboard:
+            for button in button_row:
+                if not button.callback_data:
+                    continue
+
+                callback_data = button.callback_data
+                callback_data = loads(callback_data)
+                callback_data_list.append(callback_data)
     except Exception as e:
         logger.warning(f"Get callback data error: {e}", exc_info=True)
 
@@ -138,10 +142,12 @@ def get_full_name(user: User) -> str:
     # Get user's full name
     text = ""
     try:
-        if user and not user.is_deleted:
-            text = user.first_name
-            if user.last_name:
-                text += f" {user.last_name}"
+        if not user or user.is_deleted:
+            return ""
+
+        text = user.first_name
+        if user.last_name:
+            text += f" {user.last_name}"
     except Exception as e:
         logger.warning(f"Get full name error: {e}", exc_info=True)
 
@@ -165,6 +171,7 @@ def get_list_page(the_list: list, action: str, action_type: str, page: int) -> (
     try:
         per_page = glovar.per_page
         quo = int(len(the_list) / per_page)
+
         if quo == 0:
             return the_list, None
 
@@ -263,20 +270,28 @@ def lang(text: str) -> str:
     return result
 
 
-def name_mention(user: User) -> str:
-    # Get a mention text with user's name
-    text = ""
+def mention_id(uid: int) -> str:
+    # Get a ID mention string
+    result = ""
     try:
-        if not user:
-            return ""
+        result = general_link(f"{uid}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Mention id error: {e}", exc_info=True)
 
+    return result
+
+
+def mention_name(user: User) -> str:
+    # Get a name mention string
+    result = ""
+    try:
         name = get_full_name(user)
         uid = user.id
-        text = general_link(f"{name}", f"tg://user?id={uid}")
+        result = general_link(f"{name}", f"tg://user?id={uid}")
     except Exception as e:
-        logger.warning(f"Name mention error: {e}", exc_info=True)
+        logger.warning(f"Mention name error: {e}", exc_info=True)
 
-    return text
+    return result
 
 
 def random_str(i: int) -> str:
@@ -302,17 +317,6 @@ def thread(target: Callable, args: tuple) -> bool:
         logger.warning(f"Thread error: {e}", exc_info=True)
 
     return False
-
-
-def user_mention(uid: int) -> str:
-    # Get a mention text
-    text = ""
-    try:
-        text = general_link(f"{uid}", f"tg://user?id={uid}")
-    except Exception as e:
-        logger.warning(f"User mention error: {e}", exc_info=True)
-
-    return text
 
 
 def wait_flood(e: FloodWait) -> bool:

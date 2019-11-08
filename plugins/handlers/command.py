@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup
 from .. import glovar
 from .. functions.deliver import clear_data, get_guest, list_page_ids, recall_messages
 from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type, get_int, lang
-from ..functions.etc import thread, user_mention
+from ..functions.etc import mention_id, thread
 from ..functions.file import save
 from ..functions.filters import from_user, host_chat, test_group
 from ..functions.ids import add_id, remove_id
@@ -35,8 +35,8 @@ from ..functions.user import forgive_user, unblock_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["block"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["block"], glovar.prefix)
+                   & from_user & host_chat)
 def block(client: Client, message: Message) -> bool:
     # Block a user
     try:
@@ -83,8 +83,8 @@ def block(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["clear"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["clear"], glovar.prefix)
+                   & from_user & host_chat)
 def clear(client: Client, message: Message) -> bool:
     # Clear stored data
     try:
@@ -139,8 +139,8 @@ def clear(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["direct"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["direct"], glovar.prefix)
+                   & from_user & host_chat)
 def direct_chat(client: Client, message: Message) -> bool:
     # Start a direct chat
     try:
@@ -179,8 +179,8 @@ def direct_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["forgive"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["forgive"], glovar.prefix)
+                   & from_user & host_chat)
 def forgive(client: Client, message: Message) -> bool:
     # Forgive a user
     try:
@@ -212,13 +212,15 @@ def forgive(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["leave"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["leave"], glovar.prefix)
+                   & from_user & host_chat)
 def leave_chat(client: Client, message: Message) -> bool:
     # Leave the direct chat
     try:
+        # Basic data
         hid = message.from_user.id
         cid = glovar.direct_chat
+
         if cid:
             glovar.direct_chat = 0
             text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
@@ -229,6 +231,7 @@ def leave_chat(client: Client, message: Message) -> bool:
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
+        # Send the report message
         thread(send_message, (client, hid, text))
 
         return True
@@ -238,8 +241,8 @@ def leave_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["list", "ls"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["list", "ls"], glovar.prefix)
+                   & from_user & host_chat)
 def list_ids(client: Client, message: Message) -> bool:
     # List IDs
     try:
@@ -261,8 +264,8 @@ def list_ids(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["mention"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["mention"], glovar.prefix)
+                   & from_user & host_chat)
 def mention(client: Client, message: Message) -> bool:
     # Force mention a user
     try:
@@ -284,7 +287,7 @@ def mention(client: Client, message: Message) -> bool:
 
         # Mention the user
         if uid:
-            text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
+            text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
         else:
@@ -301,8 +304,8 @@ def mention(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["now"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["now"], glovar.prefix)
+                   & from_user & host_chat)
 def now_chat(client: Client, message: Message) -> bool:
     # Check direct chat status
     try:
@@ -331,8 +334,8 @@ def now_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["page"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["page"], glovar.prefix)
+                   & from_user & host_chat)
 def page_command(client: Client, message: Message) -> bool:
     # Change page
     try:
@@ -373,8 +376,8 @@ def page_command(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["ping"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["ping"], glovar.prefix)
+                   & from_user & host_chat)
 def ping(client: Client, message: Message) -> bool:
     # Ping
     try:
@@ -389,8 +392,8 @@ def ping(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["recall"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["recall"], glovar.prefix)
+                   & from_user & host_chat)
 def recall(client: Client, message: Message) -> bool:
     # Recall messages
     try:
@@ -464,8 +467,8 @@ def recall(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user
-                   & Filters.command(["start"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start"], glovar.prefix)
+                   & from_user)
 def start(client: Client, message: Message) -> bool:
     # Send welcome message
     glovar.locks["message"].acquire()
@@ -510,8 +513,8 @@ def start(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["status"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["status"], glovar.prefix)
+                   & from_user & host_chat)
 def status(client: Client, message: Message) -> bool:
     # Set status
     try:
@@ -543,8 +546,8 @@ def status(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & from_user & host_chat
-                   & Filters.command(["unblock"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["unblock"], glovar.prefix)
+                   & from_user & host_chat)
 def unblock(client: Client, message: Message) -> bool:
     # Unblock a user
     try:
@@ -576,15 +579,15 @@ def unblock(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & test_group & from_user
-                   & Filters.command(["version"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
+                   & test_group & from_user)
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
-        text = (f"{lang('admin')}{lang('colon')}{user_mention(aid)}\n\n"
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
         thread(send_message, (client, cid, text, mid))
 

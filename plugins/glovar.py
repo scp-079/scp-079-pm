@@ -168,6 +168,7 @@ lang: Dict[str, str] = {
     "user_bio": (zh_cn and "用户简介") or "User Bio",
     "user_name": (zh_cn and "用户昵称") or "User Name",
     "from_name": (zh_cn and "来源名称") or "Forward Name",
+    "contact": (zh_cn and "联系方式") or "Contact Info",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_block": (zh_cn and "拉黑用户") or "Block User",
@@ -291,7 +292,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.7"
+version: str = "0.4.8"
 
 direct_chat: int = 0
 
@@ -338,7 +339,8 @@ reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
 status: str = ""
 
 # Load data
-file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids", "status"]
+file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids",
+                        "status"]
 for file in file_list:
     try:
         try:

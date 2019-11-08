@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
     # Encrypt or decrypt a file
     try:
+        if not file_in or not file_out:
+            return True
+
         buffer = 64 * 1024
         if operation == "decrypt":
             decryptFile(file_in, file_out, glovar.password, buffer)
@@ -54,6 +57,7 @@ def data_to_file(data: Any) -> str:
     # Save data to a file in tmp directory
     try:
         file_path = get_new_path()
+
         with open(file_path, "wb") as f:
             dump(data, f)
 
@@ -92,15 +96,16 @@ def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
     return final_path
 
 
-def get_new_path() -> str:
+def get_new_path(extension: str = "") -> str:
     # Get a new path in tmp directory
     result = ""
     try:
         file_path = random_str(8)
-        while exists(f"tmp/{file_path}"):
+
+        while exists(f"tmp/{file_path}{extension}"):
             file_path = random_str(8)
 
-        result = f"tmp/{file_path}"
+        result = f"tmp/{file_path}{extension}"
     except Exception as e:
         logger.warning(f"Get new path error: {e}", exc_info=True)
 
@@ -120,7 +125,7 @@ def save(file: str) -> bool:
 
 
 def save_thread(file: str) -> bool:
-    # Save function's thread
+    # Save thread
     try:
         if not glovar:
             return True
@@ -132,6 +137,6 @@ def save_thread(file: str) -> bool:
 
         return True
     except Exception as e:
-        logger.error(f"Save data error: {e}", exc_info=True)
+        logger.error(f"Save thread error: {e}", exc_info=True)
 
     return False

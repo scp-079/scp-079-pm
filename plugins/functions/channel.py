@@ -79,6 +79,22 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                data: Union[bool, dict, int, str] = None, file: str = None, encrypt: bool = True) -> bool:
     # Use this function to share data in the channel
     try:
+        thread(
+            target=share_data_thread,
+            args=(client, receivers, action, action_type, data, file, encrypt)
+        )
+
+        return True
+    except Exception as e:
+        logger.warning(f"Share data error: {e}", exc_info=True)
+
+    return False
+
+
+def share_data_thread(client: Client, receivers: List[str], action: str, action_type: str,
+                      data: Union[bool, dict, int, str] = None, file: str = None, encrypt: bool = True) -> bool:
+    # Share data thread
+    try:
         if glovar.sender in receivers:
             receivers.remove(glovar.sender)
 
@@ -98,6 +114,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                 action_type=action_type,
                 data=data
             )
+
             if encrypt:
                 # Encrypt the file, save to the tmp directory
                 file_path = get_new_path()
@@ -107,11 +124,11 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                 file_path = file
 
             result = send_document(client, channel_id, file_path, None, text)
+
             # Delete the tmp file
             if result:
                 for f in {file, file_path}:
-                    if "tmp/" in f:
-                        thread(delete_file, (f,))
+                    "tmp/" in f and thread(delete_file, (f,))
         else:
             text = format_data(
                 sender=glovar.sender,
@@ -130,6 +147,6 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
 
         return True
     except Exception as e:
-        logger.warning(f"Share data error: {e}", exc_info=True)
+        logger.warning(f"Share data thread error: {e}", exc_info=True)
 
     return False

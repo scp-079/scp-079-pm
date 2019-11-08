@@ -54,13 +54,13 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
             thread(edit_message_text, (client, cid, mid, text, markup))
 
         # List
-        elif action == "list":
+        if action == "list":
             page = data
             text, markup = list_page_ids(action_type, page)
             edit_message_text(client, cid, mid, text, markup)
 
         # Recall messages
-        elif action == "recall":
+        if action == "recall":
             cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
             text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
             markup = None

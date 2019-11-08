@@ -24,7 +24,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang, name_mention
+from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang, mention_name
 from .etc import thread, wait_flood
 from .file import save
 from .group import delete_message, get_message
@@ -40,17 +40,22 @@ def clear_data(data_type: str) -> str:
     # Clear stored data
     text = f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
     try:
+        # Clear blacklist
         if data_type == "blacklist":
             glovar.blacklist_ids = set()
             save("blacklist_ids")
             text += f"{lang('type')}{lang('colon')}{code(lang('blacklist_ids'))}\n"
-        elif data_type == "flood":
+
+        # Clear flood status
+        if data_type == "flood":
             glovar.flood_ids = {
                 "users": set(),
                 "counts": {}
             }
             text += f"{lang('type')}{lang('colon')}{code(lang('flood_ids'))}\n"
-        elif data_type == "message":
+
+        # Clear messages ids
+        if data_type == "message":
             glovar.message_ids = {}
             save("message_ids")
             glovar.reply_ids = {
@@ -200,13 +205,14 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
 
         # Deliver the message
         result = deliver_message(client, message, hid, mid, "g2h")
+
         if not result or not isinstance(result, Message) or result.edit_date:
             return False
 
         text = f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
 
         if message.from_user.username:
-            text += f"{lang('user_name')}{lang('colon')}{name_mention(message.from_user)}\n"
+            text += f"{lang('user_name')}{lang('colon')}{mention_name(message.from_user)}\n"
         else:
             text += f"{lang('user_name')}{lang('colon')}{code(get_full_name(message.from_user))}\n"
 
@@ -238,6 +244,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         # Check the blacklist status
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g")
+
             if not result or not isinstance(result, Message):
                 return False
 
@@ -313,6 +320,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
 
         # Check to see if the bot knows which message shall be replied to
         reply_mid = None
+
         if message.reply_to_message:
             reply_mid = message.reply_to_message.message_id
             reply_mid = glovar.reply_ids[reply_type].get(reply_mid, (None, None))[0]

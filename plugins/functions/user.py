@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client
 
 from .. import glovar
-from .etc import code, lang, thread, user_mention
+from .etc import code, lang, thread, mention_id
 from .ids import remove_id
 from .telegram import send_message
 
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 def forgive_user(client: Client, uid: int, mid: int) -> bool:
     # Forgive the flood user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
+        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n")
 
         if uid in glovar.flood_ids["users"]:
@@ -57,7 +57,7 @@ def forgive_user(client: Client, uid: int, mid: int) -> bool:
 def unblock_user(client: Client, uid: int, mid: int) -> bool:
     # Unblock a user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{user_mention(uid)}\n"
+        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n")
 
         if uid in glovar.blacklist_ids:
