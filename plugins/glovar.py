@@ -274,7 +274,8 @@ flood_ids: Dict[str, Union[Dict[int, List[float]], Set[int]]] = {
 
 locks: Dict[str, Lock] = {
     "count": Lock(),
-    "message": Lock()
+    "message": Lock(),
+    "receive": Lock()
 }
 
 media_group_ids: Set[int] = set()
