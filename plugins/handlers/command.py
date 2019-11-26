@@ -342,7 +342,7 @@ def page_command(client: Client, message: Message) -> bool:
         # Basic data
         cid = message.chat.id
         mid = message.message_id
-        action = get_command_type(message)
+        the_type = get_command_type(message)
         r_message = message.reply_to_message
         rid = r_message and r_message.message_id
 
@@ -350,9 +350,9 @@ def page_command(client: Client, message: Message) -> bool:
         text = f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n"
 
         # Proceed
-        if action in {"previous", "next"} and r_message and r_message.from_user.is_self:
+        if the_type in {"previous", "next"} and r_message and r_message.from_user.is_self:
             callback_data_list = get_callback_data(r_message)
-            i = (lambda x: 0 if x == "previous" else -1)(action)
+            i = (lambda x: 0 if x == "previous" else -1)(the_type)
             if callback_data_list and callback_data_list[i]["a"] == "list":
                 action_type = callback_data_list[i]["t"]
                 page = callback_data_list[i]["d"]
