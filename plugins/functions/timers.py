@@ -79,6 +79,11 @@ def interval_min_01() -> bool:
 def reset_data(client: Client) -> bool:
     # Reset user data every month
     try:
+        glovar.bad_ids = {
+            "users": set()
+        }
+        save("bad_ids")
+
         glovar.message_ids = {}
         save("message_ids")
 
