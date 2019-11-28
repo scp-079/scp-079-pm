@@ -186,6 +186,8 @@ lang: Dict[str, str] = {
     "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
     "cancel": (zh_cn and "取消") or "Cancel",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
+    "check_no": (zh_cn and "您不在本项目的黑名单中") or "You are not in the project blacklist",
+    "check_yes": (zh_cn and "您在项目黑名单中") or "You are in the project blacklist",
     "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
     "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
     "description_direct": ((zh_cn and ("如需将消息转发给某人，"
@@ -224,8 +226,6 @@ lang: Dict[str, str] = {
     "reason_recall": (zh_cn and "没有可撤回的消息") or "No Messages to Recall",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
-    "result_no": (zh_cn and "您未被本项目封禁") or "You are not banned by this project",
-    "result_yes": (zh_cn and "您在项目黑名单中") or "You are in the project blacklist",
     "start_guest": ((zh_cn and ("欢迎使用\n"
                                 "如您需要私聊 {}，您可以直接在此发送消息并等待回复\n"
                                 "若您也想拥有自己的私聊机器人，请参照 {} 建立\n"))

@@ -656,12 +656,12 @@ def status(client: Client, message: Message) -> bool:
             text = f"{lang('action')}{lang('colon')}{code(lang('action_check'))}\n"
 
             if cid in glovar.bad_ids["users"]:
-                text += (f"{lang('result')}{lang('colon')}{code(lang('result_yes'))}\n"
+                text += (f"{lang('result')}{lang('colon')}{code(lang('check_yes'))}\n"
                          f"{lang('suggestion')}{lang('colon')}" + "-" * 24 + "\n\n")
                 suggestion_list = lang("suggestion_yes").format(cid).split("\n\n")
                 text += "\n\n".join(code(suggestion) for suggestion in suggestion_list) + "\n"
             else:
-                text += (f"{lang('result')}{lang('colon')}{code(lang('result_no'))}\n"
+                text += (f"{lang('result')}{lang('colon')}{code(lang('check_no'))}\n"
                          f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_no'))}\n")
 
         # Send the report message
