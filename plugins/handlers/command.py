@@ -600,9 +600,15 @@ def status(client: Client, message: Message) -> bool:
 
         # Check the command
         if command_type:
-            glovar.status = command_type
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
+            if command_type == "off":
+                glovar.status = ""
+                text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                        f"{lang('status')}{lang('colon')}{code(lang('reason_none'))}\n")
+            else:
+                glovar.status = command_type
+                text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                        f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
+
             save("status")
         else:
             text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
