@@ -41,7 +41,8 @@ def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
             text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
 
             # Send the report message to the guest
-            guest_text = f"{lang('description')}{lang('colon')}{code(lang('description_forgive'))}\n"
+            guest_text = (f"{lang('action')}{lang('colon')}{code('action_hint')}\n"
+                          f"{lang('description')}{lang('colon')}{code(lang('description_forgive'))}\n")
             thread(send_message, (client, uid, guest_text))
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"

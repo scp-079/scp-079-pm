@@ -175,6 +175,7 @@ lang: Dict[str, str] = {
     "action_check": (zh_cn and "查看黑名单状态") or "Check Ban Status",
     "action_direct": (zh_cn and "直接对话") or "Direct Chat",
     "action_forgive": (zh_cn and "解除限制") or "Forgive the User",
+    "action_hint": (zh_cn and "自动提醒") or "Auto Hint",
     "action_leave": (zh_cn and "退出对话") or "Leave Direct Chat",
     "action_limit": (zh_cn and "自动限制用户发言") or "Automatically Restrict the User from Sending",
     "action_mention": (zh_cn and "查询用户") or "Mention User",

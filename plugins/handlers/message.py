@@ -54,7 +54,8 @@ def count(client: Client, message: Message) -> bool:
         add_id(uid, 0, "flood")
 
         # Send the report message to the guest
-        text = f"{lang('description')}{lang('colon')}{code(lang('description_flood').format(glovar.flood_ban))}\n"
+        text = (f"{lang('action')}{lang('colon')}{code('action_hint')}\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_flood').format(glovar.flood_ban))}\n")
         thread(send_message, (client, uid, text, mid))
 
         # Send the report message to the host
