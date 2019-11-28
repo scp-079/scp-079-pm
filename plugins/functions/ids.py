@@ -22,7 +22,8 @@ from time import time
 from pyrogram import Message
 
 from .. import glovar
-from ..functions.file import save
+from .etc import get_now
+from .file import save
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -31,6 +32,9 @@ logger = logging.getLogger(__name__)
 def add_id(cid: int, mid: int, id_type: str) -> bool:
     # Add a id to global variables
     try:
+        # Basic data
+        now = get_now()
+
         if not init_id(cid):
             return False
 
@@ -43,7 +47,7 @@ def add_id(cid: int, mid: int, id_type: str) -> bool:
         # Add flood id
         if id_type == "flood":
             if cid not in glovar.flood_ids["users"]:
-                glovar.flood_ids["users"].add(cid)
+                glovar.flood_ids["users"][cid] = now
 
         # Store the message's id in guest chat, in order to recall all messages sometime
         if id_type in {"guest", "host"}:
@@ -150,7 +154,7 @@ def remove_id(cid, mid, ctx) -> bool:
 
         # Remove a flood user
         if ctx == "flood":
-            glovar.flood_ids["users"].discard(cid)
+            glovar.flood_ids["users"].pop(cid, 0)
 
         # Remove a single id the host sent to guest chat
         if ctx == "host":

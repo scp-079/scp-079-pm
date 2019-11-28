@@ -23,7 +23,7 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data
-from .etc import code, general_link, lang, thread
+from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .telegram import send_message
 
@@ -57,15 +57,21 @@ def backup_files(client: Client) -> bool:
     return False
 
 
-def interval_min_n() -> bool:
-    # Execute very N minutes
+def interval_min_01() -> bool:
+    # Execute very minute
+    glovar.locks["guest"].acquire()
     try:
         # Clear the user's flood status
-        glovar.flood_ids["users"] = set()
+        now = get_now()
+        for uid in list(glovar.flood_ids["users"]):
+            if now - glovar.flood_ids["users"][uid] > glovar.flood_ban:
+                glovar.flood_ids["users"].pop(uid, 0)
 
         return True
     except Exception as e:
-        logger.warning(f"Interval min error: {e}", exc_info=True)
+        logger.warning(f"Interval min 01 error: {e}", exc_info=True)
+    finally:
+        glovar.locks["guest"].release()
 
     return False
 

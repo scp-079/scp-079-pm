@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_min_n, reset_data, reset_direct, update_status
+from plugins.functions.timers import backup_files, interval_min_01, reset_data, reset_direct, update_status
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ glovar.exchange_channel_id and update_status(app, "online")
 
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
-scheduler.add_job(interval_min_n, "interval", minutes=glovar.flood_ban)
+scheduler.add_job(interval_min_01, "interval", minutes=glovar.flood_ban)
 glovar.exchange_channel_id and scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 glovar.exchange_channel_id and scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(reset_direct, "cron", hour=18)

@@ -22,6 +22,7 @@ from typing import Union
 from pyrogram import CallbackQuery, Filters, Message
 
 from .. import glovar
+from .etc import get_now
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -97,7 +98,9 @@ def is_limited_user(_, message: Message) -> bool:
             return False
 
         cid = message.chat.id
-        if cid in glovar.blacklist_ids or cid in glovar.flood_ids["users"]:
+        now = get_now()
+
+        if cid in glovar.blacklist_ids or now - glovar.flood_ids["users"].get(cid, 0) < glovar.flood_ban:
             return True
     except Exception as e:
         logger.warning(f"Is limited user error: {e}", exc_info=True)

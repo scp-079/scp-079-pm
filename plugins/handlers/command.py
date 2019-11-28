@@ -25,7 +25,7 @@ from .. functions.deliver import clear_data, get_guest, list_page_ids, recall_me
 from ..functions.etc import bold, button_data, code, general_link, get_callback_data, get_command_type, get_int, lang
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
-from ..functions.filters import from_user, host_chat, test_group
+from ..functions.filters import from_user, host_chat, is_limited_user, test_group
 from ..functions.ids import add_id, remove_id
 from ..functions.telegram import delete_messages, edit_message_reply_markup, edit_message_text, get_start
 from ..functions.telegram import resolve_username, send_message
@@ -582,7 +582,11 @@ def start(client: Client, message: Message) -> bool:
                 text = lang("start_host").format(link_text)
 
             # Guest
-            elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
+            else:
+                # Check limit status
+                if is_limited_user(None, message):
+                    return True
+
                 link_text = general_link(lang("description"), "https://scp-079.org/pm/")
                 text = lang("start_guest").format(code(glovar.host_name), link_text)
 
@@ -591,10 +595,6 @@ def start(client: Client, message: Message) -> bool:
                     text += f"{lang('user_status')}{lang('colon')}{code(glovar.status)}\n"
                 elif glovar.status:
                     text += "\n" + glovar.status
-
-            # Limited user
-            else:
-                text = ""
 
             # Send the report message
             thread(send_message, (client, cid, text))
@@ -647,8 +647,10 @@ def status(client: Client, message: Message) -> bool:
                 text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Guest
-        elif cid not in glovar.blacklist_ids and cid not in glovar.flood_ids["users"]:
-            # Check the ban status
+        else:
+            # Check limit status
+            if is_limited_user(None, message):
+                return True
 
             # Text prefix
             text = f"{lang('action')}{lang('colon')}{code(lang('action_check'))}\n"
@@ -661,10 +663,6 @@ def status(client: Client, message: Message) -> bool:
             else:
                 text += (f"{lang('result')}{lang('colon')}{code(lang('result_no'))}\n"
                          f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_no'))}\n")
-
-        # Limited user:
-        else:
-            text = ""
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
