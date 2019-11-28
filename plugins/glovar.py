@@ -243,15 +243,16 @@ lang: Dict[str, str] = {
     "suggestion": (zh_cn and "建议") or "Suggestion",
     "suggestion_no": ((zh_cn and "您可以咨询您被封禁群组的管理员，令其解禁")
                       or "You can ask the admin of your banned group to unban you"),
-    "suggestion_yes": ((zh_cn and ("您可以在此留言，等待申诉处理结果\n\n"
-                                   "或者您可以联系受影响群组的管理员，令其在群内发送命令：\n\n"
+    "suggestion_yes": ((zh_cn and ("您可以在此留言说明情况，之后等待申诉处理结果\n\n"
+                                   "如您的申诉被项目组拒绝，您还可以联系受影响群组的管理员，令其在群内发送命令：\n\n"
                                    "/white {}\n\n"
-                                   "即可将您单独解封"))
+                                   "即可将您在群组中单独解封"))
                        or ("You can leave messages here and wait for the appeal processing result\n\n"
-                           "Or you can contact the admins of the affected groups "
+                           "If your appeal is rejected by the project team, "
+                           "you can also contact the admins of the affected groups "
                            "and let them send commands within the groups:\n\n"
                            "/white {}\n\n"
-                           "Then will unban you in the groups")),
+                           "Then it will unban you in these groups")),
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     "user_status": (zh_cn and "对方状态") or "The User's Status"
