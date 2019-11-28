@@ -191,25 +191,25 @@ lang: Dict[str, str] = {
     "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
     "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
     "description_direct": ((zh_cn and ("如需将消息转发给某人，"
-                                       "请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人\n"
+                                       "请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息给机器人。"
                                        "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
-                                       "而无需回复带该用户 ID 的汇报消息\n"
-                                       "如欲退出与该用户的直接对话，请发送：/leave 指令\n")
+                                       "而无需回复带该用户 ID 的汇报消息。"
+                                       "如欲退出与该用户的直接对话，请发送：/leave 指令")
                             or ("To forward a message to someone, "
                                 "reply with a report message containing the user ID with the /direct command "
-                                "and forward the message to the robot\n"
+                                "and forward the message to the robot. "
                                 "Note: A direct conversation with the user will be initiated "
                                 "and any messages you send to the bot will be sent to the user "
-                                "without having to reply to the report message with that user ID\n"
-                                "To quit a direct conversation with this user, please send: /leave command\n"))),
+                                "without having to reply to the report message with that user ID. "
+                                "To quit a direct conversation with this user, please send: /leave command"))),
     "description_flood": ((zh_cn and ("您发送的消息过于频繁，请 {} 秒后重试，"
-                                      "期间机器人将对您的消息不做任何转发和应答\n"))
+                                      "期间机器人将对您的消息不做任何转发和应答"))
                           or ("You sent messages too frequently. Please try again after {} seconds, "
-                              "During this time the bot will not forward and respond to your messages\n")),
+                              "During this time the bot will not forward and respond to your messages")),
     "description_forgive": ((zh_cn and "您已被手动解除等待的时间限制，"
-                                       "您现在可以正常发送消息\n")
+                                       "您现在可以正常发送消息")
                             or ("You have been manually lifted the waiting flood time restriction, "
-                                "You can now send messages\n")),
+                                "You can now send messages")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
     "limit_duration": (zh_cn and "限制时长") or "Restriction Duration",
