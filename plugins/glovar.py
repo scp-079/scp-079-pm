@@ -192,14 +192,14 @@ lang: Dict[str, str] = {
     "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
     "description_direct": ((zh_cn and ("如需将消息转发给某人，"
                                        "请以 /direct 命令回复某条包含该用户 ID 的汇报消息，并转发消息到当前对话中。"
-                                       "注意：此时将开启与该用户的直接对话，您发送给机器人的任何消息都将发送给对方，"
+                                       "注意：此时将开启与该用户的直接交流，发送到当前对话的任何消息都将发送给对方，"
                                        "而无需回复带该用户 ID 的汇报消息。"
-                                       "如欲退出与该用户的直接对话，请发送：/leave 指令")
+                                       "如欲退出与该用户的直接交流，请发送：/leave 指令")
                             or ("To forward a message to someone, "
                                 "reply with a report message containing the user ID with the /direct command "
                                 "and forward the message to the current chat. "
                                 "Note: A direct conversation with the user will be initiated "
-                                "and any messages you send to the bot will be sent to the user "
+                                "and any messages you send to the current chat will be sent to the user "
                                 "without having to reply to the report message with that user ID. "
                                 "To quit a direct conversation with this user, please send: /leave command"))),
     "description_flood": ((zh_cn and ("您发送的消息过于频繁，请 {} 秒后重试，"
