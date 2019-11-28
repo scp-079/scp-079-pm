@@ -22,9 +22,9 @@ import json
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.etc import get_int, thread
+from ..functions.etc import get_int, get_now, lang, mention_id, thread
 from ..functions.deliver import clear_data, list_page_ids, recall_messages
-from ..functions.telegram import answer_callback, edit_message_text
+from ..functions.telegram import answer_callback, edit_message_reply_markup, edit_message_text
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -35,8 +35,9 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the callback query
     try:
         # Basic data
-        cid = glovar.host_id
-        uid = callback_query.from_user.id
+        hid = glovar.host_id
+        cid = callback_query.message.chat.id
+        aid = callback_query.from_user.id
         mid = callback_query.message.message_id
         callback_data = json.loads(callback_query.data)
         action = callback_data["a"]
@@ -44,27 +45,44 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         data = callback_data["d"]
 
         # Check permission
-        if cid and uid != cid:
+        if cid and cid != glovar.host_id:
+            return True
+
+        # Check the date
+        date = callback_query.message.date
+        now = get_now()
+        if hid < 0 and now - date > 86400:
+            thread(edit_message_reply_markup, (client, cid, mid, None))
             return True
 
         # Clear all stored data
         if action == "clear":
             text = clear_data(callback_data["t"])
+
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
             markup = None
-            thread(edit_message_text, (client, cid, mid, text, markup))
+            edit_message_text(client, hid, mid, text, markup)
 
         # List
-        if action == "list":
+        elif action == "list":
             page = data
-            text, markup = list_page_ids(action_type, page)
-            edit_message_text(client, cid, mid, text, markup)
+            text, markup = list_page_ids(action_type, page, aid)
+            edit_message_text(client, hid, mid, text, markup)
 
         # Recall messages
-        if action == "recall":
+        elif action == "recall":
             cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
             text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
+
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
             markup = None
-            thread(edit_message_text, (client, cid, mid, text, markup))
+            edit_message_text(client, hid, mid, text, markup)
 
         thread(answer_callback, (client, callback_query.id, ""))
 

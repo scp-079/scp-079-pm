@@ -32,6 +32,26 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
+def receive_add_bad(data: dict) -> bool:
+    # Receive bad users or channels that other bots shared
+    try:
+        # Basic data
+        the_id = data["id"]
+        the_type = data["type"]
+
+        # Receive bad user
+        if the_type == "user":
+            glovar.bad_ids["users"].add(the_id)
+
+        save("bad_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive add bad error: {e}", exc_info=True)
+
+    return False
+
+
 def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
     # Receive file's data from exchange channel
     data = None
@@ -65,6 +85,27 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
         logger.warning(f"Receive file error: {e}", exc_info=True)
 
     return data
+
+
+def receive_remove_bad(data: dict) -> bool:
+    # Receive removed bad objects
+    try:
+        # Basic data
+        the_id = data["id"]
+        the_type = data["type"]
+
+        # Remove bad user
+        if the_type == "user":
+            glovar.bad_ids["users"].discard(the_id)
+            save("user_ids")
+
+        save("bad_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive remove bad error: {e}", exc_info=True)
+
+    return False
 
 
 def receive_rollback(client: Client, message: Message, data: dict) -> bool:

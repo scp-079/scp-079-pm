@@ -24,8 +24,8 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.errors import FloodWait, UserIsBlocked
 
 from .. import glovar
-from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang, mention_name
-from .etc import thread, wait_flood
+from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang
+from .etc import mention_id, mention_name, thread, wait_flood
 from .file import save
 from .group import delete_message, get_message
 from .ids import init_id, remove_id
@@ -38,8 +38,11 @@ logger = logging.getLogger(__name__)
 
 def clear_data(data_type: str) -> str:
     # Clear stored data
-    text = f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
+    text = ""
     try:
+        # Text prefix
+        text += f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
+
         # Clear blacklist
         if data_type == "blacklist":
             glovar.blacklist_ids = set()
@@ -241,9 +244,14 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         hid = glovar.host_id
         mid = message.message_id
 
+        if glovar.host_id < 0:
+            aid = message.from_user.id
+        else:
+            aid = 0
+
         # Check the blacklist status
         if cid not in glovar.blacklist_ids:
-            result = deliver_message(client, message, cid, mid, "h2g")
+            result = deliver_message(client, message, cid, mid, "h2g", aid)
 
             if not result or not isinstance(result, Message):
                 return False
@@ -277,27 +285,35 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
             add_id(cid, forward_mid, "host")
             reply_id(mid, forward_mid, cid, "host")
             reply_id(forward_mid, mid, cid, "guest")
-
-            # Send report message
-            thread(send_message, (client, hid, text, mid, markup))
-
-            return True
         else:
             text = (f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
-            thread(send_message, (client, hid, text, mid))
+            markup = None
+
+        # Admin info text
+        if aid:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send report message
+        thread(send_message, (client, hid, text, mid, markup))
+
+        return True
     except Exception as e:
         logger.warning(f"Deliver host message error: {e}", exc_info=True)
 
     return False
 
 
-def deliver_fail(client: Client, cid: int, mid: int) -> bool:
+def deliver_fail(client: Client, cid: int, mid: int, aid: int) -> bool:
     # Send a report message when deliver failed
     try:
         text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                 f"{lang('reason')}{lang('colon')}{code(lang('reason_stopped'))}\n")
+
+        if aid:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
         thread(send_message, (client, cid, text, mid))
 
         return True
@@ -308,7 +324,7 @@ def deliver_fail(client: Client, cid: int, mid: int) -> bool:
 
 
 def deliver_message(client: Client, message: Message, chat_id: int, message_id: int,
-                    reply_type: str) -> Optional[Message]:
+                    reply_type: str, aid: int = 0) -> Optional[Message]:
     # Deliver a message to guest or host
     result = None
     try:
@@ -384,7 +400,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                 wait_flood(e)
             except UserIsBlocked:
                 # If the other user blocked the bot, send a failure report to who sent the message
-                deliver_fail(client, message.from_user.id, message_id)
+                deliver_fail(client, message.from_user.id, message_id, aid)
                 return None
             except Exception as e:
                 logger.warning(f"Forward message error: {e}", exc_info=True)
@@ -420,16 +436,16 @@ def get_guest(message: Message) -> (int, int):
     return mid, cid
 
 
-def list_page_ids(action_type: str, page: int) -> (str, InlineKeyboardMarkup):
+def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboardMarkup):
     # Generate a ids list page
     text = ""
     markup = None
     try:
+        # Action text
+        text += f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
+
         # Generate
         if action_type in {"blacklist", "flood"}:
-            # Action text
-            text += f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
-
             # Generate the page
             if action_type == "blacklist":
                 the_list = glovar.blacklist_ids
@@ -446,6 +462,10 @@ def list_page_ids(action_type: str, page: int) -> (str, InlineKeyboardMarkup):
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
     except Exception as e:
         logger.warning(f"List page ids error: {e}", exc_info=True)
 

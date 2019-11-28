@@ -22,7 +22,7 @@ from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from typing import Any, Callable, List, Optional, Union
 
 from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup, Message, User
@@ -241,6 +241,17 @@ def get_list_page(the_list: list, action: str, action_type: str, page: int) -> (
         logger.warning(f"Get list page error: {e}", exc_info=True)
 
     return the_list, markup
+
+
+def get_now() -> int:
+    # Get time for now
+    result = 0
+    try:
+        result = int(time())
+    except Exception as e:
+        logger.warning(f"Get now error: {e}", exc_info=True)
+
+    return result
 
 
 def get_text(message: Message) -> str:

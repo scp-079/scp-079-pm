@@ -35,13 +35,15 @@ from ..functions.user import forgive_user, unblock_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["block"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["block"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def block(client: Client, message: Message) -> bool:
     # Block a user
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
         cid = cid or get_int(get_command_type(message))
@@ -67,14 +69,20 @@ def block(client: Client, message: Message) -> bool:
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
 
-            unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
-            text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
-            thread(send_message, (client, hid, text, mid))
+            if glovar.host_id > 0:
+                unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
+                text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-            thread(send_message, (client, hid, text, mid))
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, hid, text, mid))
 
         return True
     except Exception as e:
@@ -84,12 +92,14 @@ def block(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.private & Filters.command(["clear"], glovar.prefix)
-                   & from_user & host_chat)
+                   & host_chat
+                   & from_user)
 def clear(client: Client, message: Message) -> bool:
     # Clear stored data
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
 
@@ -129,6 +139,10 @@ def clear(client: Client, message: Message) -> bool:
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
         # Send the report message
         thread(send_message, (client, hid, text, mid, markup))
 
@@ -139,13 +153,15 @@ def clear(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["direct"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["direct"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def direct_chat(client: Client, message: Message) -> bool:
     # Start a direct chat
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
 
@@ -158,19 +174,25 @@ def direct_chat(client: Client, message: Message) -> bool:
                         f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
                         f"{lang('action_leave')}{lang('colon')}/leave\n")
             else:
-                unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
                 text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
                         f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n"
-                        f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n")
+                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
 
-            thread(send_message, (client, hid, text, mid))
+                if glovar.host_id > 0:
+                    unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
+                    text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-            thread(send_message, (client, hid, text, mid))
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, hid, text, mid))
 
         return True
     except Exception as e:
@@ -179,30 +201,35 @@ def direct_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["forgive"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["forgive"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def forgive(client: Client, message: Message) -> bool:
     # Forgive a user
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         _, uid = get_guest(message)
         command_type = get_command_type(message)
 
         # Get the user's id
-        if uid:
-            forgive_user(client, uid, mid)
-        elif command_type:
+        if not uid and command_type:
             uid = get_int(command_type)
 
         # Unblock the user
         if uid:
-            forgive_user(client, uid, mid)
+            forgive_user(client, uid, mid, aid)
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+            # Send the report message
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -212,14 +239,17 @@ def forgive(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["leave"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["leave"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def leave_chat(client: Client, message: Message) -> bool:
     # Leave the direct chat
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         cid = glovar.direct_chat
+        mid = message.message_id
 
         if cid:
             glovar.direct_chat = 0
@@ -231,8 +261,12 @@ def leave_chat(client: Client, message: Message) -> bool:
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
         # Send the report message
-        thread(send_message, (client, hid, text))
+        thread(send_message, (client, hid, text, mid))
 
         return True
     except Exception as e:
@@ -241,21 +275,23 @@ def leave_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["list", "ls"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["list", "ls"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def list_ids(client: Client, message: Message) -> bool:
     # List IDs
     try:
         # Basic data
-        cid = message.chat.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         action_type = get_command_type(message)
 
         # Get the text and markup
-        text, markup = list_page_ids(action_type, 1)
+        text, markup = list_page_ids(action_type, 1, aid)
 
         # Send the report message
-        thread(send_message, (client, cid, text, mid, markup))
+        thread(send_message, (client, hid, text, mid, markup))
 
         return True
     except Exception as e:
@@ -264,13 +300,15 @@ def list_ids(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["mention"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["mention"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def mention(client: Client, message: Message) -> bool:
     # Force mention a user
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         _, uid = get_guest(message)
         command_type = get_command_type(message)
@@ -295,6 +333,11 @@ def mention(client: Client, message: Message) -> bool:
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
         thread(send_message, (client, hid, text, mid))
 
         return True
@@ -304,13 +347,15 @@ def mention(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["now"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["now"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def now_chat(client: Client, message: Message) -> bool:
     # Check direct chat status
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         cid = glovar.direct_chat
 
@@ -325,6 +370,11 @@ def now_chat(client: Client, message: Message) -> bool:
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
         thread(send_message, (client, hid, text, mid))
 
         return True
@@ -334,13 +384,15 @@ def now_chat(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["page"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["page"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def page_command(client: Client, message: Message) -> bool:
     # Change page
     try:
         # Basic data
-        cid = message.chat.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         the_type = get_command_type(message)
         r_message = message.reply_to_message
@@ -356,8 +408,8 @@ def page_command(client: Client, message: Message) -> bool:
             if callback_data_list and callback_data_list[i]["a"] == "list":
                 action_type = callback_data_list[i]["t"]
                 page = callback_data_list[i]["d"]
-                page_text, markup = list_page_ids(action_type, page)
-                thread(edit_message_text, (client, cid, rid, page_text, markup))
+                page_text, markup = list_page_ids(action_type, page, aid)
+                thread(edit_message_text, (client, hid, rid, page_text, markup))
                 text += f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
@@ -366,8 +418,12 @@ def page_command(client: Client, message: Message) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
         # Send the report message
-        thread(send_message, (client, cid, text, mid))
+        thread(send_message, (client, hid, text, mid))
 
         return True
     except Exception as e:
@@ -377,7 +433,8 @@ def page_command(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.private & Filters.command(["ping"], glovar.prefix)
-                   & from_user & host_chat)
+                   & host_chat
+                   & from_user)
 def ping(client: Client, message: Message) -> bool:
     # Ping
     try:
@@ -392,13 +449,15 @@ def ping(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["recall"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["recall"], glovar.prefix)
+                   & host_chat
+                   & from_user)
 def recall(client: Client, message: Message) -> bool:
     # Recall messages
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         recall_mid, cid = get_guest(message)
         command_type = get_command_type(message)
@@ -433,10 +492,12 @@ def recall(client: Client, message: Message) -> bool:
                 if command_type == "single" and not recall_mid:
                     # Get the message's id from message's inline button's data
                     callback_data_list = get_callback_data(message.reply_to_message)
+
                     if (callback_data_list
                             and callback_data_list[0]["a"] == "recall"
                             and callback_data_list[0]["t"] == "single"):
                         recall_mid = callback_data_list[0]["d"]
+
                         # Edit the origin report message, delete the reply markup
                         thread(edit_message_reply_markup, (client, hid, message.reply_to_message.message_id, None))
                     # If the data cannot be found, send a error message
@@ -444,7 +505,13 @@ def recall(client: Client, message: Message) -> bool:
                         text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                                  f"{lang('reason')}{lang('colon')}{code(lang('command_origin'))}\n")
                         markup = None
+
+                        # Admin info text
+                        if glovar.host_id < 0:
+                            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
                         thread(send_message, (client, hid, text, mid, markup))
+
                         return True
 
                 text = recall_messages(client, cid, command_type, recall_mid)
@@ -453,12 +520,17 @@ def recall(client: Client, message: Message) -> bool:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
                 markup = None
-
-            thread(send_message, (client, hid, text, mid, markup))
         else:
             text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-            thread(send_message, (client, hid, text, mid))
+            markup = None
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, hid, text, mid, markup))
 
         return True
     except Exception as e:
@@ -474,24 +546,25 @@ def start(client: Client, message: Message) -> bool:
     glovar.locks["message"].acquire()
     try:
         # Basic data
+        cid = message.chat.id
         uid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
 
         # Check the command
-        if uid == glovar.host_id and command_type and "_" in command_type:
+        if cid == glovar.host_id and command_type and "_" in command_type:
             para_list = command_type.split("_")
             if len(para_list) == 2:
                 para_action = para_list[0]
                 para_data = para_list[1]
                 if para_action == "unblock":
                     cid = get_int(para_data)
-                    unblock_user(client, cid, mid)
+                    unblock_user(client, cid, mid, uid)
                 elif para_action == "forgive":
                     cid = get_int(para_data)
-                    forgive_user(client, cid, mid)
+                    forgive_user(client, cid, mid, uid)
         else:
-            if uid == glovar.host_id:
+            if cid == glovar.host_id:
                 link_text = general_link(lang("this_page"), "https://scp-079.org/pm/")
                 text = lang("start_host").format(link_text)
             elif uid not in glovar.blacklist_ids and uid not in glovar.flood_ids["users"]:
@@ -502,7 +575,8 @@ def start(client: Client, message: Message) -> bool:
             else:
                 text = ""
 
-            thread(send_message, (client, uid, text))
+            # Send the report message
+            thread(send_message, (client, cid, text))
 
         return True
     except Exception as e:
@@ -519,7 +593,8 @@ def status(client: Client, message: Message) -> bool:
     # Set status
     try:
         # Basic data
-        cid = glovar.host_id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
 
@@ -537,7 +612,12 @@ def status(client: Client, message: Message) -> bool:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
 
-        thread(send_message, (client, cid, text, mid))
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, hid, text, mid))
 
         return True
     except Exception as e:
@@ -546,30 +626,37 @@ def status(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["unblock"], glovar.prefix)
+@Client.on_message(Filters.incoming & Filters.command(["unblock"], glovar.prefix)
                    & from_user & host_chat)
 def unblock(client: Client, message: Message) -> bool:
     # Unblock a user
     try:
         # Basic data
-        hid = message.from_user.id
+        hid = glovar.host_id
+        aid = message.from_user.id
         mid = message.message_id
         _, uid = get_guest(message)
         command_type = get_command_type(message)
 
         # Get the user's id
         if uid:
-            unblock_user(client, uid, mid)
+            unblock_user(client, uid, mid, aid)
         elif command_type:
             uid = get_int(command_type)
 
         # Unblock the user
         if uid:
-            unblock_user(client, uid, mid)
+            unblock_user(client, uid, mid, aid)
         else:
             text = (f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n"
                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+            # Send the report message
             thread(send_message, (client, hid, text, mid))
 
         return True

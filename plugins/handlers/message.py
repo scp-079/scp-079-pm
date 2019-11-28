@@ -21,11 +21,11 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import code, bold, general_link, lang, thread
+from ..functions.etc import code, bold, general_link, lang, mention_id, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, host_chat, is_limited_user, limited_user
 from ..functions.ids import add_id, count_id
-from ..functions.receive import receive_rollback, receive_text_data
+from ..functions.receive import receive_add_bad, receive_remove_bad, receive_rollback, receive_text_data
 from ..functions.timers import backup_files
 from ..functions.telegram import get_start
 
@@ -33,8 +33,9 @@ from ..functions.telegram import get_start
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.private & Filters.incoming
-                   & from_user & ~host_chat & ~limited_user, group=1)
+@Client.on_message(Filters.incoming & Filters.private
+                   & ~host_chat
+                   & from_user & ~limited_user, group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     glovar.locks["count"].acquire()
@@ -54,10 +55,13 @@ def count(client: Client, message: Message) -> bool:
         thread(send_message, (client, uid, text))
 
         # Send the report message to the host
-        forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
         text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
-                f"{lang('action_forgive')}{lang('colon')}{forgive_link}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n")
+
+        if glovar.host_id > 0:
+            forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
+            text += f"{lang('action_forgive')}{lang('colon')}{forgive_link}\n"
+
         thread(send_message, (client, glovar.host_id, text))
 
         return True
@@ -69,14 +73,16 @@ def count(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(glovar.all_commands, glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & ~Filters.service & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & host_chat
+                   & from_user)
 def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
     glovar.locks["message"].acquire()
     try:
         # Basic data
         hid = message.chat.id
+        aid = message.from_user.id
         mid = message.message_id
         _, cid = get_guest(message)
 
@@ -93,6 +99,11 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
                 text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                         f"{lang('description')}{lang('colon')}{code(lang('description_direct'))}\n")
 
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+            # Send the report message
             thread(send_message, (client, hid, text, mid))
 
         return True
@@ -104,8 +115,9 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.private & Filters.incoming & ~Filters.command(glovar.all_commands, glovar.prefix)
-                   & from_user & ~host_chat & ~limited_user, group=0)
+@Client.on_message(Filters.incoming & Filters.private & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & ~host_chat
+                   & from_user & ~limited_user, group=0)
 def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
     glovar.locks["message"].acquire()
@@ -193,13 +205,59 @@ def process_data(client: Client, message: Message) -> bool:
         # so it is intentionally written like this
         if glovar.sender in receivers:
 
-            if sender == "MANAGE":
+            if sender == "CLEAN":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "LANG":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "LONG":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "MANAGE":
 
                 if action == "backup":
                     if action_type == "now":
                         thread(backup_files, (client,))
                     elif action_type == "rollback":
                         receive_rollback(client, message, data)
+
+                elif action == "remove":
+                    if action_type == "bad":
+                        receive_remove_bad(data)
+
+            elif sender == "NOFLOOD":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "NOPORN":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "NOSPAM":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
+
+            elif sender == "RECHECK":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(data)
 
         return True
     except Exception as e:

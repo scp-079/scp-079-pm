@@ -29,10 +29,10 @@ from .telegram import send_message
 logger = logging.getLogger(__name__)
 
 
-def forgive_user(client: Client, uid: int, mid: int) -> bool:
+def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
     # Forgive the flood user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n")
 
         if uid in glovar.flood_ids["users"]:
@@ -48,13 +48,17 @@ def forgive_user(client: Client, uid: int, mid: int) -> bool:
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_limited'))}\n")
 
         thread(send_message, (client, glovar.host_id, text, mid))
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
     except Exception as e:
         logger.warning(f"Forgive user error: {e}", exc_info=True)
 
     return False
 
 
-def unblock_user(client: Client, uid: int, mid: int) -> bool:
+def unblock_user(client: Client, uid: int, mid: int, aid: int) -> bool:
     # Unblock a user
     try:
         text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
@@ -68,6 +72,10 @@ def unblock_user(client: Client, uid: int, mid: int) -> bool:
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")
 
         thread(send_message, (client, glovar.host_id, text, mid))
+
+        # Admin info text
+        if glovar.host_id < 0:
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         return True
     except Exception as e:

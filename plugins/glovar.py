@@ -281,7 +281,12 @@ locks: Dict[str, Lock] = {
 media_group_ids: Set[int] = set()
 # media_group_ids = {12556677123456789}
 
-sender: str = "PM"
+sender: str = ""
+
+if host_id > 0:
+    sender = "PM"
+else:
+    sender = "TICKET"
 
 should_hide: bool = False
 
@@ -293,7 +298,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.8"
+version: str = "0.4.9"
 
 direct_chat: int = 0
 
@@ -310,6 +315,13 @@ for path in ["data", "tmp"]:
         mkdir(path)
 
 # Init ids variables
+
+bad_ids: Dict[str, Set[int]] = {
+    "users": set()
+}
+# bad_ids = {
+#     "users": {12345678}
+# }
 
 blacklist_ids: Set[int] = set()
 # blacklist_ids = {12345678}
@@ -340,7 +352,7 @@ reply_ids: Dict[str, Dict[int, Tuple[int, int]]] = {
 status: str = ""
 
 # Load data
-file_list: List[str] = ["blacklist_ids", "message_ids", "reply_ids",
+file_list: List[str] = ["bad_ids", "blacklist_ids", "message_ids", "reply_ids",
                         "status"]
 for file in file_list:
     try:
