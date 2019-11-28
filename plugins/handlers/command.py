@@ -555,7 +555,7 @@ def recall(client: Client, message: Message) -> bool:
                    & from_user)
 def start(client: Client, message: Message) -> bool:
     # Send welcome message
-    glovar.locks["message"].acquire()
+    glovar.locks["guest"].acquire()
     try:
         # Basic data
         cid = message.chat.id
@@ -603,7 +603,7 @@ def start(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Start error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["guest"].release()
 
     return False
 

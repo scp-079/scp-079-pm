@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
                    & from_user & ~limited_user, group=1)
 def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
-    glovar.locks["count"].acquire()
+    glovar.locks["guest"].acquire()
     try:
         # Basic data
         uid = message.from_user.id
@@ -73,7 +73,7 @@ def count(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Count error: {e}", exc_info=True)
     finally:
-        glovar.locks["count"].release()
+        glovar.locks["guest"].release()
 
     return False
 
@@ -83,7 +83,7 @@ def count(client: Client, message: Message) -> bool:
                    & from_user)
 def deliver_to_guest(client: Client, message: Message) -> bool:
     # Deliver messages to guest
-    glovar.locks["message"].acquire()
+    glovar.locks["host"].acquire()
     try:
         # Basic data
         hid = message.chat.id
@@ -115,7 +115,7 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Deliver to guest error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["host"].release()
 
     return False
 
@@ -125,7 +125,7 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
                    & from_user & ~limited_user, group=0)
 def deliver_to_host(client: Client, message: Message) -> bool:
     # Deliver messages to host
-    glovar.locks["message"].acquire()
+    glovar.locks["guest"].acquire()
     try:
         # Check the limit status
         if is_limited_user(None, message):
@@ -137,7 +137,7 @@ def deliver_to_host(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Deliver to host error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["guest"].release()
 
     return False
 
