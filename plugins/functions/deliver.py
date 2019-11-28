@@ -455,7 +455,7 @@ def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboard
             if the_list:
                 page_list, markup = get_list_page(the_list, "list", action_type, page)
                 text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n" +
-                         f"\n".join("\t" * 4 + code(the_id) for the_id in page_list))
+                         f"\n".join("\t" * 4 + code(the_id) for the_id in page_list) + "\n\n")
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
