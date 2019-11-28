@@ -639,7 +639,7 @@ def status(client: Client, message: Message) -> bool:
             # Check the ban status
 
             # Text prefix
-            text = f"{lang('action')}{lang('colon')}{lang('action_check')}\n"
+            text = f"{lang('action')}{lang('colon')}{code(lang('action_check'))}\n"
 
             if cid in glovar.bad_ids["users"]:
                 text += (f"{lang('result')}{lang('colon')}{code(lang('result_yes'))}\n"
