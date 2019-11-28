@@ -110,6 +110,7 @@ def clear(client: Client, message: Message) -> bool:
             data_blacklist = button_data("clear", "blacklist", 0)
             data_flood = button_data("clear", "flood", 0)
             data_message = button_data("clear", "message", 0)
+            data_cancel = button_data("cancel", None, None)
             markup = InlineKeyboardMarkup(
                 [
                     [
@@ -126,6 +127,10 @@ def clear(client: Client, message: Message) -> bool:
                         InlineKeyboardButton(
                             text=lang("message_ids"),
                             callback_data=data_message
+                        ),
+                        InlineKeyboardButton(
+                            text=lang("cancel"),
+                            callback_data=data_cancel
                         )
                     ]
                 ]
@@ -470,9 +475,10 @@ def recall(client: Client, message: Message) -> bool:
 
             # Check the command
             if not command_type:
-                text += f"{lang('description_choose_recall')}\n"
+                text += f"{lang('description')}{lang('colon')}{code(lang('description_choose_recall'))}\n"
                 data_host = button_data("recall", "host", str(cid))
                 data_all = button_data("recall", "all", str(cid))
+                data_cancel = button_data("cancel", None, None)
                 markup = InlineKeyboardMarkup(
                     [
                         [
@@ -483,6 +489,12 @@ def recall(client: Client, message: Message) -> bool:
                             InlineKeyboardButton(
                                 text=lang("message_all"),
                                 callback_data=data_all
+                            )
+                        ],
+                        [
+                            InlineKeyboardButton(
+                                text=lang("cancel"),
+                                callback_data=data_cancel
                             )
                         ]
                     ]
@@ -587,40 +599,54 @@ def start(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["status"], glovar.prefix)
-                   & from_user & host_chat)
+@Client.on_message(Filters.incoming & Filters.command(["status"], glovar.prefix)
+                   & from_user)
 def status(client: Client, message: Message) -> bool:
     # Set status
     try:
         # Basic data
         hid = glovar.host_id
+        cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
         command_type = get_command_type(message)
 
-        # Check the command
-        if command_type:
-            if command_type == "off":
-                glovar.status = ""
-                text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('reason_none'))}\n")
-            else:
-                glovar.status = command_type
-                text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
+        if cid == hid:
+            # Check the command
+            if command_type:
+                if command_type == "off":
+                    glovar.status = ""
+                    text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                            f"{lang('status')}{lang('colon')}{code(lang('reason_none'))}\n")
+                else:
+                    glovar.status = command_type
+                    text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                            f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
 
-            save("status")
+                save("status")
+            else:
+                text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
+                if glovar.status:
+                    text += f"{lang('status')}{lang('colon')}{code(glovar.status)}\n"
+                else:
+                    text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                             f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+
+            # Admin info text
+            if glovar.host_id < 0:
+                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
         else:
-            text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
-            if glovar.status:
-                text += f"{lang('status')}{lang('colon')}{code(glovar.status)}\n"
-            else:
-                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+            # Check the ban status
 
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            # Text prefix
+            text = f"{lang('action')}{lang('colon')}{lang('action_check')}\n"
+
+            if cid in glovar.bad_ids["users"]:
+                text += (f"{lang('result')}{lang('colon')}{lang('result_no')}\n"
+                         f"{lang('suggestion')}{lang('colon')}{lang('suggestion_no')}\n")
+            else:
+                text += (f"{lang('result')}{lang('colon')}{lang('result_yes')}\n"
+                         f"{lang('suggestion')}{lang('colon')}{lang('suggestion_yes')}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))

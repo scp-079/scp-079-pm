@@ -52,7 +52,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         date = callback_query.message.date
         now = get_now()
         if hid < 0 and now - date > 86400:
-            thread(edit_message_reply_markup, (client, cid, mid, None))
+            thread(edit_message_reply_markup, (client, hid, mid, None))
             return True
 
         # Clear all stored data
@@ -83,6 +83,10 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
 
             markup = None
             edit_message_text(client, hid, mid, text, markup)
+
+        # Cancel
+        elif action == "cancel":
+            thread(edit_message_reply_markup, (client, hid, mid, None))
 
         thread(answer_callback, (client, callback_query.id, ""))
 

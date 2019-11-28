@@ -172,6 +172,7 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_block": (zh_cn and "拉黑用户") or "Block User",
+    "action_check": (zh_cn and "查看黑名单状态") or "Check Ban Status",
     "action_direct": (zh_cn and "直接对话") or "Direct Chat",
     "action_forgive": (zh_cn and "解除限制") or "Forgive the User",
     "action_leave": (zh_cn and "退出对话") or "Leave Direct Chat",
@@ -182,6 +183,7 @@ lang: Dict[str, str] = {
     "action_status_set": (zh_cn and "设定状态") or "Set the Status",
     "action_status_show": (zh_cn and "查看当前状态") or "Show the Status",
     "action_unblock": (zh_cn and "解禁用户") or "Unblock User",
+    "cancel": (zh_cn and "取消") or "Cancel",
     "chat_id": (zh_cn and "对话 ID") or "Chat ID",
     "description_choose_clear": (zh_cn and "请选择要清空的数据") or "Please Choose the Data to Clear",
     "description_choose_recall": (zh_cn and "请选择要撤回全部消息的类别") or "Please Choose the Messages to Recall",
@@ -220,6 +222,8 @@ lang: Dict[str, str] = {
     "reason_recall": (zh_cn and "没有可撤回的消息") or "No Messages to Recall",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
+    "result_no": (zh_cn and "您未被本项目封禁") or "You are not banned by this project",
+    "result_yes": (zh_cn and "您在项目黑名单中") or "You are in the project blacklist",
     "start_guest": ((zh_cn and ("欢迎使用\n"
                                 "如您需要私聊 {}，您可以直接在此发送消息并等待回复\n"
                                 "若您也想拥有自己的私聊机器人，请参照 {} 建立\n"))
@@ -236,6 +240,11 @@ lang: Dict[str, str] = {
     "status_delivered": (zh_cn and "已发送") or "Delivered",
     "status_edited": (zh_cn and "已编辑") or "Edited",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
+    "suggestion": (zh_cn and "建议") or "Suggestion",
+    "suggestion_no": ((zh_cn and "您可以咨询您被封禁群组的管理员，令其解禁")
+                      or "You can ask the admin of your banned group to unban you"),
+    "suggestion_yes": ((zh_cn and "您可以在此留言，等待申诉处理结果")
+                       or "You can leave messages here and wait for the appeal processing result"),
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     "user_status": (zh_cn and "对方状态") or "The User's Status"
@@ -298,7 +307,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.9"
+version: str = "0.5.0"
 
 direct_chat: int = 0
 
