@@ -465,7 +465,7 @@ def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboard
 
         # Admin info text
         if glovar.host_id < 0:
-            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
     except Exception as e:
         logger.warning(f"List page ids error: {e}", exc_info=True)
 
