@@ -199,13 +199,13 @@ lang: Dict[str, str] = {
                                 "and any messages you send to the bot will be sent to the user "
                                 "without having to reply to the report message with that user ID\n"
                                 "To quit a direct conversation with this user, please send: /leave command\n"))),
-    "description_flood": ((zh_cn and ("您发送的消息过于频繁，请 {} 分钟后重试\n"
+    "description_flood": ((zh_cn and ("您发送的消息过于频繁，请 {} 分钟后重试，"
                                       "期间机器人将对您的消息不做任何转发和应答\n"))
-                          or ("You sent messages too frequently. Please try again in {} minutes\n"
+                          or ("You sent messages too frequently. Please try again in {} minutes, "
                               "During this time the bot will not forward and respond to your messages\n")),
-    "description_forgive": ((zh_cn and "您已被手动解除等待的时间限制\n"
+    "description_forgive": ((zh_cn and "您已被手动解除等待的时间限制，"
                                        "您现在可以正常发送消息\n")
-                            or ("You have been manually lifted the waiting flood time restriction\n"
+                            or ("You have been manually lifted the waiting flood time restriction, "
                                 "You can now send messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
