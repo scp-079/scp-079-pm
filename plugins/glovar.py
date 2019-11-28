@@ -252,7 +252,7 @@ lang: Dict[str, str] = {
                            "you can also contact the admins of the affected groups "
                            "and let them send commands within the groups:\n\n"
                            "/white {}\n\n"
-                           "Then it will unban you in these groups")),
+                           "Then you will be unbanned in these groups")),
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
     "user_status": (zh_cn and "对方状态") or "The User's Status"
