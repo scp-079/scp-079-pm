@@ -642,14 +642,14 @@ def status(client: Client, message: Message) -> bool:
             text = f"{lang('action')}{lang('colon')}{lang('action_check')}\n"
 
             if cid in glovar.bad_ids["users"]:
-                text += (f"{lang('result')}{lang('colon')}{lang('result_no')}\n"
-                         f"{lang('suggestion')}{lang('colon')}{lang('suggestion_no')}\n")
+                text += (f"{lang('result')}{lang('colon')}{code(lang('result_yes'))}\n"
+                         f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_yes'))}\n")
             else:
-                text += (f"{lang('result')}{lang('colon')}{lang('result_yes')}\n"
-                         f"{lang('suggestion')}{lang('colon')}{lang('suggestion_yes')}\n")
+                text += (f"{lang('result')}{lang('colon')}{code(lang('result_no'))}\n"
+                         f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_no'))}\n")
 
         # Send the report message
-        thread(send_message, (client, hid, text, mid))
+        thread(send_message, (client, cid, text, mid))
 
         return True
     except Exception as e:
