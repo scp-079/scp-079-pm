@@ -620,6 +620,7 @@ def status(client: Client, message: Message) -> bool:
         mid = message.message_id
         command_type = get_command_type(message)
 
+        # Host
         if cid == hid:
             # Check the command
             if command_type:
@@ -644,7 +645,9 @@ def status(client: Client, message: Message) -> bool:
             # Admin info text
             if glovar.host_id < 0:
                 text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-        else:
+
+        # Guest
+        elif cid not in glovar.blacklist_ids and cid not in glovar.flood_ids["users"]:
             # Check the ban status
 
             # Text prefix
@@ -658,6 +661,10 @@ def status(client: Client, message: Message) -> bool:
             else:
                 text += (f"{lang('result')}{lang('colon')}{code(lang('result_no'))}\n"
                          f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_no'))}\n")
+
+        # Limited user:
+        else:
+            text = ""
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))
