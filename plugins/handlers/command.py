@@ -682,9 +682,7 @@ def unblock(client: Client, message: Message) -> bool:
         command_type = get_command_type(message)
 
         # Get the user's id
-        if uid:
-            unblock_user(client, uid, mid, aid)
-        elif command_type:
+        if not uid and command_type:
             uid = get_int(command_type)
 
         # Unblock the user

@@ -47,11 +47,12 @@ def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_limited'))}\n")
 
-        thread(send_message, (client, glovar.host_id, text, mid))
-
         # Admin info text
         if glovar.host_id < 0:
             text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, glovar.host_id, text, mid))
     except Exception as e:
         logger.warning(f"Forgive user error: {e}", exc_info=True)
 
@@ -71,11 +72,12 @@ def unblock_user(client: Client, uid: int, mid: int, aid: int) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")
 
-        thread(send_message, (client, glovar.host_id, text, mid))
-
         # Admin info text
         if glovar.host_id < 0:
             text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
+        # Send the report message
+        thread(send_message, (client, glovar.host_id, text, mid))
 
         return True
     except Exception as e:
