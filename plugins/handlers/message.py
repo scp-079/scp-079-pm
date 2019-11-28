@@ -65,7 +65,7 @@ def count(client: Client, message: Message) -> bool:
         # Send the report message to the host
         text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
-                f"{lang('limit_duration')}{lang('colon')}{code(str(glovar.flood_ban) + ' ' + lang('minutes'))}\n")
+                f"{lang('limit_duration')}{lang('colon')}{code(str(glovar.flood_ban) + ' ' + lang('seconds'))}\n")
 
         if glovar.host_id > 0:
             forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))
