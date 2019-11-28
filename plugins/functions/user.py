@@ -62,7 +62,7 @@ def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
 def unblock_user(client: Client, uid: int, mid: int, aid: int) -> bool:
     # Unblock a user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n")
 
         if uid in glovar.blacklist_ids:
