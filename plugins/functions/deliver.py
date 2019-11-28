@@ -223,7 +223,7 @@ def deliver_guest_message(client: Client, message: Message) -> bool:
             text += f"{lang('type')}{lang('colon')}{code(lang('status_edited'))}\n"
 
         forward_mid = result.message_id
-        thread(send_message, (client, hid, text, forward_mid))
+        send_message(client, hid, text, forward_mid)
 
         # Record the message's id
         add_id(cid, mid, "guest")

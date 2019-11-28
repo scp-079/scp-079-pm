@@ -44,6 +44,10 @@ def count(client: Client, message: Message) -> bool:
         uid = message.from_user.id
         mid = message.message_id
 
+        # Check limit status
+        if is_limited_user(None, message):
+            return True
+
         # Count user's messages
         counts = count_id(message)
 
