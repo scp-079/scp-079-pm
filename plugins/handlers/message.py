@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.etc import code, bold, general_link, lang, mention_id, thread
+from ..functions.etc import code, general_link, lang, mention_id, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, host_chat, is_limited_user, limited_user
 from ..functions.ids import add_id, count_id
@@ -40,6 +40,10 @@ def count(client: Client, message: Message) -> bool:
     # Count messages sent by guest
     glovar.locks["count"].acquire()
     try:
+        # Basic data
+        uid = message.from_user.id
+        mid = message.message_id
+
         # Count user's messages
         counts = count_id(message)
 
@@ -47,16 +51,16 @@ def count(client: Client, message: Message) -> bool:
         if counts < glovar.flood_limit:
             return True
 
-        uid = message.from_user.id
         add_id(uid, 0, "flood")
 
         # Send the report message to the guest
-        text = lang("description_flood").format(bold(glovar.flood_ban))
-        thread(send_message, (client, uid, text))
+        text = f"{lang('description')}{lang('colon')}{code(lang('description_flood').format(glovar.flood_ban))}\n"
+        thread(send_message, (client, uid, text, mid))
 
         # Send the report message to the host
         text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_limit'))}\n"
+                f"{lang('limit_duration')}{lang('colon')}{code(str(glovar.flood_ban) + lang('minutes'))}\n")
 
         if glovar.host_id > 0:
             forgive_link = general_link("/forgive", get_start(client, f"forgive_{uid}"))

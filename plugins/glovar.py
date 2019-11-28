@@ -176,7 +176,7 @@ lang: Dict[str, str] = {
     "action_direct": (zh_cn and "直接对话") or "Direct Chat",
     "action_forgive": (zh_cn and "解除限制") or "Forgive the User",
     "action_leave": (zh_cn and "退出对话") or "Leave Direct Chat",
-    "action_limit": (zh_cn and "自动限制用户") or "Limit the User Automatically",
+    "action_limit": (zh_cn and "自动限制用户发言") or "Automatically Restrict the User from Sending",
     "action_mention": (zh_cn and "查询用户") or "Mention User",
     "action_now": (zh_cn and "查看直接对话") or "Show Direct Chat",
     "action_recall": (zh_cn and "撤回消息") or "Recall Messages",
@@ -209,6 +209,7 @@ lang: Dict[str, str] = {
                                 "You can now send messages\n")),
     "description_reply": ((zh_cn and "如需回复某人，请回复某条包含该用户 ID 的汇报消息")
                           or "To reply to someone, please reply to a report message containing the user's ID"),
+    "limit_duration": (zh_cn and "限制时长") or "Restriction Duration",
     "list_blacklist": (zh_cn and "查看黑名单") or "List Blacklist",
     "list_flood": (zh_cn and "查看限制名单") or "List Flood",
     "mention_id": (zh_cn and "查询 ID") or "Mention ID",
@@ -255,7 +256,9 @@ lang: Dict[str, str] = {
                            "Then you will be unbanned in these groups")),
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
-    "user_status": (zh_cn and "对方状态") or "The User's Status"
+    "user_status": (zh_cn and "对方状态") or "The User's Status",
+    # Unit
+    "minutes": (zh_cn and "分钟") or "Minute(s)"
 }
 
 # Init
