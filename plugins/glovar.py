@@ -269,6 +269,7 @@ all_commands: List[str] = [
     "clear",
     "direct",
     "forgive",
+    "help",
     "leave",
     "list",
     "ls",

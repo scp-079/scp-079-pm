@@ -551,7 +551,7 @@ def recall(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start"], glovar.prefix)
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start", "help"], glovar.prefix)
                    & from_user)
 def start(client: Client, message: Message) -> bool:
     # Send welcome message
