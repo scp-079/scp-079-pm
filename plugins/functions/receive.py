@@ -97,7 +97,6 @@ def receive_remove_bad(data: dict) -> bool:
         # Remove bad user
         if the_type == "user":
             glovar.bad_ids["users"].discard(the_id)
-            save("user_ids")
 
         save("bad_ids")
 
