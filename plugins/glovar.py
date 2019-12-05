@@ -49,6 +49,7 @@ hide_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
+aio: Union[bool, str] = ""
 backup: Union[str, bool] = ""
 date_reset: str = ""
 flood_ban: int = 0
@@ -77,6 +78,8 @@ try:
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
+    aio = config["custom"].get("aio", aio)
+    aio = eval(aio)
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
     date_reset = config["custom"].get("date_reset", date_reset)
