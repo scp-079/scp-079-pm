@@ -230,18 +230,14 @@ lang: Dict[str, str] = {
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
     "start_guest": ((zh_cn and ("欢迎使用\n"
-                                "如您需要私聊 {}，您可以直接在此发送消息并等待回复\n"
-                                "若您也想拥有自己的私聊机器人，请参照 {} 建立\n"))
+                                "如您需要私聊 {}，您可以直接在此发送消息并等待回复"))
                     or ("Welcome\n"
                         "If you need a private chat with {}, "
-                        "you can send a message directly here and wait for a reply\n"
-                        "If you want to have your own private chat bot, please refer to {}\n")),
+                        "you can send a message directly here and wait for a reply")),
     "start_host": ((zh_cn and ("您的传送信使已准备就绪\n"
-                               "请勿停用机器人，否则无法收到他人的消息\n"
-                               "关注 {} 可及时获取更新信息\n"))
+                               "请勿停用机器人，否则无法收到他人的消息"))
                    or ("Your delivery messenger is ready\n"
-                       "Don't disable the bot, otherwise you won't be able to receive messages from others\n"
-                       "Follow {} for updates\n")),
+                       "Don't disable the bot, otherwise you won't be able to receive messages from others")),
     "status_delivered": (zh_cn and "已发送") or "Delivered",
     "status_edited": (zh_cn and "已编辑") or "Edited",
     "status_resent": (zh_cn and "已重新发送并撤回旧消息") or "Resent and Deleted the Old Message",
@@ -260,7 +256,6 @@ lang: Dict[str, str] = {
                            "Then you will be unbanned in these groups")),
     "this_page": (zh_cn and "此页面") or "This Page",
     "to_id": (zh_cn and "发送至 ID") or "Delivered to ID",
-    "user_status": (zh_cn and "对方状态") or "The User's Status",
     # Unit
     "seconds": (zh_cn and "秒") or "Second(s)"
 }
@@ -326,7 +321,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.0"
+version: str = "0.5.1"
 
 direct_chat: int = 0
 

@@ -578,8 +578,7 @@ def start(client: Client, message: Message) -> bool:
         else:
             # Host
             if cid == glovar.host_id:
-                link_text = general_link(lang("this_page"), "https://scp-079.org/pm/")
-                text = lang("start_host").format(link_text)
+                text = lang("start_host")
 
             # Guest
             else:
@@ -587,14 +586,11 @@ def start(client: Client, message: Message) -> bool:
                 if is_limited_user(None, message):
                     return True
 
-                link_text = general_link(lang("description"), "https://scp-079.org/pm/")
-                text = lang("start_guest").format(code(glovar.host_name), link_text)
+                text = lang("start_guest").format(code(glovar.host_name)) + "\n\n"
 
                 # Show status text
-                if glovar.status and glovar.host_id > 0:
-                    text += f"{lang('user_status')}{lang('colon')}{code(glovar.status)}\n"
-                elif glovar.status:
-                    text += "\n" + glovar.status
+                if glovar.status:
+                    text += glovar.status
 
             # Send the report message
             thread(send_message, (client, cid, text))
