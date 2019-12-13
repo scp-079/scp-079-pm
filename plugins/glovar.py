@@ -101,6 +101,7 @@ except Exception as e:
 # Check
 if (bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+        or aio not in {False, True}
         or backup not in {False, True}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or flood_ban == 0

@@ -593,7 +593,7 @@ def start(client: Client, message: Message) -> bool:
                     text += glovar.status
 
             # Send the report message
-            thread(send_message, (client, cid, text))
+            thread(send_message, (client, cid, text, mid))
 
         return True
     except Exception as e:
