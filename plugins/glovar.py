@@ -322,7 +322,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.1"
+version: str = "0.5.2"
 
 direct_chat: int = 0
 

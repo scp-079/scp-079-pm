@@ -51,6 +51,7 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
         # Check the date
         date = callback_query.message.date
         now = get_now()
+
         if hid < 0 and now - date > 86400:
             thread(edit_message_reply_markup, (client, hid, mid, None))
             return True

@@ -6,7 +6,8 @@ This project provides python code of a Telegram private chat forwarding bot.
 
 ## How to use
 
-See [this article](https://scp-079.org/pm/).
+- See [this article](https://scp-079.org/pm/) to build a bot by yourself
+- Discuss [group](https://t.me/SCP_079_CHAT)
 
 ## To Do List
 

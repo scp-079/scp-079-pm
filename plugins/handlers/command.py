@@ -709,15 +709,21 @@ def unblock(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
-                   & test_group & from_user)
+                   & test_group
+                   & from_user)
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:
+        # Basic data
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
+
+        # Generate the text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
+
+        # Send the report message
         thread(send_message, (client, cid, text, mid))
 
         return True
