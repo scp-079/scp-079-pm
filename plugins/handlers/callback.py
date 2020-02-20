@@ -76,6 +76,8 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Recall messages
         elif action == "recall":
+            the_message = callback_query.message
+            the_message.reply_to_message = callback_query.message
             _, cid = get_guest(callback_query.message)
 
             # Admin info text
