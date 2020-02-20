@@ -61,8 +61,10 @@ def interval_min_01() -> bool:
     # Execute very minute
     glovar.locks["guest"].acquire()
     try:
-        # Clear the user's flood status
+        # Basic data
         now = get_now()
+
+        # Clear the user's flood status
         for uid in list(glovar.flood_ids["users"]):
             if now - glovar.flood_ids["users"][uid] > glovar.flood_ban:
                 glovar.flood_ids["users"].pop(uid, 0)

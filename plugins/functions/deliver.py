@@ -362,6 +362,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                 else:
                     # Check to see if the bot knows which message is corresponding
                     origin_mid = glovar.reply_ids[reply_type].get(message_id, (None, None))[0]
+
                     if chat_id != glovar.host_id and origin_mid:
                         if message.text:
                             result = client.edit_message_text(
@@ -372,6 +373,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                         else:
                             # Check if the old message is replied to a message
                             old_message = get_message(client, chat_id, origin_mid)
+
                             if old_message and old_message.reply_to_message:
                                 rid = old_message.reply_to_message.message_id
                             else:
@@ -384,6 +386,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                                 as_copy=as_copy,
                                 reply_to_message_id=rid
                             )
+
                             if result:
                                 delete_message(client, chat_id, origin_mid)
 

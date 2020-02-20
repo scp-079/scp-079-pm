@@ -61,6 +61,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
     try:
         mids = list(mids)
         mids_list = [mids[i:i + 100] for i in range(0, len(mids), 100)]
+
         for mids in mids_list:
             try:
                 flood_wait = True
@@ -200,6 +201,7 @@ def get_start(client: Client, para: str) -> str:
     result = ""
     try:
         me = get_me(client)
+
         if me and me.username:
             result += f"https://t.me/{me.username}?start={para}"
     except Exception as e:
@@ -234,14 +236,17 @@ def resolve_username(client: Client, username: str, cache: bool = True) -> (str,
     peer_id = 0
     try:
         username = username.strip("@")
+
         if not username:
             return "", 0
 
         result = glovar.usernames.get(username)
+
         if result and cache:
             return result["peer_type"], result["peer_id"]
 
         result = resolve_peer(client, username)
+
         if result:
             if isinstance(result, InputPeerChannel):
                 peer_type = "channel"

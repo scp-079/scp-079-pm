@@ -50,6 +50,7 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
     try:
         mids = [mid]
         result = get_messages(client, gid, mids)
+
         if result:
             result = result[0]
     except Exception as e:

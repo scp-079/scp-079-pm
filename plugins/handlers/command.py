@@ -52,6 +52,7 @@ def block(client: Client, message: Message) -> bool:
         if cid:
             if cid not in glovar.blacklist_ids:
                 add_id(cid, 0, "blacklist")
+
                 # When add someone to blacklist, delete all messages in this guest's chat
                 if glovar.message_ids.get(cid) and glovar.message_ids[cid]["host"]:
                     thread(delete_messages, (client, cid, glovar.message_ids[cid]["host"]))
@@ -323,8 +324,10 @@ def mention(client: Client, message: Message) -> bool:
             uid = uid
         elif command_type:
             uid = get_int(command_type)
+
             if not uid:
                 the_type, the_id = resolve_username(client, command_type, False)
+
                 if the_type == "user":
                     uid = the_id
 
@@ -410,6 +413,7 @@ def page_command(client: Client, message: Message) -> bool:
         if the_type in {"previous", "next"} and r_message and r_message.from_user.is_self:
             callback_data_list = get_callback_data(r_message)
             i = (lambda x: 0 if x == "previous" else -1)(the_type)
+
             if callback_data_list and callback_data_list[i]["a"] == "list":
                 action_type = callback_data_list[i]["t"]
                 page = callback_data_list[i]["d"]
@@ -566,9 +570,11 @@ def start(client: Client, message: Message) -> bool:
         # Check the command
         if cid == glovar.host_id and command_type and "_" in command_type:
             para_list = command_type.split("_")
+
             if len(para_list) == 2:
                 para_action = para_list[0]
                 para_data = para_list[1]
+
                 if para_action == "unblock":
                     cid = get_int(para_data)
                     unblock_user(client, cid, mid, uid)
@@ -632,6 +638,7 @@ def status(client: Client, message: Message) -> bool:
                 save("status")
             else:
                 text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
+
                 if glovar.status:
                     text += f"{lang('status')}{lang('colon')}{code(glovar.status)}\n"
                 else:
