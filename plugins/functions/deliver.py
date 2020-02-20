@@ -249,6 +249,12 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
         else:
             aid = 0
 
+        # Admin info text
+        if aid:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Check the blacklist status
         if cid not in glovar.blacklist_ids:
             result = deliver_message(client, message, cid, mid, "h2g", aid)
@@ -257,7 +263,7 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
                 return False
 
             # Text
-            text = f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
+            text += f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
 
             if not result.edit_date:
                 if message.edit_date:
@@ -286,14 +292,10 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
             reply_id(mid, forward_mid, cid, "host")
             reply_id(forward_mid, mid, cid, "guest")
         else:
-            text = (f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
+            text += (f"{lang('to_id')}{lang('colon')}{code(cid)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
             markup = None
-
-        # Admin info text
-        if aid:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Send report message
         thread(send_message, (client, hid, text, mid, markup))
@@ -308,12 +310,16 @@ def deliver_host_message(client: Client, message: Message, cid: int) -> bool:
 def deliver_fail(client: Client, cid: int, mid: int, aid: int) -> bool:
     # Send a report message when deliver failed
     try:
-        text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                f"{lang('reason')}{lang('colon')}{code(lang('reason_stopped'))}\n")
-
+        # Admin info text
         if aid:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
 
+        text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                 f"{lang('reason')}{lang('colon')}{code(lang('reason_stopped'))}\n")
+
+        # Send report message
         thread(send_message, (client, cid, text, mid))
 
         return True
@@ -432,7 +438,13 @@ def get_guest(message: Message) -> (int, int):
 
         # Else check if the replied message is a valid report message
         elif r_message.from_user.is_self and f"ID{lang('colon')}" in message_text:
-            cid = get_int(message_text.partition("\n")[0].split(f"ID{lang('colon')}")[1])
+            prefix_list = ["user_id", "chat_id", "mention_id", "to_id"]
+            text_list = message_text.split("\n")
+
+            for text in text_list:
+                if any(text.startswith(lang(prefix)) for prefix in prefix_list):
+                    cid = get_int(text.split(lang('colon'))[1])
+                    break
     except Exception as e:
         logger.warning(f"Get guest error: {e}", exc_info=True)
 
@@ -444,6 +456,10 @@ def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboard
     text = ""
     markup = None
     try:
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+
         # Action text
         text += f"{lang('action')}{lang('colon')}{code(lang(f'list_{action_type}'))}\n"
 
@@ -465,10 +481,6 @@ def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboard
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
     except Exception as e:
         logger.warning(f"List page ids error: {e}", exc_info=True)
 

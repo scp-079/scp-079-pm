@@ -32,8 +32,14 @@ logger = logging.getLogger(__name__)
 def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
     # Forgive the flood user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n")
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
+        text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                 f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n")
 
         if uid in glovar.flood_ids["users"]:
             # Remove the flood status
@@ -48,10 +54,6 @@ def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_limited'))}\n")
 
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-
         # Send the report message
         thread(send_message, (client, glovar.host_id, text, mid))
     except Exception as e:
@@ -63,8 +65,14 @@ def forgive_user(client: Client, uid: int, mid: int, aid: int) -> bool:
 def unblock_user(client: Client, uid: int, mid: int, aid: int) -> bool:
     # Unblock a user
     try:
-        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n")
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
+        text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                 f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n")
 
         if uid in glovar.blacklist_ids:
             remove_id(uid, 0, "blacklist")
@@ -72,10 +80,6 @@ def unblock_user(client: Client, uid: int, mid: int, aid: int) -> bool:
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_not_blocked'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Send the report message
         thread(send_message, (client, glovar.host_id, text, mid))

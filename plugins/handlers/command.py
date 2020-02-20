@@ -48,6 +48,12 @@ def block(client: Client, message: Message) -> bool:
         _, cid = get_guest(message)
         cid = cid or get_int(get_command_type(message))
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Block the user
         if cid:
             if cid not in glovar.blacklist_ids:
@@ -61,26 +67,22 @@ def block(client: Client, message: Message) -> bool:
                     thread(delete_messages, (client, cid, glovar.message_ids[cid]["guest"]))
 
                 remove_id(cid, mid, "chat_all")
-                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                        f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
+                text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
             else:
-                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                        f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
+                text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blocked'))}\n")
 
             if glovar.host_id > 0:
                 unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
                 text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
         else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_block'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -104,10 +106,16 @@ def clear(client: Client, message: Message) -> bool:
         mid = message.message_id
         command_type = get_command_type(message)
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Check the command
         if not command_type:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
-                    f"{lang('description')}{lang('colon')}{code(lang('description_choose_clear'))}\n")
+            text += (f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
+                     f"{lang('description')}{lang('colon')}{code(lang('description_choose_clear'))}\n")
             data_blacklist = button_data("clear", "blacklist", 0)
             data_flood = button_data("clear", "flood", 0)
             data_message = button_data("clear", "message", 0)
@@ -137,17 +145,13 @@ def clear(client: Client, message: Message) -> bool:
                 ]
             )
         elif command_type in {"blacklist", "messages"}:
-            text = clear_data(command_type)
+            text += clear_data(command_type)
             markup = None
         else:
-            text = (f"{lang('action')}{lang('colon')}{lang('clear')}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+            text += (f"{lang('action')}{lang('colon')}{lang('clear')}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Send the report message
         thread(send_message, (client, hid, text, mid, markup))
@@ -171,31 +175,33 @@ def direct_chat(client: Client, message: Message) -> bool:
         mid = message.message_id
         _, cid = get_guest(message)
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Assign the direct chat
         if cid:
             if cid not in glovar.blacklist_ids:
                 glovar.direct_chat = cid
-                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                        f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
-                        f"{lang('action_leave')}{lang('colon')}/leave\n")
+                text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                         f"{lang('action_leave')}{lang('colon')}/leave\n")
             else:
-                text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                        f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
-                        f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                        f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
+                text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                         f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_blacklist'))}\n")
 
                 if glovar.host_id > 0:
                     unblock_link = general_link("/unblock", get_start(client, f"unblock_{cid}"))
                     text += f"{lang('action_unblock')}{lang('colon')}{unblock_link}\n"
         else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_direct'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -228,12 +234,15 @@ def forgive(client: Client, message: Message) -> bool:
         if uid:
             forgive_user(client, uid, mid, aid)
         else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             # Admin info text
             if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
+
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_forgive'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
             # Send the report message
             thread(send_message, (client, hid, text, mid))
@@ -257,19 +266,21 @@ def leave_chat(client: Client, message: Message) -> bool:
         cid = glovar.direct_chat
         mid = message.message_id
 
-        if cid:
-            glovar.direct_chat = 0
-            text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
-        else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
-
         # Admin info text
         if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
+        if cid:
+            glovar.direct_chat = 0
+            text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                     f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
+        else:
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_leave'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -319,6 +330,12 @@ def mention(client: Client, message: Message) -> bool:
         _, uid = get_guest(message)
         command_type = get_command_type(message)
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Get the user's ID
         if uid:
             uid = uid
@@ -333,17 +350,13 @@ def mention(client: Client, message: Message) -> bool:
 
         # Mention the user
         if uid:
-            text = (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
+            text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n")
         else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_mention'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -367,20 +380,22 @@ def now_chat(client: Client, message: Message) -> bool:
         mid = message.message_id
         cid = glovar.direct_chat
 
-        # Check direct chat
-        if cid:
-            text = (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
-                    f"{lang('leave_chat')}{lang('colon')}/leave\n")
-        else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
-
         # Admin info text
         if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
+        # Check direct chat
+        if cid:
+            text += (f"{lang('user_id')}{lang('colon')}{code(cid)}\n"
+                     f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeed'))}\n"
+                     f"{lang('leave_chat')}{lang('colon')}/leave\n")
+        else:
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_now'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('reason_no_direct'))}\n")
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -406,8 +421,14 @@ def page_command(client: Client, message: Message) -> bool:
         r_message = message.reply_to_message
         rid = r_message and r_message.message_id
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Generate the report message's text
-        text = f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n"
+        text += f"{lang('action')}{lang('colon')}{code(lang('action_page'))}\n"
 
         # Proceed
         if the_type in {"previous", "next"} and r_message and r_message.from_user.is_self:
@@ -426,10 +447,6 @@ def page_command(client: Client, message: Message) -> bool:
         else:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Send the report message
         thread(send_message, (client, hid, text, mid))
@@ -471,11 +488,17 @@ def recall(client: Client, message: Message) -> bool:
         recall_mid, cid = get_guest(message)
         command_type = get_command_type(message)
 
+        # Admin info text
+        if glovar.host_id < 0:
+            text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+        else:
+            text = ""
+
         # Check the chat ID
         if cid:
             # Base text
-            text = (f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_recall'))}\n")
+            text += (f"{lang('chat_id')}{lang('colon')}{code(cid)}\n"
+                     f"{lang('action')}{lang('colon')}{code(lang('action_recall'))}\n")
 
             # Check the command
             if not command_type:
@@ -521,29 +544,19 @@ def recall(client: Client, message: Message) -> bool:
                         text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                                  f"{lang('reason')}{lang('colon')}{code(lang('command_origin'))}\n")
                         markup = None
-
-                        # Admin info text
-                        if glovar.host_id < 0:
-                            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-
                         thread(send_message, (client, hid, text, mid, markup))
-
                         return True
 
-                text = recall_messages(client, cid, command_type, recall_mid)
+                text += recall_messages(client, cid, command_type, recall_mid)
                 markup = None
             else:
                 text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                          f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
                 markup = None
         else:
-            text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
             markup = None
-
-        # Admin info text
-        if glovar.host_id < 0:
-            text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Send the report message
         thread(send_message, (client, hid, text, mid, markup))
@@ -624,30 +637,32 @@ def status(client: Client, message: Message) -> bool:
 
         # Host
         if cid == hid:
+            # Admin info text
+            if glovar.host_id < 0:
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
+
             # Check the command
             if command_type:
                 if command_type == "off":
                     glovar.status = ""
-                    text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
-                            f"{lang('status')}{lang('colon')}{code(lang('reason_none'))}\n")
+                    text += (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                             f"{lang('status')}{lang('colon')}{code(lang('reason_none'))}\n")
                 else:
                     glovar.status = command_type
-                    text = (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
-                            f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
+                    text += (f"{lang('action')}{lang('colon')}{code(lang('action_status_set'))}\n"
+                             f"{lang('status')}{lang('colon')}{code(glovar.status)}\n")
 
                 save("status")
             else:
-                text = f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
+                text += f"{lang('action')}{lang('colon')}{code(lang('action_status_show'))}\n"
 
                 if glovar.status:
                     text += f"{lang('status')}{lang('colon')}{code(glovar.status)}\n"
                 else:
                     text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                              f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
-
-            # Admin info text
-            if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
 
         # Guest
         else:
@@ -697,13 +712,15 @@ def unblock(client: Client, message: Message) -> bool:
         if uid:
             unblock_user(client, uid, mid, aid)
         else:
-            text = (f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                    f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
-
             # Admin info text
             if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
+
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_unblock'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
             # Send the report message
             thread(send_message, (client, hid, text, mid))

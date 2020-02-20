@@ -101,16 +101,18 @@ def deliver_to_guest(client: Client, message: Message) -> bool:
         elif glovar.direct_chat:
             thread(deliver_host_message, (client, message, glovar.direct_chat))
         else:
-            if not message.forward_date:
-                text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                        f"{lang('description')}{lang('colon')}{code(lang('description_reply'))}\n")
-            else:
-                text = (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                        f"{lang('description')}{lang('colon')}{code(lang('description_direct'))}\n")
-
             # Admin info text
             if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
+
+            if not message.forward_date:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_reply'))}\n")
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_direct'))}\n")
 
             # Send the report message
             thread(send_message, (client, hid, text, mid))

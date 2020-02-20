@@ -22,8 +22,8 @@ import json
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.etc import get_int, get_now, lang, mention_id, thread
-from ..functions.deliver import clear_data, list_page_ids, recall_messages
+from ..functions.etc import get_now, lang, mention_id, thread
+from ..functions.deliver import clear_data, get_guest, list_page_ids, recall_messages
 from ..functions.telegram import answer_callback, edit_message_reply_markup, edit_message_text
 
 # Enable logging
@@ -58,12 +58,13 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Clear all stored data
         if action == "clear":
-            text = clear_data(callback_data["t"])
-
             # Admin info text
             if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
 
+            text += clear_data(callback_data["t"])
             markup = None
             edit_message_text(client, hid, mid, text, markup)
 
@@ -75,13 +76,15 @@ def answer(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Recall messages
         elif action == "recall":
-            cid = get_int(callback_query.message.text.partition("\n")[0].partition("ID")[2][1:])
-            text = recall_messages(client, cid, callback_data["t"], callback_data["d"])
+            _, cid = get_guest(callback_query.message)
 
             # Admin info text
             if glovar.host_id < 0:
-                text += f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                text = f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+            else:
+                text = ""
 
+            text += recall_messages(client, cid, callback_data["t"], callback_data["d"])
             markup = None
             edit_message_text(client, hid, mid, text, markup)
 
