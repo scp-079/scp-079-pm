@@ -1,5 +1,5 @@
 # SCP-079-PM - Everyone can have their own Telegram private chat bot
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-PM.
 #
@@ -68,15 +68,18 @@ password: str = ""
 try:
     config = RawConfigParser()
     config.read("config.ini")
+
     # [basic]
     bot_token = config["basic"].get("bot_token", bot_token)
     prefix = list(config["basic"].get("prefix", prefix_str))
+
     # [channels]
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+
     # [custom]
     aio = config["custom"].get("aio", aio)
     aio = eval(aio)
@@ -93,6 +96,7 @@ try:
     project_name = config["custom"].get("project_name", project_name)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
+
     # [encrypt]
     password = config["encrypt"].get("password", password)
 except Exception as e:
@@ -246,10 +250,13 @@ lang: Dict[str, str] = {
     "suggestion_no": ((zh_cn and "您可以咨询您被封禁群组的管理员，令其解禁")
                       or "You can ask the admin of your banned group to unban you"),
     "suggestion_yes": ((zh_cn and ("您可以在此留言说明情况，之后等待申诉处理结果\n\n"
+                                   "注意：本项目只对误封进行解除，如您确实有 spam 行为，本项目将不受理您的申诉\n\n"
                                    "如您的申诉被项目组拒绝，您还可以联系受影响群组的管理员，令其在群内发送命令：\n\n"
                                    "/white {}\n\n"
                                    "即可将您在群组中单独解封"))
                        or ("You can leave messages here and wait for the appeal processing result\n\n"
+                           "Note: We only lift the wrong ban. "
+                           "If you do spam, we will not accept your appeal\n\n"
                            "If your appeal is rejected by the project team, "
                            "you can also contact the admins of the affected groups "
                            "and let them send commands within the groups:\n\n"
@@ -322,7 +329,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.2"
+version: str = "0.5.3"
 
 direct_chat: int = 0
 
@@ -378,6 +385,7 @@ status: str = ""
 # Load data
 file_list: List[str] = ["bad_ids", "blacklist_ids", "message_ids", "reply_ids",
                         "status"]
+
 for file in file_list:
     try:
         try:
@@ -389,6 +397,7 @@ for file in file_list:
                     pickle.dump(eval(f"{file}"), f)
         except Exception as e:
             logger.error(f"Load data {file} error: {e}", exc_info=True)
+
             with open(f"data/.{file}", 'rb') as f:
                 locals()[f"{file}"] = pickle.load(f)
     except Exception as e:
@@ -396,6 +405,6 @@ for file in file_list:
         raise SystemExit("[DATA CORRUPTION]")
 
 # Start program
-copyright_text = (f"SCP-079-{sender} v{version}, Copyright (C) 2019 SCP-079 <https://scp-079.org>\n"
+copyright_text = (f"SCP-079-{sender} v{version}, Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>\n"
                   "Licensed under the terms of the GNU General Public License v3 or later (GPLv3+)\n")
 print(copyright_text)

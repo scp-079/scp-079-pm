@@ -1,5 +1,5 @@
 # SCP-079-PM - Everyone can have their own Telegram private chat bot
-# Copyright (C) 2019 SCP-079 <https://scp-079.org>
+# Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-PM.
 #
@@ -244,7 +244,7 @@ def forgive(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.command(["leave"], glovar.prefix)
+@Client.on_message(Filters.incoming & (Filters.command(["leave"], glovar.prefix) | Filters.regex("^/leave@"))
                    & host_chat
                    & from_user)
 def leave_chat(client: Client, message: Message) -> bool:
