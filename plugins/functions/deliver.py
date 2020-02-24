@@ -467,7 +467,7 @@ def list_page_ids(action_type: str, page: int, aid: int) -> (str, InlineKeyboard
         if action_type in {"blacklist", "flood"}:
             # Generate the page
             if action_type == "blacklist":
-                the_list = glovar.blacklist_ids
+                the_list = list(glovar.blacklist_ids)
             else:
                 the_list = list(glovar.flood_ids["users"])
 
