@@ -10,19 +10,6 @@ This project provides python code of a Telegram private chat forwarding bot.
 - [README](https://github.com/scp-079/scp-079-readme) of the SCP-079 Project
 - Discuss [group](https://t.me/SCP_079_CHAT)
 
-## To Do List
-
-- [x] Complete basic functions
-- [x] Recall single message
-- [x] Error report
-- [x] Recall all messages
-- [x] Add blacklist feature
-- [x] Anti-flood
-- [x] Add reply-to feature
-- [x] Chat directly with someone
-- [x] Support editing message text
-- [x] Clear stored ids every month
-
 ## Requirements
 
 - Python 3.6 or higher
