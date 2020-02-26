@@ -17,12 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional
 
-from pyrogram import Client, Message
+from pyrogram import Client
 
 from .etc import thread
-from .telegram import delete_messages, get_messages
+from .telegram import delete_messages
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -42,18 +41,3 @@ def delete_message(client: Client, gid: int, mid: int) -> bool:
         logger.warning(f"Delete message error: {e}", exc_info=True)
 
     return False
-
-
-def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
-    # Get a single message
-    result = None
-    try:
-        mids = [mid]
-        result = get_messages(client, gid, mids)
-
-        if result:
-            result = result[0]
-    except Exception as e:
-        logger.warning(f"Get message error: {e}", exc_info=True)
-
-    return result

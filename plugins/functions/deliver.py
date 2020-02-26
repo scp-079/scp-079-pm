@@ -27,10 +27,10 @@ from .. import glovar
 from .etc import button_data, code, code_block, get_full_name,  get_int, get_list_page, get_text, lang
 from .etc import mention_id, mention_name, thread, wait_flood
 from .file import save
-from .group import delete_message, get_message
+from .group import delete_message
 from .ids import init_id, remove_id
 from .ids import add_id, reply_id
-from .telegram import delete_messages, send_message
+from .telegram import delete_messages, get_messages, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -378,7 +378,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                             )
                         else:
                             # Check if the old message is replied to a message
-                            old_message = get_message(client, chat_id, origin_mid)
+                            old_message = get_messages(client, chat_id, origin_mid)
 
                             if old_message and old_message.reply_to_message:
                                 rid = old_message.reply_to_message.message_id

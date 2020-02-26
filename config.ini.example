@@ -26,17 +26,17 @@ hide_channel_id = 0
 test_group_id = 0
 
 [custom]
-aio = [DATA EXPUNGED]
+aio = False
 backup = False
-date_reset = [DATA EXPUNGED]
-flood_ban = [DATA EXPUNGED]
-flood_limit = [DATA EXPUNGED]
-flood_time = [DATA EXPUNGED]
+date_reset = 1st mon
+flood_ban = 5
+flood_limit = 5
+flood_time = 5
 host_id = [DATA EXPUNGED]
 host_name = [DATA EXPUNGED]
 per_page = 10
-project_link = [DATA EXPUNGED]
-project_name = [DATA EXPUNGED]
+project_link = https://scp-079.org/pm/
+project_name = SCP-079-PM
 zh_cn = [DATA EXPUNGED]
 
 [encrypt]
