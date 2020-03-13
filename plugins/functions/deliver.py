@@ -409,7 +409,7 @@ def deliver_message(client: Client, message: Message, chat_id: int, message_id: 
                 wait_flood(e)
             except UserIsBlocked:
                 # If the other user blocked the bot, send a failure report to who sent the message
-                deliver_fail(client, message.from_user.id, message_id, aid)
+                deliver_fail(client, chat_id, message_id, aid)
                 return None
             except Exception as e:
                 logger.warning(f"Forward message error: {e}", exc_info=True)
