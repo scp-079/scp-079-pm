@@ -234,11 +234,11 @@ lang: Dict[str, str] = {
     "reason_recall": (zh_cn and "没有可撤回的消息") or "No Messages to Recall",
     "reason_stopped": (zh_cn and "对方已停用机器人") or "The User Stopped the Bot",
     "recall": (zh_cn and "撤回") or "Recall",
-    "start_guest": ((zh_cn and ("欢迎使用\n\n"
-                                "如您需要私聊 {}，您可以直接在此发送消息并等待回复"))
-                    or ("Welcome\n\n"
+    "start_guest": ((zh_cn and ("欢迎使用！\n\n"
+                                "如您需要私聊 {}，您可以直接在此发送消息并等待回复："))
+                    or ("Welcome!\n\n"
                         "If you need a private chat with {}, "
-                        "you can send a message directly here and wait for a reply")),
+                        "you can send a message directly here and wait for a reply:")),
     "start_host": ((zh_cn and ("您的传送信使已准备就绪\n\n"
                                "请勿停用机器人，否则无法收到他人的消息"))
                    or ("Your delivery messenger is ready\n\n"
