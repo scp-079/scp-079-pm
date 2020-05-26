@@ -23,7 +23,8 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.etc import code, general_link, lang, mention_id, thread
 from ..functions.deliver import deliver_guest_message, deliver_host_message, get_guest, send_message
-from ..functions.filters import exchange_channel, from_user, hide_channel, host_chat, is_limited_user, limited_user
+from ..functions.filters import aio, exchange_channel, from_user, hide_channel, host_chat, is_limited_user
+from ..functions.filters import limited_user
 from ..functions.ids import add_id, count_id
 from ..functions.receive import receive_add_bad, receive_remove_bad, receive_rollback, receive_text_data
 from ..functions.timers import backup_files
@@ -193,7 +194,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message((Filters.incoming or glovar.aio) & Filters.channel
+@Client.on_message((Filters.incoming | aio) & Filters.channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
