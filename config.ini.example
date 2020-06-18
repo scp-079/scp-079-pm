@@ -37,7 +37,7 @@ host_name = [DATA EXPUNGED]
 per_page = 10
 project_link = https://scp-079.org/pm/
 project_name = SCP-079-PM
-zh_cn = [DATA EXPUNGED]
+zh_cn = True
 
 [encrypt]
 password = [DATA EXPUNGED]
