@@ -74,11 +74,11 @@ try:
     prefix = list(config["basic"].get("prefix", prefix_str))
 
     # [channels]
-    critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
-    debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
-    exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
-    hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
-    test_group_id = int(config["channels"].get("test_group_id", test_group_id))
+    critical_channel_id = int(config["channels"].get("critical_channel_id", str(critical_channel_id)))
+    debug_channel_id = int(config["channels"].get("debug_channel_id", str(debug_channel_id)))
+    exchange_channel_id = int(config["channels"].get("exchange_channel_id", str(exchange_channel_id)))
+    hide_channel_id = int(config["channels"].get("hide_channel_id", str(hide_channel_id)))
+    test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
 
     # [custom]
     aio = config["custom"].get("aio", aio)
@@ -86,12 +86,12 @@ try:
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
     date_reset = config["custom"].get("date_reset", date_reset)
-    flood_ban = int(config["custom"].get("flood_ban", flood_ban))
-    flood_limit = int(config["custom"].get("flood_limit", flood_limit))
-    flood_time = int(config["custom"].get("flood_time", flood_time))
-    host_id = int(config["custom"].get("host_id", host_id))
+    flood_ban = int(config["custom"].get("flood_ban", str(flood_ban)))
+    flood_limit = int(config["custom"].get("flood_limit", str(flood_limit)))
+    flood_time = int(config["custom"].get("flood_time", str(flood_time)))
+    host_id = int(config["custom"].get("host_id", str(host_id)))
     host_name = config["custom"].get("host_name", host_name)
-    per_page = int(config["custom"].get("per_page", per_page))
+    per_page = int(config["custom"].get("per_page", str(per_page)))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     zh_cn = config["custom"].get("zh_cn", zh_cn)
@@ -309,8 +309,8 @@ locks: Dict[str, Lock] = {
     "receive": Lock()
 }
 
-media_group_ids: Set[int] = set()
-# media_group_ids = {12556677123456789}
+media_group_ids: Set[str] = set()
+# media_group_ids = {"12556677123456789"}
 
 sender: str = ""
 
