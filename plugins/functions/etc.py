@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from datetime import datetime
 from html import escape
 from json import dumps, loads
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread
-from time import sleep, time
+from time import localtime, sleep, strftime, time
 from typing import Any, Callable, List, Optional, Union
 
 from pyrogram import InlineKeyboardButton, InlineKeyboardMarkup, Message, User
@@ -255,6 +256,21 @@ def get_now() -> int:
         result = int(time())
     except Exception as e:
         logger.warning(f"Get now error: {e}", exc_info=True)
+
+    return result
+
+
+def get_readable_time(secs: int = 0, the_format: str = "%Y%m%d%H%M%S") -> str:
+    # Get a readable time string
+    result = ""
+
+    try:
+        if secs:
+            result = datetime.utcfromtimestamp(secs).strftime(the_format)
+        else:
+            result = strftime(the_format, localtime())
+    except Exception as e:
+        logger.warning(f"Get readable time error: {e}", exc_info=True)
 
     return result
 
