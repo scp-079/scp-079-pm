@@ -758,7 +758,7 @@ def version(client: Client, message: Message) -> bool:
         git_date = run("git log -1 --format='%at'", stdout=PIPE, shell=True).stdout.decode()
         git_date = get_readable_time(get_int(git_date), "%Y/%m/%d %H:%M:%S")
         git_hash = run("git rev-parse --short HEAD", stdout=PIPE, shell=True).stdout.decode()
-        get_hash_link = f"https://github.com/scp-079/scp-079-{glovar.sender.lower()}/commit/{git_hash}"
+        get_hash_link = f"https://github.com/scp-079/scp-079-pm/commit/{git_hash}"    # Special
         command_date = get_readable_time(message.date, "%Y/%m/%d %H:%M:%S")
 
         # Generate the text
